@@ -1,0 +1,65 @@
+linters-settings:
+  govet:
+    check-shadowing: false
+  gocyclo:
+    min-complexity: 20 # 30 is the default value, but preferably should be set to lower value
+  unused:
+    check-exported: true # Should be set as true only for the microservices, and as false for any repositories where the code is supposed to be exported (models, libraries, etc.)
+  gocritic:
+    color: true
+    shorterErrLocation: true
+    enabled-tags:
+      - performance
+      - style
+      - experimental
+    disabled-checks:
+      - hugeParam
+  gomnd:
+    settings:
+      mnd:
+        ignored-numbers: "100,10,64" # Number 100 is commonly used in operations with percentages, and is is usually clearer to leave 100 as a 'magic' number
+        # Numbers 10 and 64 used in strconv.ParseInt
+
+linters:
+  enable:
+    - nilerr
+    - importas
+    - revive
+    - godot
+    - gci
+    - exhaustive
+    - megacheck
+    - unconvert
+    - goconst
+    - misspell
+    - unparam
+    - gofmt
+    - goimports
+    - gocyclo
+    - gocritic
+    - govet
+    - unused
+    - prealloc
+    - gosimple
+    - bodyclose
+    - whitespace # Supports --fix on golangci-tool, that will automatically fix all of the issues reported by this linter
+    - gocognit
+
+issues:
+  exclude-use-default: false
+  max-same-issues: 10
+  exclude-rules:
+    - path: _test\.go # Unused linter does not work correctly with tests in 'check-exported' mode, so they have to be manually excluded
+      linters:
+        - unused
+        - goconst
+        - gomnd
+    - path: tests/
+      linters:
+        - unused
+        - goconst
+        - gomnd
+    - path: utests/
+      linters:
+        - unused
+        - goconst
