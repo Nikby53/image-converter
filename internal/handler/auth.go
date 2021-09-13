@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/Nikby53/image-converter/internal/errors"
-
 	"github.com/Nikby53/image-converter/internal/models"
 )
 
@@ -28,7 +27,7 @@ type userID struct {
 	ID int `json:"id"`
 }
 
-func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
+func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var input Registration
 
@@ -76,7 +75,7 @@ type tokenJWT struct {
 	Token string `json:"token"`
 }
 
-func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
+func (s *Server) signIn(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var input signInInput
 

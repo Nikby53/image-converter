@@ -5,18 +5,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/service/mocks"
-
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler_signUp(t *testing.T) {
-
 	type mockBehavior func(r *mocks.MockAuthorization, user models.User)
 
 	tests := []struct {
@@ -62,7 +59,7 @@ func TestHandler_signUp(t *testing.T) {
 			services := &service.Service{Authorization: repo}
 			handler := NewServer(services)
 			r := mux.NewRouter()
-			r.HandleFunc("/sign-up", handler.SignUp).Methods("POST")
+			r.HandleFunc("/sign-up", handler.signUp).Methods("POST")
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/sign-up", bytes.NewBufferString(tt.inputBody))
 			r.ServeHTTP(w, req)

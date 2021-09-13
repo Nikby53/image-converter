@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-
-	"github.com/Nikby53/image-converter/internal/repository"
-
 	"github.com/Nikby53/image-converter/internal/models"
+	"github.com/Nikby53/image-converter/internal/repository"
+	"github.com/dgrijalva/jwt-go"
 )
 
 const (
@@ -18,23 +16,28 @@ const (
 	tokenTTL   = 4 * time.Hour
 )
 
-type tokenClaims struct {
-	jwt.StandardClaims
-	Id int `json:"id"`
-}
-
+// AuthService struct is for initialize repository.
 type AuthService struct {
 	repo repository.Authorization
 }
 
+// NewAuthService is constructor of AuthService.
 func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
+
+type tokenClaims struct {
+	jwt.StandardClaims
+	ID int `json:"id"`
+}
+
+// CreateUser method creates user.
 func (s *AuthService) CreateUser(user models.User) (id int, err error) {
 	user.Password = generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
 }
 
+// GenerateToken generates jwt token for user.
 func (s *AuthService) GenerateToken(email, password string) (string, error) {
 	users, err := s.repo.GetUser(email, generatePasswordHash(password))
 	if err != nil {

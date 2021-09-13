@@ -14,7 +14,8 @@ type Repository struct {
 	Authorization
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
+// New is the Repository constructor.
+func New(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 	}
