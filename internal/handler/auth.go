@@ -2,11 +2,18 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
-	"github.com/Nikby53/image-converter/internal/errors"
 	"github.com/Nikby53/image-converter/internal/models"
+)
+
+var (
+	// ErrEmailEmpty error is for checking email.
+	errEmailEmpty = errors.New("email should be not empty")
+	// ErrPasswordEmpty error is for checking password.
+	errPasswordEmpty = errors.New("password should be not empty")
 )
 
 type Registration struct {
@@ -15,10 +22,10 @@ type Registration struct {
 
 func (r *Registration) ValidateSignUp(req *http.Request) error {
 	if r.Email == "" {
-		return errors.ErrEmailEmpty
+		return errEmailEmpty
 	}
 	if r.Password == "" {
-		return errors.ErrPasswordEmpty
+		return errPasswordEmpty
 	}
 	return nil
 }
@@ -63,10 +70,10 @@ type signInInput struct {
 
 func (r *signInInput) ValidateSignIn(req *http.Request) error {
 	if r.Email == "" {
-		return errors.ErrEmailEmpty
+		return errEmailEmpty
 	}
 	if r.Password == "" {
-		return errors.ErrPasswordEmpty
+		return errPasswordEmpty
 	}
 	return nil
 }
@@ -104,10 +111,6 @@ func (s *Server) signIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-}
-
-func (s *Server) logout(w http.ResponseWriter, r *http.Request) {
-
 }
 
 func (s *Server) converter(w http.ResponseWriter, r *http.Request) {

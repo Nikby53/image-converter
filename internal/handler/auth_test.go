@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/Nikby53/image-converter/internal/models"
-	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/service/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
@@ -54,9 +53,8 @@ func TestHandler_signUp(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			repo := mocks.NewMockAuthorization(c)
-			tt.mockBehavior(repo, tt.inputUser)
-			services := &service.Service{Authorization: repo}
+			services := mocks.NewMockAuthorization(c)
+			tt.mockBehavior(services, tt.inputUser)
 			handler := NewServer(services)
 			r := mux.NewRouter()
 			r.HandleFunc("/sign-up", handler.signUp).Methods("POST")

@@ -13,12 +13,12 @@ type Authorization interface {
 
 // Service contains interfaces.
 type Service struct {
-	Authorization
+	repo repository.AuthorizationRepository
 }
 
 // New is Service constructor.
-func New(repos *repository.Repository) *Service {
+func New(repos repository.AuthorizationRepository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
+		repo: repos,
 	}
 }
