@@ -9,6 +9,7 @@ import (
 type Authorization interface {
 	CreateUser(user models.User) (int, error)
 	GenerateToken(email, password string) (string, error)
+	ParseToken(accessToken string) (int, error)
 }
 
 // Service contains interfaces.

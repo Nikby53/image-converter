@@ -13,6 +13,10 @@ type MockAuthorization struct {
 	recorder *MockAuthorizationMockRecorder
 }
 
+func (m *MockAuthorization) ParseToken(accessToken string) (int, error) {
+	return 0, nil
+}
+
 // MockAuthorizationMockRecorder is the mock recorder for MockAuthorization.
 type MockAuthorizationMockRecorder struct {
 	mock *MockAuthorization
