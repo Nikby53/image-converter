@@ -10,6 +10,10 @@ type AuthorizationRepository interface {
 	GetUser(email, password string) (models.User, error)
 }
 
+type ImagesRepository interface {
+	UploadImage(image models.Images) (string, error)
+}
+
 type Repository struct {
 	db *sqlx.DB
 }

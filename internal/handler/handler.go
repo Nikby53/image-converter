@@ -19,8 +19,10 @@ func NewServer(service service.Authorization) *Server {
 	}
 	s.router.HandleFunc("/sign-up", s.signUp).Methods("POST")
 	s.router.HandleFunc("/sign-in", s.signIn).Methods("POST")
-	s.router.HandleFunc("/request", s.request).Methods("GET")
-	s.router.HandleFunc("/converter", s.converter).Methods("POST")
+	api := s.router.NewRoute().Subrouter()
+	api.Use(s.UserIdentity)
+	api.HandleFunc("/requestHistory", s.requestHistory).Methods("GET")
+	api.HandleFunc("/convert", s.convert).Methods("POST")
 	return &s
 }
 

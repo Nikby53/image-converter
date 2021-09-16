@@ -12,14 +12,28 @@ type Authorization interface {
 	ParseToken(accessToken string) (int, error)
 }
 
+type Images interface {
+	UploadImage(image models.Images) (string, error)
+}
+
 // Service contains interfaces.
 type Service struct {
 	repo repository.AuthorizationRepository
+}
+
+type ImagesService struct {
+	repoImage repository.ImagesRepository
 }
 
 // New is Service constructor.
 func New(repos repository.AuthorizationRepository) *Service {
 	return &Service{
 		repo: repos,
+	}
+}
+
+func NewImages(reposImages repository.ImagesRepository) *ImagesService {
+	return &ImagesService{
+		repoImage: reposImages,
 	}
 }

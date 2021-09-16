@@ -112,11 +112,3 @@ func (s *Server) signIn(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
-
-func (s *Server) converter(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (s *Server) request(w http.ResponseWriter, r *http.Request) {
-
-}
