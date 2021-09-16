@@ -32,7 +32,8 @@ func Run() error {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 	repos := repository.New(db)
-	services := service.New(repos)
+	reposImage := repository.New(db)
+	services := service.New(repos, reposImage)
 	srv := handler.NewServer(services)
 
 	if err := http.ListenAndServe(viper.GetString("port"), srv); err != nil && err != http.ErrServerClosed {

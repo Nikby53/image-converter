@@ -18,22 +18,14 @@ type Images interface {
 
 // Service contains interfaces.
 type Service struct {
-	repo repository.AuthorizationRepository
-}
-
-type ImagesService struct {
+	repo      repository.AuthorizationRepository
 	repoImage repository.ImagesRepository
 }
 
 // New is Service constructor.
-func New(repos repository.AuthorizationRepository) *Service {
+func New(repos repository.AuthorizationRepository, reposImages repository.ImagesRepository) *Service {
 	return &Service{
-		repo: repos,
-	}
-}
-
-func NewImages(reposImages repository.ImagesRepository) *ImagesService {
-	return &ImagesService{
+		repo:      repos,
 		repoImage: reposImages,
 	}
 }
