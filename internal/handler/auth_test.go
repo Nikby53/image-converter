@@ -5,15 +5,18 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+
+	"github.com/gorilla/mux"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/service/mocks"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler_signUp(t *testing.T) {
-	type mockBehavior func(r *mocks.MockAuthorization, user models.User)
+	type mockBehavior func(r *mocks.MockServiceInterface, user models.User)
 
 	tests := []struct {
 		name                 string
@@ -30,7 +33,7 @@ func TestHandler_signUp(t *testing.T) {
 				Email:    "email",
 				Password: "qwerty",
 			},
-			mockBehavior: func(r *mocks.MockAuthorization, user models.User) {
+			mockBehavior: func(r *mocks.MockServiceInterface, user models.User) {
 				r.EXPECT().CreateUser(user).Return(1, nil)
 			},
 			expectedStatusCode:   200,
@@ -43,7 +46,7 @@ func TestHandler_signUp(t *testing.T) {
 				Email:    "email",
 				Password: "",
 			},
-			mockBehavior:         func(r *mocks.MockAuthorization, user models.User) {},
+			mockBehavior:         func(r *mocks.MockServiceInterface, user models.User) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: "password should be not empty\n",
 		},
@@ -53,7 +56,7 @@ func TestHandler_signUp(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			services := mocks.NewMockAuthorization(c)
+			services := mocks.NewMockServiceInterface(c)
 			tt.mockBehavior(services, tt.inputUser)
 			handler := NewServer(services)
 			r := mux.NewRouter()

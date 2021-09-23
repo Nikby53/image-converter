@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/Nikby53/image-converter/internal/models"
 )
 
@@ -82,14 +84,14 @@ type tokenJWT struct {
 	Token string `json:"token"`
 }
 
-func (s *Server) signIn(w http.ResponseWriter, r *http.Request) {
+func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var input signInInput
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Printf("signIn: can't decode request body: %v", err)
+		logrus.Printf("signIn: can't decode request body: %v", err)
 		return
 	}
 	err = input.ValidateSignIn(r)
@@ -110,5 +112,4 @@ func (s *Server) signIn(w http.ResponseWriter, r *http.Request) {
 		log.Printf("signIn: error encoding json: %v", err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
