@@ -14,6 +14,12 @@ type Authorization interface {
 
 type Images interface {
 	UploadImage(image models.Images) (string, error)
+	Convert(imageBytes []byte, targetFormat string) ([]byte, error)
+}
+
+type ServiceInterface interface {
+	Authorization
+	Images
 }
 
 // Service contains interfaces.
