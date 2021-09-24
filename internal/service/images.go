@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -37,6 +38,9 @@ func (s *Service) Convert(imageBytes []byte, targetFormat string) ([]byte, error
 		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 1}); err != nil {
 			return nil, errors.New("can't convert in png")
 		}
+	default:
+		return nil, fmt.Errorf("unsupported format: %s", targetFormat)
 	}
+
 	return buf.Bytes(), nil
 }
