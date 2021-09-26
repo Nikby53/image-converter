@@ -1,8 +1,0 @@
-port: ":8000"
-
-db:
-  username: "postgres"
-  host: "172.17.0.2"
-  port: "5432"
-  dbname: "mytestdb"
-  sslmode: "disable"

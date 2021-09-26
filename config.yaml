@@ -1,0 +1,15 @@
+port: ":8000"
+
+db:
+  username: "postgres"
+  host: "127.0.0.1"
+  port: "5432"
+  dbname: "mytestdb"
+  sslmode: "disable"
+  password: "password"
+
+awsS3:
+    accId: "AKIAVU5FA7EWRMPDFHVH"
+    secretKey: "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"
+    region: "eu-central-1"
+    bucketName: "images.convert"

@@ -1,0 +1,15 @@
+port: ""
+
+db:
+  username: ""
+  host: ""
+  port: ""
+  dbname: ""
+  sslmode: ""
+  password: ""
+
+awsS3:
+  accId: ""
+  secretKey: ""
+  region: ""
+  bucketName: ""
