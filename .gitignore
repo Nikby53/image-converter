@@ -1,5 +1,4 @@
 .idea
-config.yaml
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -7,6 +6,7 @@ config.yaml
 *.so
 *.dylib
 .env
+config.yaml
 # Test binary, built with `go test -c`
 *.test
 
