@@ -99,33 +99,33 @@ func (m *MockImages) EXPECT() *MockImagesMockRecorder {
 }
 
 // Convert mocks base method.
-func (m *MockImages) Convert(imageBytes []byte, targetFormat string) ([]byte, error) {
+func (m *MockImages) Convert(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Convert", imageBytes)
+	ret := m.ctrl.Call(m, "Convert", imageBytes, targetFormat)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Convert indicates an expected call of Convert.
-func (mr *MockImagesMockRecorder) Convert(imageBytes interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) Convert(imageBytes, targetFormat interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Convert", reflect.TypeOf((*MockImages)(nil).Convert), imageBytes)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Convert", reflect.TypeOf((*MockImages)(nil).Convert), imageBytes, targetFormat)
 }
 
-// UploadImage mocks base method.
-func (m *MockImages) UploadImage(image models.Images) (string, error) {
+// InsertImage mocks base method.
+func (m *MockImages) InsertImage(filename, format string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadImage", image)
+	ret := m.ctrl.Call(m, "InsertImage", filename, format)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// UploadImage indicates an expected call of UploadImage.
-func (mr *MockImagesMockRecorder) UploadImage(image interface{}) *gomock.Call {
+// InsertImage indicates an expected call of InsertImage.
+func (mr *MockImagesMockRecorder) InsertImage(filename, format interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadImage", reflect.TypeOf((*MockImages)(nil).UploadImage), image)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertImage", reflect.TypeOf((*MockImages)(nil).InsertImage), filename, format)
 }
 
 // MockServiceInterface is a mock of ServiceInterface interface.
@@ -152,18 +152,18 @@ func (m *MockServiceInterface) EXPECT() *MockServiceInterfaceMockRecorder {
 }
 
 // Convert mocks base method.
-func (m *MockServiceInterface) Convert(imageBytes []byte, targetFormat string) ([]byte, error) {
+func (m *MockServiceInterface) Convert(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Convert", imageBytes)
+	ret := m.ctrl.Call(m, "Convert", imageBytes, targetFormat)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Convert indicates an expected call of Convert.
-func (mr *MockServiceInterfaceMockRecorder) Convert(imageBytes interface{}) *gomock.Call {
+func (mr *MockServiceInterfaceMockRecorder) Convert(imageBytes, targetFormat interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Convert", reflect.TypeOf((*MockServiceInterface)(nil).Convert), imageBytes)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Convert", reflect.TypeOf((*MockServiceInterface)(nil).Convert), imageBytes, targetFormat)
 }
 
 // CreateUser mocks base method.
@@ -196,6 +196,21 @@ func (mr *MockServiceInterfaceMockRecorder) GenerateToken(email, password interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockServiceInterface)(nil).GenerateToken), email, password)
 }
 
+// InsertImage mocks base method.
+func (m *MockServiceInterface) InsertImage(filename, format string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertImage", filename, format)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertImage indicates an expected call of InsertImage.
+func (mr *MockServiceInterfaceMockRecorder) InsertImage(filename, format interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertImage", reflect.TypeOf((*MockServiceInterface)(nil).InsertImage), filename, format)
+}
+
 // ParseToken mocks base method.
 func (m *MockServiceInterface) ParseToken(accessToken string) (int, error) {
 	m.ctrl.T.Helper()
@@ -209,19 +224,4 @@ func (m *MockServiceInterface) ParseToken(accessToken string) (int, error) {
 func (mr *MockServiceInterfaceMockRecorder) ParseToken(accessToken interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseToken", reflect.TypeOf((*MockServiceInterface)(nil).ParseToken), accessToken)
-}
-
-// UploadImage mocks base method.
-func (m *MockServiceInterface) UploadImage(image models.Images) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadImage", image)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UploadImage indicates an expected call of UploadImage.
-func (mr *MockServiceInterfaceMockRecorder) UploadImage(image interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadImage", reflect.TypeOf((*MockServiceInterface)(nil).UploadImage), image)
 }
