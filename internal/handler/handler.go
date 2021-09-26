@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"github.com/Nikby53/image-converter/internal/storage"
+
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/gorilla/mux"
 )
@@ -10,12 +12,14 @@ import (
 type Server struct {
 	router   *mux.Router
 	services service.ServiceInterface
+	storage  *storage.Storage
 }
 
-func NewServer(service service.ServiceInterface) *Server {
+func NewServer(service service.ServiceInterface, storage *storage.Storage) *Server {
 	s := Server{
 		router:   mux.NewRouter(),
 		services: service,
+		storage:  storage,
 	}
 	s.router.HandleFunc("/sign-up", s.signUp).Methods("POST")
 	s.router.HandleFunc("/login", s.login).Methods("POST")

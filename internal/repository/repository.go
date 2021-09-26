@@ -11,7 +11,7 @@ type AuthorizationRepository interface {
 }
 
 type ImagesRepository interface {
-	UploadImage(image models.Images) (string, error)
+	InsertImage(filename, format string) (string, error)
 }
 
 type Repository struct {

@@ -7,13 +7,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
-
-	"github.com/Nikby53/image-converter/internal/models"
 )
-
-func (s *Service) UploadImage(image models.Images) (string, error) {
-	return s.repoImage.UploadImage(image)
-}
 
 const (
 	JPG  = "jpg"
@@ -21,7 +15,11 @@ const (
 	JPEG = "jpeg"
 )
 
-func (s *Service) Convert(imageBytes []byte, targetFormat string) ([]byte, error) {
+func (s *Service) InsertImage(filename, format string) (string, error) {
+	return s.repoImage.InsertImage(filename, format)
+}
+
+func (s *Service) Convert(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
 	img, _, err := image.Decode(bytes.NewReader(imageBytes))
 	if err != nil {
 		return nil, errors.New("unable to decode image")
@@ -30,12 +28,13 @@ func (s *Service) Convert(imageBytes []byte, targetFormat string) ([]byte, error
 	switch targetFormat {
 	case PNG:
 		var enc png.Encoder
+		enc.CompressionLevel = png.CompressionLevel(ratio)
 		err := enc.Encode(buf, img)
 		if err != nil {
 			return nil, errors.New("can't convert in jpg")
 		}
 	case JPG, JPEG:
-		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 1}); err != nil {
+		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: ratio}); err != nil {
 			return nil, errors.New("can't convert in png")
 		}
 	default:

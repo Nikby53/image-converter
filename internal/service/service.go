@@ -13,8 +13,8 @@ type Authorization interface {
 }
 
 type Images interface {
-	UploadImage(image models.Images) (string, error)
-	Convert(imageBytes []byte, targetFormat string) ([]byte, error)
+	InsertImage(filename, format string) (string, error)
+	Convert(imageBytes []byte, targetFormat string, ratio int) ([]byte, error)
 }
 
 type ServiceInterface interface {
