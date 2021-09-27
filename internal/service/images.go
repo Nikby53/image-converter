@@ -7,6 +7,8 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+
+	"github.com/Nikby53/image-converter/internal/models"
 )
 
 const (
@@ -19,7 +21,7 @@ func (s *Service) InsertImage(filename, format string) (string, error) {
 	return s.repoImage.InsertImage(filename, format)
 }
 
-func (s *Service) Convert(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
+func (s *Service) ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
 	img, _, err := image.Decode(bytes.NewReader(imageBytes))
 	if err != nil {
 		return nil, errors.New("unable to decode image")
@@ -42,4 +44,12 @@ func (s *Service) Convert(imageBytes []byte, targetFormat string, ratio int) ([]
 	}
 
 	return buf.Bytes(), nil
+}
+
+func (s *Service) RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error) {
+	return s.repoImage.RequestsHistory(sourceFormat, targetFormat, imagesId, filename, userId, ratio)
+}
+
+func (s *Service) GetRequestFromId(userID int) ([]models.Request, error) {
+	return s.repoImage.GetRequestFromId(userID)
 }

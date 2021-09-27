@@ -45,6 +45,8 @@ func (s *Service) GenerateToken(email, password string) (string, error) {
 
 	return token.SignedString([]byte(signingKey))
 }
+
+// TODO update errors
 func (s *Service) ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

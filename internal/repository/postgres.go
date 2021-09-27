@@ -8,6 +8,7 @@ import (
 
 const users = "users"
 const images = "images"
+const request = "request"
 
 type Config struct {
 	Host     string

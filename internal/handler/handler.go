@@ -25,8 +25,8 @@ func NewServer(service service.ServiceInterface, storage *storage.Storage) *Serv
 	s.router.HandleFunc("/login", s.login).Methods("POST")
 	api := s.router.NewRoute().Subrouter()
 	api.Use(s.UserIdentity)
-	api.HandleFunc("/requestHistory", s.requestHistory).Methods("GET")
 	api.HandleFunc("/convert", s.convert).Methods("POST")
+	api.HandleFunc("/requestHistory", s.requestHistory).Methods("GET")
 
 	return &s
 }

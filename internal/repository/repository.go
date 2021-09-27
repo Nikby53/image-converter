@@ -12,6 +12,8 @@ type AuthorizationRepository interface {
 
 type ImagesRepository interface {
 	InsertImage(filename, format string) (string, error)
+	RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error)
+	GetRequestFromId(userID int) ([]models.Request, error)
 }
 
 type Repository struct {

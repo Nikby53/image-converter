@@ -14,7 +14,9 @@ type Authorization interface {
 
 type Images interface {
 	InsertImage(filename, format string) (string, error)
-	Convert(imageBytes []byte, targetFormat string, ratio int) ([]byte, error)
+	ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error)
+	RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error)
+	GetRequestFromId(userID int) ([]models.Request, error)
 }
 
 type ServiceInterface interface {
