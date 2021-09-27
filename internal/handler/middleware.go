@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -38,4 +39,15 @@ func (s *Server) UserIdentity(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), userCtx, UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (s *Server) GetIdFromToken(r *http.Request) (int, error) {
+	authHeader := r.Header.Get(AuthorizationHeader)
+	HeaderParts := strings.Split(authHeader, " ")
+	token := HeaderParts[1]
+	UserID, err := s.services.ParseToken(token)
+	if err != nil {
+		return 0, fmt.Errorf("can't parse jwt token %w", err)
+	}
+	return UserID, nil
 }
