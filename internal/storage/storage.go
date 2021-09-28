@@ -71,11 +71,20 @@ func (s *Storage) DownloadFile(fileID string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't download file with id %s: %w", fileID, err)
 	}
-
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("can't serialize response body: %w", err)
 	}
 
 	return buf, nil
+}
+
+func (s *Storage) DownloadImageFromID(fileID string) (string, error) {
+	req, _ := s.svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String(s.conf.BucketName),
+		Key:    aws.String(fileID),
+	})
+	fmt.Println(req)
+
+	return "", nil
 }

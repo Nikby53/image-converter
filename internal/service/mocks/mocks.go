@@ -158,6 +158,20 @@ func (mr *MockImagesMockRecorder) RequestsHistory(sourceFormat, targetFormat, im
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestsHistory", reflect.TypeOf((*MockImages)(nil).RequestsHistory), sourceFormat, targetFormat, imagesId, filename, userId, ratio)
 }
 
+// UpdateRequest mocks base method.
+func (m *MockImages) UpdateRequest(status string, userId int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRequest", status, userId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRequest indicates an expected call of UpdateRequest.
+func (mr *MockImagesMockRecorder) UpdateRequest(status, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockImages)(nil).UpdateRequest), status, userId)
+}
+
 // MockServiceInterface is a mock of ServiceInterface interface.
 type MockServiceInterface struct {
 	ctrl     *gomock.Controller
@@ -284,4 +298,18 @@ func (m *MockServiceInterface) RequestsHistory(sourceFormat, targetFormat, image
 func (mr *MockServiceInterfaceMockRecorder) RequestsHistory(sourceFormat, targetFormat, imagesId, filename, userId, ratio interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestsHistory", reflect.TypeOf((*MockServiceInterface)(nil).RequestsHistory), sourceFormat, targetFormat, imagesId, filename, userId, ratio)
+}
+
+// UpdateRequest mocks base method.
+func (m *MockServiceInterface) UpdateRequest(status string, userId int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRequest", status, userId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRequest indicates an expected call of UpdateRequest.
+func (mr *MockServiceInterfaceMockRecorder) UpdateRequest(status, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockServiceInterface)(nil).UpdateRequest), status, userId)
 }
