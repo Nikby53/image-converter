@@ -17,6 +17,7 @@ type Images interface {
 	ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error)
 	RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error)
 	GetRequestFromId(userID int) ([]models.Request, error)
+	UpdateRequest(status string, userId int) error
 }
 
 type ServiceInterface interface {

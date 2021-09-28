@@ -11,6 +11,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+var (
+	errInvalidSigningMethod = errors.New("invalid signing method")
+	errTokenClaimsNotType   = errors.New("token claims are not of type *tokenClaims")
+)
+
 const (
 	salt       = "qweqeqsfsdfgderwae"
 	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
@@ -46,11 +51,10 @@ func (s *Service) GenerateToken(email, password string) (string, error) {
 	return token.SignedString([]byte(signingKey))
 }
 
-// TODO update errors
 func (s *Service) ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
+			return nil, errInvalidSigningMethod
 		}
 
 		return []byte(signingKey), nil
@@ -61,7 +65,7 @@ func (s *Service) ParseToken(accessToken string) (int, error) {
 
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return 0, errors.New("token claims are not of type *tokenClaims")
+		return 0, errTokenClaimsNotType
 	}
 
 	return claims.ID, nil

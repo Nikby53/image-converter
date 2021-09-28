@@ -11,6 +11,12 @@ import (
 	"github.com/Nikby53/image-converter/internal/models"
 )
 
+var (
+	errUnableToDecode   = errors.New("unable to decode image")
+	errCantConvertInJPG = errors.New("can't convert in jpg")
+	errCantConvertInPNG = errors.New("can't convert in png")
+)
+
 const (
 	JPG  = "jpg"
 	PNG  = "png"
@@ -24,7 +30,7 @@ func (s *Service) InsertImage(filename, format string) (string, error) {
 func (s *Service) ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
 	img, _, err := image.Decode(bytes.NewReader(imageBytes))
 	if err != nil {
-		return nil, errors.New("unable to decode image")
+		return nil, errUnableToDecode
 	}
 	buf := new(bytes.Buffer)
 	switch targetFormat {
@@ -33,11 +39,11 @@ func (s *Service) ConvertImage(imageBytes []byte, targetFormat string, ratio int
 		enc.CompressionLevel = png.CompressionLevel(ratio)
 		err := enc.Encode(buf, img)
 		if err != nil {
-			return nil, errors.New("can't convert in jpg")
+			return nil, errCantConvertInJPG
 		}
 	case JPG, JPEG:
 		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: ratio}); err != nil {
-			return nil, errors.New("can't convert in png")
+			return nil, errCantConvertInPNG
 		}
 	default:
 		return nil, fmt.Errorf("unsupported format: %s", targetFormat)
@@ -52,4 +58,7 @@ func (s *Service) RequestsHistory(sourceFormat, targetFormat, imagesId, filename
 
 func (s *Service) GetRequestFromId(userID int) ([]models.Request, error) {
 	return s.repoImage.GetRequestFromId(userID)
+}
+func (s *Service) UpdateRequest(status string, userId int) error {
+	return s.repoImage.UpdateRequest(status, userId)
 }

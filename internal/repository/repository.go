@@ -14,6 +14,7 @@ type ImagesRepository interface {
 	InsertImage(filename, format string) (string, error)
 	RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error)
 	GetRequestFromId(userID int) ([]models.Request, error)
+	UpdateRequest(status string, userId int) error
 }
 
 type Repository struct {
