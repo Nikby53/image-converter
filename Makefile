@@ -15,7 +15,7 @@ run:
 
 .PHONY: mocks
 mocks:
-	mockery --case underscore --dir ./internal/service/ --output ./internal/service/mocks --all --disable-version-string
+	@~/go/bin/mockgen -source=internal/service/service.go -package=mock
 
 .PHONY: lint
 lint:

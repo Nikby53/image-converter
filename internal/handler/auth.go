@@ -12,9 +12,7 @@ import (
 )
 
 var (
-	// ErrEmailEmpty error is for checking email.
-	errEmailEmpty = errors.New("email should be not empty")
-	// ErrPasswordEmpty error is for checking password.
+	errEmailEmpty    = errors.New("email should be not empty")
 	errPasswordEmpty = errors.New("password should be not empty")
 )
 
