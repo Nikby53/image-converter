@@ -27,7 +27,6 @@ func validateConvert(sourceFormat, filename, targetFormat string, ratio int) err
 }
 
 const (
-	queued     = "queued"
 	processing = "processing"
 	done       = "done"
 )
@@ -71,10 +70,6 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
-	err = s.services.UpdateRequest(queued, usersID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
-	}
 	sourceFile, err := s.storage.DownloadFile(imageID)
 	if err != nil {
 		http.Error(w, "can't download image", http.StatusInternalServerError)
@@ -84,10 +79,6 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.Printf("can't convert image: %v", err)
 		return
-	}
-	err = s.services.UpdateRequest(processing, usersID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
 	}
 	err = ioutil.WriteFile(filename+"."+targetFormat, convImageBytes, 0644)
 	if err != nil {
@@ -99,7 +90,11 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	err = s.services.UpdateRequest(done, usersID)
+	err = s.services.UpdateRequest(processing, imageID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
+	}
+	err = s.services.UpdateRequest(done, imageID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
 	}

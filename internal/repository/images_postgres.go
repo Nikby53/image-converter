@@ -20,7 +20,7 @@ func (r *Repository) InsertImage(filename, format string) (string, error) {
 
 func (r *Repository) RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error) {
 	var requestID string
-	query := fmt.Sprintf("INSERT INTO %s (sourceformat, targetFormat,images_id, filename,user_id, ratio) VALUES ($1, $2, $3, $4,$5, $6) RETURNING id", request)
+	query := fmt.Sprintf("INSERT INTO %s (sourceformat, targetFormat,images_id,filename,user_id, ratio,status) VALUES ($1, $2, $3, $4,$5, $6, 'queued') RETURNING id", request)
 	err := r.db.QueryRow(query, sourceFormat, targetFormat, imagesId, filename, userId, ratio).Scan(&requestID)
 	if err != nil {
 		return "", fmt.Errorf("can't insert request: %w", err)
@@ -29,9 +29,9 @@ func (r *Repository) RequestsHistory(sourceFormat, targetFormat, imagesId, filen
 	return requestID, nil
 }
 
-func (r *Repository) UpdateRequest(status string, userId int) error {
-	query := fmt.Sprintf("UPDATE %s SET status =$1 WHERE user_id =$2", request)
-	_, err := r.db.Exec(query, status, userId)
+func (r *Repository) UpdateRequest(status string, imageID string) error {
+	query := fmt.Sprintf("UPDATE %s SET status =$1 WHERE images_id =$2", request)
+	_, err := r.db.Exec(query, status, imageID)
 	if err != nil {
 		return fmt.Errorf("can't update status: %w", err)
 	}

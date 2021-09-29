@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  image-converter:
+    build: ./
+    command: ./image-converter
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgresql
+
+  postgresql:
+    restart: always
+    image: postgres:latest
+    container_name: postgresql
+    env_file: .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./scripts/sql.sql:/docker-entrypoint-initdb.d/sql.sql
+      - ./data:/var/lib/postgresql/data/
