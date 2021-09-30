@@ -29,9 +29,9 @@ func (r *Repository) RequestsHistory(sourceFormat, targetFormat, imagesId, filen
 	return requestID, nil
 }
 
-func (r *Repository) UpdateRequest(status string, imageID string) error {
-	query := fmt.Sprintf("UPDATE %s SET status =$1 WHERE images_id =$2", request)
-	_, err := r.db.Exec(query, status, imageID)
+func (r *Repository) UpdateRequest(status, imageID, targetID string) error {
+	query := fmt.Sprintf("UPDATE %s SET status =$1, target_id=$3 WHERE images_id =$2", request)
+	_, err := r.db.Exec(query, status, imageID, targetID)
 	if err != nil {
 		return fmt.Errorf("can't update status: %w", err)
 	}
@@ -53,4 +53,14 @@ func (r *Repository) GetRequestFromId(userID int) ([]models.Request, error) {
 		requestModel = append(requestModel, r)
 	}
 	return requestModel, nil
+}
+
+func (r *Repository) GetImageID(id string) (string, error) {
+	var imageID string
+	query := fmt.Sprintf("SELECT id FROM %s WHERE id=$1", images)
+	err := r.db.QueryRow(query, id).Scan(&imageID)
+	if err != nil {
+		return "", fmt.Errorf("can't get ida: %w", err)
+	}
+	return imageID, nil
 }

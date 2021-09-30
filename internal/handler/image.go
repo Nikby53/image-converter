@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/mux"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -65,22 +67,22 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		logrus.Printf("can't upload image: %v", err)
 		return
 	}
-	usersID, err := s.GetIdFromToken(r)
-	if err != nil {
-		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
-		return
-	}
 	sourceFile, err := s.storage.DownloadFile(imageID)
 	if err != nil {
 		http.Error(w, "can't download image", http.StatusInternalServerError)
 		return
 	}
-	convImageBytes, err := s.services.ConvertImage(sourceFile, targetFormat, ratio)
+	convertedImage, err := s.services.ConvertImage(sourceFile, targetFormat, ratio)
 	if err != nil {
 		logrus.Printf("can't convert image: %v", err)
 		return
 	}
-	err = ioutil.WriteFile(filename+"."+targetFormat, convImageBytes, 0644)
+	usersID, err := s.GetIdFromToken(r)
+	if err != nil {
+		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
+		return
+	}
+	err = ioutil.WriteFile(filename+"."+targetFormat, convertedImage, 0644)
 	if err != nil {
 		return
 	}
@@ -90,11 +92,21 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	err = s.services.UpdateRequest(processing, imageID)
+	err = s.services.UpdateRequest(processing, imageID, "")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
 	}
-	err = s.services.UpdateRequest(done, imageID)
+	targetImageID, err := s.services.InsertImage(filename, targetFormat)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
+		return
+	}
+	err = s.storage.UploadTargetFile(filename+"."+targetFormat, targetImageID)
+	if err != nil {
+		logrus.Printf("can't upload image: %v", err)
+		return
+	}
+	err = s.services.UpdateRequest(done, imageID, targetImageID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
 	}
@@ -121,6 +133,22 @@ func (s *Server) requestHistory(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(historyJSON))
 }
 
-func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
+type downloadResponse struct {
+	ImageURL string `json:"image_url"`
+}
 
+func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	imageID, err := s.services.GetImageID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	url, err := s.storage.DownloadImageFromID(imageID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprint(w, &downloadResponse{ImageURL: url})
 }

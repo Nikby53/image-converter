@@ -59,6 +59,10 @@ func (s *Service) RequestsHistory(sourceFormat, targetFormat, imagesId, filename
 func (s *Service) GetRequestFromId(userID int) ([]models.Request, error) {
 	return s.repoImage.GetRequestFromId(userID)
 }
-func (s *Service) UpdateRequest(status string, imageID string) error {
-	return s.repoImage.UpdateRequest(status, imageID)
+func (s *Service) UpdateRequest(status string, imageID, targetID string) error {
+	return s.repoImage.UpdateRequest(status, imageID, targetID)
+}
+
+func (s *Service) GetImageID(id string) (string, error) {
+	return s.repoImage.GetImageID(id)
 }

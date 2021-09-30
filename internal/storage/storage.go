@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -49,9 +51,26 @@ func New(conf Config) (*Storage, error) {
 	}
 	return &Storage{svc: svc, conf: conf}, nil
 }
-func (s *Storage) UploadFile(file io.ReadSeeker, fileID string) error {
+func (s *Storage) UploadFile(image io.ReadSeeker, fileID string) error {
 	_, err := s.svc.PutObject(&s3.PutObjectInput{
-		Body:   file,
+		Body:   image,
+		Bucket: aws.String(s.conf.BucketName),
+		Key:    aws.String(fileID),
+		ACL:    aws.String(s3.BucketCannedACLPublicRead),
+	})
+	if err != nil {
+		return fmt.Errorf("can't upload file: %w", err)
+	}
+
+	return nil
+}
+func (s *Storage) UploadTargetFile(filename, fileID string) error {
+	f, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	_, err = s.svc.PutObject(&s3.PutObjectInput{
+		Body:   f,
 		Bucket: aws.String(s.conf.BucketName),
 		Key:    aws.String(fileID),
 		ACL:    aws.String(s3.BucketCannedACLPublicRead),
@@ -84,7 +103,10 @@ func (s *Storage) DownloadImageFromID(fileID string) (string, error) {
 		Bucket: aws.String(s.conf.BucketName),
 		Key:    aws.String(fileID),
 	})
-	fmt.Println(req)
+	url, err := req.Presign(10 * time.Minute)
+	if err != nil {
+		return "", fmt.Errorf("can't create requets's presigned URL, %w", err)
+	}
 
-	return "", nil
+	return url, err
 }

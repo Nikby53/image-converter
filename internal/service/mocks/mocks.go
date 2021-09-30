@@ -113,6 +113,21 @@ func (mr *MockImagesMockRecorder) ConvertImage(imageBytes, targetFormat, ratio i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConvertImage", reflect.TypeOf((*MockImages)(nil).ConvertImage), imageBytes, targetFormat, ratio)
 }
 
+// GetImageID mocks base method.
+func (m *MockImages) GetImageID(id string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImageID", id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetImageID indicates an expected call of GetImageID.
+func (mr *MockImagesMockRecorder) GetImageID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageID", reflect.TypeOf((*MockImages)(nil).GetImageID), id)
+}
+
 // GetRequestFromId mocks base method.
 func (m *MockImages) GetRequestFromId(userID int) ([]models.Request, error) {
 	m.ctrl.T.Helper()
@@ -159,17 +174,17 @@ func (mr *MockImagesMockRecorder) RequestsHistory(sourceFormat, targetFormat, im
 }
 
 // UpdateRequest mocks base method.
-func (m *MockImages) UpdateRequest(status, imageID string) error {
+func (m *MockImages) UpdateRequest(status, imageID, targetID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateRequest", status, imageID)
+	ret := m.ctrl.Call(m, "UpdateRequest", status, imageID, targetID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateRequest indicates an expected call of UpdateRequest.
-func (mr *MockImagesMockRecorder) UpdateRequest(status, imageID interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) UpdateRequest(status, imageID, targetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockImages)(nil).UpdateRequest), status, imageID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockImages)(nil).UpdateRequest), status, imageID, targetID)
 }
 
 // MockServiceInterface is a mock of ServiceInterface interface.
@@ -240,6 +255,21 @@ func (mr *MockServiceInterfaceMockRecorder) GenerateToken(email, password interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockServiceInterface)(nil).GenerateToken), email, password)
 }
 
+// GetImageID mocks base method.
+func (m *MockServiceInterface) GetImageID(id string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImageID", id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetImageID indicates an expected call of GetImageID.
+func (mr *MockServiceInterfaceMockRecorder) GetImageID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageID", reflect.TypeOf((*MockServiceInterface)(nil).GetImageID), id)
+}
+
 // GetRequestFromId mocks base method.
 func (m *MockServiceInterface) GetRequestFromId(userID int) ([]models.Request, error) {
 	m.ctrl.T.Helper()
@@ -301,15 +331,15 @@ func (mr *MockServiceInterfaceMockRecorder) RequestsHistory(sourceFormat, target
 }
 
 // UpdateRequest mocks base method.
-func (m *MockServiceInterface) UpdateRequest(status, imageID string) error {
+func (m *MockServiceInterface) UpdateRequest(status, imageID, targetID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateRequest", status, imageID)
+	ret := m.ctrl.Call(m, "UpdateRequest", status, imageID, targetID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateRequest indicates an expected call of UpdateRequest.
-func (mr *MockServiceInterfaceMockRecorder) UpdateRequest(status, imageID interface{}) *gomock.Call {
+func (mr *MockServiceInterfaceMockRecorder) UpdateRequest(status, imageID, targetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockServiceInterface)(nil).UpdateRequest), status, imageID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockServiceInterface)(nil).UpdateRequest), status, imageID, targetID)
 }

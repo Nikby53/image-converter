@@ -27,6 +27,7 @@ func NewServer(service service.ServiceInterface, storage *storage.Storage) *Serv
 	api.Use(s.UserIdentity)
 	api.HandleFunc("/convert", s.convert).Methods("POST")
 	api.HandleFunc("/requestHistory", s.requestHistory).Methods("GET")
+	api.HandleFunc("/images/{id}", s.downloadImage).Methods("GET")
 
 	return &s
 }
