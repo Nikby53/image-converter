@@ -43,7 +43,6 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		logrus.Printf("error retrieving the file %v", err)
 		return
 	}
-
 	defer file.Close()
 	sourceFormat := r.FormValue("sourceFormat")
 	targetFormat := r.FormValue("targetFormat")
@@ -51,6 +50,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	ratio, err := strconv.Atoi(r.FormValue("ratio"))
 	if err != nil {
 		http.Error(w, "invalid ratio", http.StatusBadRequest)
+		return
 	}
 	err = validateConvert(sourceFormat, filename, targetFormat, ratio)
 	if err != nil {
@@ -92,15 +92,16 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	err = s.services.UpdateRequest(processing, imageID, "")
-	if err != nil {
-		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
-	}
 	targetImageID, err := s.services.InsertImage(filename, targetFormat)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
 		return
 	}
+	err = s.services.UpdateRequest(processing, imageID, targetImageID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
+	}
+
 	err = s.storage.UploadTargetFile(filename+"."+targetFormat, targetImageID)
 	if err != nil {
 		logrus.Printf("can't upload image: %v", err)

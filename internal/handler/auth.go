@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -41,7 +40,7 @@ func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Printf("signUp: can't decode request body: %v", err)
+		logrus.Printf("signUp: can't decode request body: %v", err)
 		return
 	}
 	err = input.ValidateSignUp(r)
@@ -52,13 +51,13 @@ func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 	id, err := s.services.CreateUser(input.User)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("error signUp: %v", err)
+		logrus.Printf("error signUp: %v", err)
 		return
 	}
 	err = json.NewEncoder(w).Encode(userID{ID: id})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("signUp: error encoding json: %v", err)
+		logrus.Printf("signUp: error encoding json: %v", err)
 		return
 	}
 }
@@ -100,14 +99,14 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	token, err := s.services.GenerateToken(input.Email, input.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("error signIn: %v", err)
+		logrus.Printf("error signIn: %v", err)
 		return
 	}
 	err = json.NewEncoder(w).Encode(tokenJWT{
 		Token: token})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("signIn: error encoding json: %v", err)
+		logrus.Printf("signIn: error encoding json: %v", err)
 		return
 	}
 }

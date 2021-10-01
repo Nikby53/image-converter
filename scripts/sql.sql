@@ -16,12 +16,12 @@ CREATE TABLE if not exists images
 
 CREATE TABLE if not exists request
 (
-    id serial unique not null,
+    id serial not null,
     user_id int references users(id) not null,
-    images_id int references images(id) not null,
+    image_id int references images(id) not null,
     target_id serial unique not null,
     filename varchar(255) not null,
-    status varchar(255),
+    status varchar(255) not null,
     created timestamp without time zone default current_timestamp not null,
     updated timestamp without time zone default current_timestamp not null,
     sourceFormat varchar(255) not null,

@@ -40,13 +40,13 @@ func (r *Repository) UpdateRequest(status, imageID, targetID string) error {
 
 func (r *Repository) GetRequestFromId(userID int) ([]models.Request, error) {
 	var requestModel []models.Request
-	query := fmt.Sprintf("SELECT created, updated, sourceformat, targetformat,status, ratio, filename FROM %s WHERE user_id=$1;", request)
+	query := fmt.Sprintf("SELECT created, updated, sourceformat, targetformat,status, ratio, filename, images_id, target_id FROM %s WHERE user_id=$1;", request)
 	rows, _ := r.db.Query(query, userID)
 	requests := models.Request{}
 	defer rows.Close()
 	for rows.Next() {
 		r := requests
-		err := rows.Scan(&r.Created, &r.Updated, &r.SourceFormat, &r.TargetFormat, &r.Status, &r.Ratio, &r.Filename)
+		err := rows.Scan(&r.Created, &r.Updated, &r.SourceFormat, &r.TargetFormat, &r.Status, &r.Ratio, &r.Filename, &r.OriginalImgID, &r.TargetImgID)
 		if err != nil {
 			return []models.Request{}, fmt.Errorf("%w", err)
 		}
@@ -60,7 +60,7 @@ func (r *Repository) GetImageID(id string) (string, error) {
 	query := fmt.Sprintf("SELECT id FROM %s WHERE id=$1", images)
 	err := r.db.QueryRow(query, id).Scan(&imageID)
 	if err != nil {
-		return "", fmt.Errorf("can't get ida: %w", err)
+		return "", fmt.Errorf("can't get id: %w", err)
 	}
 	return imageID, nil
 }
