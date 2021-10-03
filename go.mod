@@ -3,6 +3,7 @@ module github.com/Nikby53/image-converter
 go 1.16
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/aws/aws-sdk-go v1.40.49
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang/mock v1.5.0

@@ -77,16 +77,16 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		logrus.Printf("can't convert image: %v", err)
 		return
 	}
-	usersID, err := s.GetIdFromToken(r)
-	if err != nil {
-		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
-		return
-	}
 	err = ioutil.WriteFile(filename+"."+targetFormat, convertedImage, 0644)
 	if err != nil {
 		return
 	}
 	fmt.Fprintf(w, "successfully uploaded file\n")
+	usersID, err := s.GetIdFromToken(r)
+	if err != nil {
+		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
+		return
+	}
 	requestID, err := s.services.RequestsHistory(sourceFormat, targetFormat, imageID, filename, usersID, ratio)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
@@ -101,7 +101,6 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
 	}
-
 	err = s.storage.UploadTargetFile(filename+"."+targetFormat, targetImageID)
 	if err != nil {
 		logrus.Printf("can't upload image: %v", err)
@@ -114,7 +113,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(RequestID{ID: requestID})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		logrus.Printf("signUp: error encoding json: %v", err)
+		logrus.Printf("error encoding json: %v", err)
 		return
 	}
 }
