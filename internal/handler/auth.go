@@ -3,7 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/sirupsen/logrus"
 
@@ -13,11 +15,15 @@ import (
 var (
 	errEmailEmpty    = errors.New("email should be not empty")
 	errPasswordEmpty = errors.New("password should be not empty")
+	errInvalidEmail  = errors.New("invalid email")
+	errShortPassword = errors.New("password should has at least 6 letters")
 )
 
 type Registration struct {
 	models.User
 }
+
+var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 func (r *Registration) ValidateSignUp(req *http.Request) error {
 	if r.Email == "" {
@@ -25,6 +31,12 @@ func (r *Registration) ValidateSignUp(req *http.Request) error {
 	}
 	if r.Password == "" {
 		return errPasswordEmpty
+	}
+	if !emailRegexp.MatchString(r.Email) {
+		return errInvalidEmail
+	}
+	if len(r.Password) < 6 {
+		return errShortPassword
 	}
 	return nil
 }
@@ -98,8 +110,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	}
 	token, err := s.services.GenerateToken(input.Email, input.Password)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		logrus.Printf("error signIn: %v", err)
+		http.Error(w, fmt.Sprintf("error login: %v", err), http.StatusInternalServerError)
 		return
 	}
 	err = json.NewEncoder(w).Encode(tokenJWT{
