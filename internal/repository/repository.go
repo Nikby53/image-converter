@@ -1,8 +1,9 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/Nikby53/image-converter/internal/models"
-	"github.com/jmoiron/sqlx"
 )
 
 type AuthorizationRepository interface {
@@ -19,11 +20,11 @@ type ImagesRepository interface {
 }
 
 type Repository struct {
-	db *sqlx.DB
+	db *sql.DB
 }
 
 // New is the Repository constructor.
-func New(db *sqlx.DB) *Repository {
+func New(db *sql.DB) *Repository {
 	return &Repository{
 		db: db,
 	}
