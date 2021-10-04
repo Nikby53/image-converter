@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/Nikby53/image-converter/internal/storage"
 
@@ -10,9 +12,10 @@ import (
 )
 
 type Server struct {
-	router   *mux.Router
-	services service.ServiceInterface
-	storage  *storage.Storage
+	router     *mux.Router
+	services   service.ServiceInterface
+	storage    *storage.Storage
+	httpServer *http.Server
 }
 
 func NewServer(service service.ServiceInterface, storage *storage.Storage) *Server {
@@ -34,4 +37,20 @@ func NewServer(service service.ServiceInterface, storage *storage.Storage) *Serv
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
+}
+
+func (s *Server) Run(port string, handler http.Handler) error {
+	s.httpServer = &http.Server{
+		Addr:           port,
+		Handler:        handler,
+		MaxHeaderBytes: 1 << 20,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+	}
+
+	return s.httpServer.ListenAndServe()
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.Shutdown(ctx)
 }

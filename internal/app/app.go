@@ -1,7 +1,7 @@
 package app
 
 import (
-	"net/http"
+	"context"
 
 	"github.com/Nikby53/image-converter/internal/storage"
 
@@ -41,9 +41,12 @@ func Run() error {
 		logrus.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
 	}
 	srv := handler.NewServer(services, st)
+	if err := srv.Run(viper.GetString("port"), srv); err != nil {
+		logrus.Fatalf("error occured while running http server: %s", err.Error())
+	}
 
-	if err := http.ListenAndServe(viper.GetString("port"), srv); err != nil && err != http.ErrServerClosed {
-		logrus.Printf("ListenAndServe(): %s", err)
+	if err := srv.Shutdown(context.Background()); err != nil {
+		logrus.Errorf("error occured on server shutting down: %s", err.Error())
 	}
 	return nil
 }
