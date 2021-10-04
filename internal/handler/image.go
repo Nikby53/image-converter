@@ -133,7 +133,7 @@ func (s *Server) requestHistory(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(historyJSON))
 }
 
-type downloadResponse struct {
+type downloadFromURL struct {
 	ImageURL string `json:"image_url"`
 }
 
@@ -150,5 +150,5 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprint(w, &downloadResponse{ImageURL: url})
+	fmt.Fprint(w, &downloadFromURL{ImageURL: url})
 }

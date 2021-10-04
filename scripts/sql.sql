@@ -1,4 +1,4 @@
-CREATE database if not exists image.converter
+CREATE database if not exists image.converter;
 
 CREATE TABLE if not exists users
 (
