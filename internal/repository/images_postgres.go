@@ -6,6 +6,7 @@ import (
 	"github.com/Nikby53/image-converter/internal/models"
 )
 
+// InsertImage inserts image to the database and returns image id.
 func (r *Repository) InsertImage(filename, format string) (string, error) {
 	var imageID string
 	query := fmt.Sprintf("INSERT INTO %s (name, format) VALUES ($1, $2) RETURNING id", images)
@@ -18,10 +19,11 @@ func (r *Repository) InsertImage(filename, format string) (string, error) {
 	return imageID, nil
 }
 
-func (r *Repository) RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error) {
+// RequestsHistory add data to request table and returns request id.
+func (r *Repository) RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
 	var requestID string
 	query := fmt.Sprintf("INSERT INTO %s (sourceformat, targetFormat,image_id,filename,user_id, ratio,status) VALUES ($1, $2, $3, $4,$5, $6, 'queued') RETURNING id", request)
-	err := r.db.QueryRow(query, sourceFormat, targetFormat, imagesId, filename, userId, ratio).Scan(&requestID)
+	err := r.db.QueryRow(query, sourceFormat, targetFormat, imageID, filename, userID, ratio).Scan(&requestID)
 	if err != nil {
 		return "", fmt.Errorf("can't insert request: %w", err)
 	}
@@ -29,6 +31,7 @@ func (r *Repository) RequestsHistory(sourceFormat, targetFormat, imagesId, filen
 	return requestID, nil
 }
 
+// UpdateRequest updates request status.
 func (r *Repository) UpdateRequest(status, imageID, targetID string) error {
 	query := fmt.Sprintf("UPDATE %s SET status =$1, target_id=$3 WHERE image_id =$2", request)
 	_, err := r.db.Exec(query, status, imageID, targetID)
@@ -38,7 +41,8 @@ func (r *Repository) UpdateRequest(status, imageID, targetID string) error {
 	return nil
 }
 
-func (r *Repository) GetRequestFromId(userID int) ([]models.Request, error) {
+// GetRequestFromID allows to get the history of users requests.
+func (r *Repository) GetRequestFromID(userID int) ([]models.Request, error) {
 	var requestModel []models.Request
 	query := fmt.Sprintf("SELECT created, updated, sourceformat, targetformat,status, ratio, filename, image_id, target_id FROM %s WHERE user_id=$1;", request)
 	rows, _ := r.db.Query(query, userID)
@@ -55,6 +59,7 @@ func (r *Repository) GetRequestFromId(userID int) ([]models.Request, error) {
 	return requestModel, nil
 }
 
+// GetImageID gets id of the image.
 func (r *Repository) GetImageID(id string) (string, error) {
 	var imageID string
 	query := fmt.Sprintf("SELECT id FROM %s WHERE id=$1", images)

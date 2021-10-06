@@ -9,22 +9,20 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-
 	"github.com/sirupsen/logrus"
 )
 
 func validateConvert(sourceFormat, filename, targetFormat string, ratio int) error {
-	if len(filename) == 0 {
+	if filename == "" {
 		return fmt.Errorf("name of the file should not be empty")
 	}
-	if len(sourceFormat) == 0 || len(targetFormat) == 0 {
+	if sourceFormat == "" || targetFormat == "" {
 		return fmt.Errorf("name of the format should not be empty")
 	}
 	if ratio < 1 || ratio > 99 {
 		return fmt.Errorf("ratio should be in range of 1 to 99")
 	}
 	// TODO finish validate func
-	//if strings.Contains(filename, "")
 	return nil
 }
 
@@ -33,6 +31,7 @@ const (
 	done       = "done"
 )
 
+// RequestID is for id output in JSON.
 type RequestID struct {
 	ID string `json:"id"`
 }
@@ -82,7 +81,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "successfully uploaded file\n")
-	usersID, err := s.GetIdFromToken(r)
+	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
@@ -119,17 +118,21 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) requestHistory(w http.ResponseWriter, r *http.Request) {
-	usersID, err := s.GetIdFromToken(r)
+	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
-	history, err := s.services.GetRequestFromId(usersID)
+	history, err := s.services.GetRequestFromID(usersID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't get request history %v", err), http.StatusInternalServerError)
 		return
 	}
 	historyJSON, err := json.MarshalIndent(&history, "\t", "")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error in output in JSON %v", err), http.StatusInternalServerError)
+		return
+	}
 	fmt.Fprint(w, string(historyJSON))
 }
 

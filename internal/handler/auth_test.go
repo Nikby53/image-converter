@@ -5,14 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/golang/mock/gomock"
-
-	"github.com/gorilla/mux"
-
-	"github.com/stretchr/testify/assert"
-
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/service/mocks"
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler_signUp(t *testing.T) {
@@ -28,10 +25,10 @@ func TestHandler_signUp(t *testing.T) {
 	}{
 		{
 			name:      "Ok",
-			inputBody: `{"email": "email", "password": "qwerty"}`,
+			inputBody: `{"email": "email@mail.ru", "password": "qwertyuiop"}`,
 			inputUser: models.User{
-				Email:    "email",
-				Password: "qwerty",
+				Email:    "email@mail.ru",
+				Password: "qwertyuiop",
 			},
 			mockBehavior: func(r *mocks.MockServiceInterface, user models.User) {
 				r.EXPECT().CreateUser(user).Return(1, nil)

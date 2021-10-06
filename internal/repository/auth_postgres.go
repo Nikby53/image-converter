@@ -22,7 +22,7 @@ func (r *Repository) GetUser(email, password string) (models.User, error) {
 	var user models.User
 	query := fmt.Sprintf("SELECT id FROM %s WHERE email=$1 AND password=$2", users)
 	row := r.db.QueryRow(query, email, password)
-	if err := row.Scan(&user.Id); err != nil {
+	if err := row.Scan(&user.ID); err != nil {
 		return models.User{}, fmt.Errorf("cannot find the user in database:%w", err)
 	}
 	return user, nil

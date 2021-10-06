@@ -7,9 +7,8 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/Nikby53/image-converter/internal/models"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -19,12 +18,14 @@ var (
 	errShortPassword = errors.New("password should has at least 6 letters")
 )
 
+// Registration struct that holds information about user.
 type Registration struct {
 	models.User
 }
 
 var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
+// ValidateSignUp validates signUp handler.
 func (r *Registration) ValidateSignUp(req *http.Request) error {
 	if r.Email == "" {
 		return errEmailEmpty
@@ -79,6 +80,7 @@ type signInInput struct {
 	Password string `json:"password"`
 }
 
+// ValidateSignIn validates signIp handler.
 func (r *signInInput) ValidateSignIn(req *http.Request) error {
 	if r.Email == "" {
 		return errEmailEmpty

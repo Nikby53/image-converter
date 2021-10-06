@@ -1,7 +1,8 @@
 package models
 
+// Images information about images.
 type Images struct {
-	Id     int    `json:"id"`
+	ID     int    `json:"id"`
 	Format string `json:"format"`
 	Name   string `json:"name"`
 }

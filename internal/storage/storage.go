@@ -7,20 +7,21 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+// Config is config for aws s3 storage.
 type Config struct {
 	BucketName string
-	AccId      string
+	AccID      string
 	SecretKey  string
 	Region     string
 }
 
+// Storage holds config and s3 methods.
 type Storage struct {
 	svc  *s3.S3
 	conf Config
@@ -29,7 +30,7 @@ type Storage struct {
 func connectToAws(conf Config) (*session.Session, error) {
 	s3session, err := session.NewSession(&aws.Config{
 		Region:      aws.String(conf.Region),
-		Credentials: credentials.NewStaticCredentials(conf.AccId, conf.SecretKey, ""),
+		Credentials: credentials.NewStaticCredentials(conf.AccID, conf.SecretKey, ""),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("can't create session, %w", err)
@@ -44,6 +45,8 @@ func initS3ServiceClient(conf Config) (*s3.S3, error) {
 
 	return s3.New(s3session), nil
 }
+
+// New is constructor for Storage.
 func New(conf Config) (*Storage, error) {
 	svc, err := initS3ServiceClient(conf)
 	if err != nil {
@@ -51,6 +54,8 @@ func New(conf Config) (*Storage, error) {
 	}
 	return &Storage{svc: svc, conf: conf}, nil
 }
+
+// UploadFile uploads file to aws s3 bucket.
 func (s *Storage) UploadFile(image io.ReadSeeker, fileID string) error {
 	_, err := s.svc.PutObject(&s3.PutObjectInput{
 		Body:   image,
@@ -64,6 +69,8 @@ func (s *Storage) UploadFile(image io.ReadSeeker, fileID string) error {
 
 	return nil
 }
+
+// UploadTargetFile uploads target file to aws s3 bucket.
 func (s *Storage) UploadTargetFile(filename, fileID string) error {
 	f, err := os.Open(filename)
 	if err != nil {
@@ -82,6 +89,7 @@ func (s *Storage) UploadTargetFile(filename, fileID string) error {
 	return nil
 }
 
+// DownloadFile downloads file from aws storage.
 func (s *Storage) DownloadFile(fileID string) ([]byte, error) {
 	resp, err := s.svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(s.conf.BucketName),
@@ -98,6 +106,7 @@ func (s *Storage) DownloadFile(fileID string) ([]byte, error) {
 	return buf, nil
 }
 
+// DownloadImageFromID downloads image from image id.
 func (s *Storage) DownloadImageFromID(fileID string) (string, error) {
 	req, _ := s.svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(s.conf.BucketName),

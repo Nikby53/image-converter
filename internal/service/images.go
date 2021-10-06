@@ -18,15 +18,21 @@ var (
 )
 
 const (
-	JPG  = "jpg"
-	PNG  = "png"
+	// JPG is for validation jpg image.
+	JPG = "jpg"
+	// PNG is for validation png image.
+	PNG = "png"
+	// JPEG is for validation jpeg image.
 	JPEG = "jpeg"
 )
 
+// InsertImage inserts image information to database.
 func (s *Service) InsertImage(filename, format string) (string, error) {
 	return s.repoImage.InsertImage(filename, format)
 }
 
+// ConvertImage converts JPG to PNG image and vice versa and compress images with
+// the compression ratio specified by the user.
 func (s *Service) ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
 	img, _, err := image.Decode(bytes.NewReader(imageBytes))
 	if err != nil {
@@ -52,17 +58,22 @@ func (s *Service) ConvertImage(imageBytes []byte, targetFormat string, ratio int
 	return buf.Bytes(), nil
 }
 
-func (s *Service) RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error) {
-	return s.repoImage.RequestsHistory(sourceFormat, targetFormat, imagesId, filename, userId, ratio)
+// RequestsHistory inserts history of the users request to the database.
+func (s *Service) RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
+	return s.repoImage.RequestsHistory(sourceFormat, targetFormat, imageID, filename, userID, ratio)
 }
 
-func (s *Service) GetRequestFromId(userID int) ([]models.Request, error) {
-	return s.repoImage.GetRequestFromId(userID)
+// GetRequestFromID gets request from user id.
+func (s *Service) GetRequestFromID(userID int) ([]models.Request, error) {
+	return s.repoImage.GetRequestFromID(userID)
 }
-func (s *Service) UpdateRequest(status string, imageID, targetID string) error {
+
+// UpdateRequest updates status of request.
+func (s *Service) UpdateRequest(status, imageID, targetID string) error {
 	return s.repoImage.UpdateRequest(status, imageID, targetID)
 }
 
+// GetImageID finds id of the image.
 func (s *Service) GetImageID(id string) (string, error) {
 	return s.repoImage.GetImageID(id)
 }

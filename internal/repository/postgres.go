@@ -9,6 +9,7 @@ const users = "users"
 const images = "images"
 const request = "request"
 
+// Config is config of the database.
 type Config struct {
 	Host     string
 	Port     string

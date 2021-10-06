@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +13,6 @@ func TestRepository_CreateUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-	defer db.Close()
 	repo := New(db)
 	tests := []struct {
 		name    string
@@ -77,7 +75,6 @@ func TestRepository_GetUser(t *testing.T) {
 		email    string
 		password string
 	}
-	defer db.Close()
 	repo := New(db)
 	tests := []struct {
 		name    string
@@ -99,7 +96,7 @@ func TestRepository_GetUser(t *testing.T) {
 				password: "13125412312Vv",
 			},
 			want: models.User{
-				Id: 1,
+				ID: 1,
 			},
 			wantErr: false,
 		},

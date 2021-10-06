@@ -3,16 +3,16 @@ package app
 import (
 	"context"
 
-	"github.com/Nikby53/image-converter/internal/storage"
-
 	"github.com/Nikby53/image-converter/internal/handler"
 	"github.com/Nikby53/image-converter/internal/repository"
 	"github.com/Nikby53/image-converter/internal/service"
+	"github.com/Nikby53/image-converter/internal/storage"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-func Run() error {
+// Start starts the server.
+func Start() error {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
@@ -33,7 +33,7 @@ func Run() error {
 	services := service.New(repos, reposImage)
 	st, err := storage.New(storage.Config{
 		BucketName: viper.GetString("awsS3.bucketName"),
-		AccId:      viper.GetString("awsS3.accId"),
+		AccID:      viper.GetString("awsS3.accId"),
 		SecretKey:  viper.GetString("awsS3.secretKey"),
 		Region:     viper.GetString("awsS3.region"),
 	})
@@ -42,11 +42,11 @@ func Run() error {
 	}
 	srv := handler.NewServer(services, st)
 	if err := srv.Run(viper.GetString("port"), srv); err != nil {
-		logrus.Fatalf("error occured while running http server: %s", err.Error())
+		logrus.Fatalf("error occurred while running http server: %s", err.Error())
 	}
 
 	if err := srv.Shutdown(context.Background()); err != nil {
-		logrus.Errorf("error occured on server shutting down: %s", err.Error())
+		logrus.Errorf("error occurred on server shutting down: %s", err.Error())
 	}
 	return nil
 }

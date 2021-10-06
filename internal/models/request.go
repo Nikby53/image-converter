@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// Request struct holds request information.
 type Request struct {
 	Filename      string    `json:"filename"`
 	Status        string    `json:"status"`

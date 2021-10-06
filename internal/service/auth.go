@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/Nikby53/image-converter/internal/models"
-
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -27,7 +26,7 @@ type tokenClaims struct {
 	ID int `json:"id"`
 }
 
-//CreateUser method creates user.
+// CreateUser method creates user.
 func (s *Service) CreateUser(user models.User) (id int, err error) {
 	user.Password = generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
@@ -45,12 +44,13 @@ func (s *Service) GenerateToken(email, password string) (string, error) {
 			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		users.Id,
+		users.ID,
 	})
 
 	return token.SignedString([]byte(signingKey))
 }
 
+// ParseToken parses token.
 func (s *Service) ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

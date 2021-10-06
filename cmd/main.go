@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	err := app.Run()
+	err := app.Start()
 	if err != nil {
 		logrus.Fatal("failed to start app: ", err)
 	}

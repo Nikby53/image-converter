@@ -17,7 +17,6 @@ func TestRepository_InsertImage(t *testing.T) {
 		format   string
 	}
 	query := "INSERT INTO images"
-	defer db.Close()
 	r := New(db)
 	tests := []struct {
 		name    string
@@ -78,13 +77,12 @@ func TestRepository_RequestsHistory(t *testing.T) {
 	type args struct {
 		sourceFormat string
 		targetFormat string
-		imagesId     string
+		imagesID     string
 		filename     string
-		userId       int
+		userID       int
 		ratio        int
 	}
 	query := "INSERT INTO request"
-	defer db.Close()
 	r := New(db)
 	tests := []struct {
 		name    string
@@ -103,9 +101,9 @@ func TestRepository_RequestsHistory(t *testing.T) {
 			input: args{
 				sourceFormat: "jpg",
 				targetFormat: "png",
-				imagesId:     "1",
+				imagesID:     "1",
 				filename:     "image",
-				userId:       1,
+				userID:       1,
 				ratio:        54,
 			},
 			want:    "1",
@@ -116,7 +114,7 @@ func TestRepository_RequestsHistory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := r.RequestsHistory(tt.input.sourceFormat, tt.input.targetFormat, tt.input.imagesId, tt.input.filename, tt.input.userId, tt.input.ratio)
+			got, err := r.RequestsHistory(tt.input.sourceFormat, tt.input.targetFormat, tt.input.imagesID, tt.input.filename, tt.input.userID, tt.input.ratio)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

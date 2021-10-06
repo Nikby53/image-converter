@@ -12,27 +12,29 @@ type Authorization interface {
 	ParseToken(accessToken string) (int, error)
 }
 
+// Images contains methods for images.
 type Images interface {
 	InsertImage(filename, format string) (string, error)
 	ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error)
-	RequestsHistory(sourceFormat, targetFormat, imagesId, filename string, userId, ratio int) (string, error)
-	GetRequestFromId(userID int) ([]models.Request, error)
+	RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error)
+	GetRequestFromID(userID int) ([]models.Request, error)
 	UpdateRequest(status, imageID, targetID string) error
 	GetImageID(id string) (string, error)
 }
 
-type ServiceInterface interface {
+// ServicesInterface holds Authorization and Images interfaces.
+type ServicesInterface interface {
 	Authorization
 	Images
 }
 
-// Service contains interfaces.
+// Service contains repository interfaces.
 type Service struct {
 	repo      repository.AuthorizationRepository
 	repoImage repository.ImagesRepository
 }
 
-// New is Service constructor.
+// New is constructor for Service.
 func New(repos repository.AuthorizationRepository, reposImages repository.ImagesRepository) *Service {
 	return &Service{
 		repo:      repos,

@@ -8,13 +8,14 @@ import (
 )
 
 const (
-	AuthorizationHeader = "Authorization"
+	authorizationHeader = "Authorization"
 	userCtx             = "userId"
 )
 
+// UserIdentity checks if the user is authorized or not.
 func (s *Server) UserIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get(AuthorizationHeader)
+		authHeader := r.Header.Get(authorizationHeader)
 		if authHeader == "" {
 			http.Error(w, "empty authorization handler", http.StatusUnauthorized)
 			return
@@ -26,7 +27,7 @@ func (s *Server) UserIdentity(next http.Handler) http.Handler {
 			return
 		}
 
-		if len(HeaderParts[1]) == 0 {
+		if HeaderParts[1] == "" {
 			http.Error(w, "token is empty", http.StatusUnauthorized)
 			return
 		}
@@ -41,8 +42,9 @@ func (s *Server) UserIdentity(next http.Handler) http.Handler {
 	})
 }
 
-func (s *Server) GetIdFromToken(r *http.Request) (int, error) {
-	authHeader := r.Header.Get(AuthorizationHeader)
+// GetIDFromToken gets the id from user token.
+func (s *Server) GetIDFromToken(r *http.Request) (int, error) {
+	authHeader := r.Header.Get(authorizationHeader)
 	HeaderParts := strings.Split(authHeader, " ")
 	token := HeaderParts[1]
 	UserID, err := s.services.ParseToken(token)
