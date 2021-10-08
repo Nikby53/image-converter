@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   image-converter:
@@ -13,9 +13,9 @@ services:
     restart: always
     image: postgres:latest
     container_name: postgresql
-    env_file: .env
+    hostname: "postgres.local"
     ports:
-      - "5432:5432"
+      - "5438:5432"
     volumes:
       - ./scripts/sql.sql:/docker-entrypoint-initdb.d/sql.sql
       - ./data:/var/lib/postgresql/data/

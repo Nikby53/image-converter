@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 
+	"github.com/Nikby53/image-converter/internal/logs"
+
 	"github.com/Nikby53/image-converter/internal/handler"
 	"github.com/Nikby53/image-converter/internal/repository"
 	"github.com/Nikby53/image-converter/internal/service"
@@ -13,7 +15,7 @@ import (
 
 // Start starts the server.
 func Start() error {
-	logrus.SetFormatter(new(logrus.JSONFormatter))
+	var logger = logs.NewLogger()
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
@@ -26,7 +28,7 @@ func Start() error {
 		Password: viper.GetString("db.password"),
 	})
 	if err != nil {
-		logrus.Fatalf("failed to initialize db: %s", err.Error())
+		logger.Fatalf("failed to initialize db: %s", err.Error())
 	}
 	repos := repository.New(db)
 	reposImage := repository.New(db)
@@ -44,7 +46,6 @@ func Start() error {
 	if err := srv.Run(viper.GetString("port"), srv); err != nil {
 		logrus.Fatalf("error occurred while running http server: %s", err.Error())
 	}
-
 	if err := srv.Shutdown(context.Background()); err != nil {
 		logrus.Errorf("error occurred on server shutting down: %s", err.Error())
 	}

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Nikby53/image-converter/internal/logs"
+
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
 	"github.com/gorilla/mux"
@@ -16,6 +18,7 @@ type Server struct {
 	services   service.ServicesInterface
 	storage    storage.StorageInterface
 	httpServer *http.Server
+	logger     *logs.StandardLogger
 }
 
 // NewServer configures server.
@@ -31,7 +34,7 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 	api.Use(s.UserIdentity)
 	api.HandleFunc("/convert", s.convert).Methods("POST")
 	api.HandleFunc("/requestHistory", s.requestHistory).Methods("GET")
-	api.HandleFunc("/images/{id}", s.downloadImage).Methods("GET")
+	api.HandleFunc("/downloadImage/{id}", s.downloadImage).Methods("GET")
 	return &s
 }
 
