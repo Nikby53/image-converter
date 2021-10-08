@@ -1,0 +1,299 @@
+openapi: 3.0.0
+info:
+  title: Image Converter API
+  description: Service that expose a RESTful API to convert JPEG to PNG and vice versa and compress the image
+    with the compression ratio specified by the user. The user has the ability to view the history and status of
+    their requests (for example, queued, processed, completed) and upload the original image and the processed one.
+  version: 3.2.1
+servers:
+  - url: http://localhost:8000/
+    description: API Server
+paths:
+  /requests:
+    get:
+      summary: Get user request history
+      tags:
+        - requests
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: The user gets the request history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RequestsHistoryResponse'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /login:
+    post:
+      summary: User authorization
+      tags:
+        - users
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequest'
+      responses:
+        200:
+          description: The user has successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  JWT-token:
+                    type: string
+                    format: JWT
+              example:
+                JWT-token: |
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /signup:
+    post:
+      summary: User registration
+      tags:
+        - users
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequest'
+      responses:
+        201:
+          description: The user has successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: string
+              example:
+                id: 1
+        400:
+          $ref: '#/components/responses/BadRequest'
+        409:
+          $ref: '#/components/responses/UserAlreadyExists'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /convert:
+    post:
+      summary: Create a request to convert an image
+      tags:
+        - images
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConversionRequest'
+      responses:
+        201:
+          description: The request successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+              example:
+                id:1
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /images/{id}:
+    get:
+      summary: Download needed image by id
+      tags:
+        - images
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Needed image id
+          required: true
+          schema:
+            type: string
+            format: string
+          example:
+            id: '2'
+      responses:
+        200:
+          description: The image is ready to download
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+                    description: link for download each available file in AWS S3 bucket
+              example:
+                link: http(s)://s3.amazonaws.com/path/to/the/file/file_name.extension # todo
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+components:
+  schemas:
+    RequestsHistoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: string
+        name:
+          type: string
+          description: Image name
+        source_id:
+          type: string
+          format: string
+        target_id:
+          type: string
+          format: string
+        source_format:
+          type: string
+          format: string
+          description: Source image format
+        target_format:
+          type: string
+          format: string
+          description: Format to convert the image to
+        ratio:
+          type: integer
+        created:
+          type: string
+          format: timestamp
+        updated:
+          type: string
+          format: timestamp
+        status:
+          type: string
+          format: string
+      example:
+        id: 1
+        name: Screenshot from 2021-06-12 10-44-06.png
+        source_id: 2
+        target_id: 3
+        source_format: png
+        target_format: jpeg
+        ratio: 3
+        created: 2020-06-11 T 15:17:03 Z
+        updated: 2020-06-11 T 15:21:17 Z
+        status: done
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: string
+          format: integer
+        message:
+          type: string
+  # Security scheme definitions
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Enter JWT Bearer token only
+      bearerFormat: JWT
+  #Reusable request bodies
+  requestBodies:
+    UserRequest:
+      description: A JSON object represened as user to add to the system
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+          example:
+            email: user@gmail.com
+            password: password123
+    ConversionRequest:
+      description: A JSON object consisting of image file, format to convert, and compression ratio
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              file:
+                type: string
+                format: binary
+              source_format:
+                type: string
+                format: string
+              target_format:
+                type: string
+                format: string
+              ratio:
+                type: integer
+                minimum: 1
+                maximum: 99
+                description: Image compression ratio
+          example:
+            file: sequence of bytes
+            source_format: png
+            target_format: jpeg
+            ratio: 4
+  # Reusable responses, such as 401 Unauthorized or 400 Bad Request
+  responses:
+    BadRequest:
+      description: The request could not be understood by the server due to malformed syntax
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: "400"
+            message: The request could not be understood by the server due to malformed syntax
+    Unauthorized:
+      description: The request requires user authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: "401"
+            message: The request requires user authentication
+    NotFound:
+      description: The server has not found anything matching the request URI
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: "404"
+            message: The server has not found anything matching the request URI
+    UserAlreadyExists:
+      description: A similar user is already registered in the system
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: "409"
+            message: A similar user is already registered in the system
+    InternalServerError:
+      description: The server encountered an unexpected condition which prevented it from fulfilling the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: "500"
+            message: The server encountered an unexpected condition which prevented it from fulfilling the request
