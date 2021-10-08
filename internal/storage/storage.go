@@ -27,6 +27,13 @@ type Storage struct {
 	conf Config
 }
 
+type StorageInterface interface {
+	UploadFile(image io.ReadSeeker, fileID string) error
+	UploadTargetFile(filename, fileID string) error
+	DownloadFile(fileID string) ([]byte, error)
+	DownloadImageFromID(fileID string) (string, error)
+}
+
 func connectToAws(conf Config) (*session.Session, error) {
 	s3session, err := session.NewSession(&aws.Config{
 		Region:      aws.String(conf.Region),

@@ -14,25 +14,24 @@ import (
 type Server struct {
 	router     *mux.Router
 	services   service.ServicesInterface
-	storage    *storage.Storage
+	storage    storage.StorageInterface
 	httpServer *http.Server
 }
 
 // NewServer configures server.
-func NewServer(service service.ServicesInterface, storage *storage.Storage) *Server {
+func NewServer(service service.ServicesInterface, storage storage.StorageInterface) *Server {
 	s := Server{
 		router:   mux.NewRouter(),
 		services: service,
 		storage:  storage,
 	}
-	s.router.HandleFunc("/sign-up", s.signUp).Methods("POST")
+	s.router.HandleFunc("/signup", s.signUp).Methods("POST")
 	s.router.HandleFunc("/login", s.login).Methods("POST")
 	api := s.router.NewRoute().Subrouter()
 	api.Use(s.UserIdentity)
 	api.HandleFunc("/convert", s.convert).Methods("POST")
 	api.HandleFunc("/requestHistory", s.requestHistory).Methods("GET")
 	api.HandleFunc("/images/{id}", s.downloadImage).Methods("GET")
-
 	return &s
 }
 
