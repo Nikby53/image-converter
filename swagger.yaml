@@ -4,34 +4,16 @@ info:
   description: Service that expose a RESTful API to convert JPEG to PNG and vice versa and compress the image
     with the compression ratio specified by the user. The user has the ability to view the history and status of
     their requests (for example, queued, processed, completed) and upload the original image and the processed one.
-  version: 3.2.1
+  version: 1.0.0
 servers:
   - url: http://localhost:8000/
     description: API Server
 paths:
-  /requests:
-    get:
-      summary: Get user request history
-      tags:
-        - requests
-      security:
-        - bearerAuth: []
-      responses:
-        200:
-          description: The user gets the request history
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RequestsHistoryResponse'
-        500:
-          $ref: '#/components/responses/InternalServerError'
   /login:
     post:
       summary: User authorization
       tags:
-        - users
+        - userF
       requestBody:
         $ref: '#/components/requestBodies/UserRequest'
       responses:
@@ -95,16 +77,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    format: uuid
+                    format: string
               example:
-                id:1
+                id: '18'
         400:
           $ref: '#/components/responses/BadRequest'
         401:
           $ref: '#/components/responses/Unauthorized'
         500:
           $ref: '#/components/responses/InternalServerError'
-  /images/{id}:
+  /downloadImage/{id}:
     get:
       summary: Download needed image by id
       tags:
@@ -133,7 +115,7 @@ paths:
                     type: string
                     description: link for download each available file in AWS S3 bucket
               example:
-                link: http(s)://s3.amazonaws.com/path/to/the/file/file_name.extension # todo
+                link: http(s)://s3.amazonaws.com/path/to/the/file/file_name.extension
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -142,31 +124,41 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/InternalServerError'
+  /requestHistory:
+    get:
+      summary: Get user request history
+      tags:
+        - requestsHistory
+      security:
+        - bearerAuth: [ ]
+      responses:
+        200:
+          description: The user gets the request history of the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RequestsHistoryResponse'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   schemas:
     RequestsHistoryResponse:
       type: object
       properties:
-        id:
+        filename:
           type: string
           format: string
-        name:
+        status:
           type: string
-          description: Image name
-        source_id:
-          type: string
-          format: string
-        target_id:
-          type: string
-          format: string
+          description: sting
         source_format:
           type: string
           format: string
-          description: Source image format
         target_format:
           type: string
           format: string
-          description: Format to convert the image to
         ratio:
           type: integer
         created:
@@ -175,28 +167,22 @@ components:
         updated:
           type: string
           format: timestamp
-        status:
+        original_img_id:
+          type: string
+          format: string
+        target_img_id:
           type: string
           format: string
       example:
-        id: 1
-        name: Screenshot from 2021-06-12 10-44-06.png
-        source_id: 2
-        target_id: 3
-        source_format: png
-        target_format: jpeg
-        ratio: 3
-        created: 2020-06-11 T 15:17:03 Z
-        updated: 2020-06-11 T 15:21:17 Z
+        filename: websitepng
         status: done
-    Error:
-      type: object
-      properties:
-        statusCode:
-          type: string
-          format: integer
-        message:
-          type: string
+        source_format: png
+        target_format: jpg
+        ratio: 65
+        created: 2021-10-08T22:26:30.624475 Z
+        updated: 2021-10-08T22:26:30.624475 Z
+        original_img_id: 31
+        target_img_id: 32
   # Security scheme definitions
   securitySchemes:
     bearerAuth:
@@ -231,13 +217,13 @@ components:
           schema:
             type: object
             properties:
-              file:
+              image:
                 type: string
                 format: binary
-              source_format:
+              sourceFormat:
                 type: string
                 format: string
-              target_format:
+              targetFormat:
                 type: string
                 format: string
               ratio:

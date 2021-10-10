@@ -18,7 +18,7 @@ var (
 	errShortPassword = errors.New("password should has at least 6 letters")
 )
 
-// Registration struct that holds information about user.
+// Registration struct holds information about user.
 type Registration struct {
 	models.User
 }
@@ -63,8 +63,7 @@ func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := s.services.CreateUser(input.User)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		logrus.Printf("error signUp: %v", err)
+		http.Error(w, "A similar user is already registered in the system", http.StatusConflict)
 		return
 	}
 	err = json.NewEncoder(w).Encode(userID{ID: id})

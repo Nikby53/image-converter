@@ -86,7 +86,6 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
-	s.logger.Printf("Images upload by a user %v", usersID)
 	requestID, err := s.services.RequestsHistory(sourceFormat, targetFormat, imageID, filename, usersID, ratio)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)

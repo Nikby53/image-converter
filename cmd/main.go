@@ -1,17 +1,39 @@
+// Golang SwaggerUI image-service
+//
+// Documentation of our awesome API
+//
+//     Schemes: http
+//     BasePath: /
+//     Version: 1.0.0
+//     Host: localhost:8000
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     Security:
+//     - basic
+//
+//    SecurityDefinitions:
+//    basic:
+//      type: basic
+//
+// swagger:meta
 package main
 
 import (
 	"github.com/Nikby53/image-converter/internal/app"
 	"github.com/Nikby53/image-converter/internal/logs"
 	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	var logging = logs.NewLogger()
-	logging.Info("Server is starting")
+	var logger = logs.NewLogger()
+	logger.Info("Server is starting")
 	err := app.Start()
 	if err != nil {
-		logrus.Fatal("failed to start app: ", err)
+		logger.Fatalf("failed to start app: %v", err)
 	}
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/Nikby53/image-converter/internal/repository"
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -17,7 +16,7 @@ import (
 func Start() error {
 	var logger = logs.NewLogger()
 	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializing configs: %s", err.Error())
+		logger.Fatalf("error initializing configs: %s", err.Error())
 	}
 	db, err := repository.NewPostgresDB(repository.Config{
 		Host:     viper.GetString("db.host"),
@@ -30,6 +29,7 @@ func Start() error {
 	if err != nil {
 		logger.Fatalf("failed to initialize db: %s", err.Error())
 	}
+	logger.Info("connected to db")
 	repos := repository.New(db)
 	reposImage := repository.New(db)
 	services := service.New(repos, reposImage)
@@ -40,14 +40,14 @@ func Start() error {
 		Region:     viper.GetString("awsS3.region"),
 	})
 	if err != nil {
-		logrus.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
+		logger.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
 	}
 	srv := handler.NewServer(services, st)
 	if err := srv.Run(viper.GetString("port"), srv); err != nil {
-		logrus.Fatalf("error occurred while running http server: %s", err.Error())
+		logger.Fatalf("error occurred while running http server: %s", err.Error())
 	}
 	if err := srv.Shutdown(context.Background()); err != nil {
-		logrus.Errorf("error occurred on server shutting down: %s", err.Error())
+		logger.Errorf("error occurred on server shutting down: %s", err.Error())
 	}
 	return nil
 }
