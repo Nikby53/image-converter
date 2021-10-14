@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-
 	"github.com/joho/godotenv"
 
 	"github.com/Nikby53/image-converter/internal/configs"
@@ -34,6 +33,7 @@ func Start() error {
 	if err != nil {
 		logger.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
 	}
+	//rabbit:= rabbitMQ.NewRabbitMQ(conf.RabbitMQConf)
 	logger.Infoln("connected to awsS3 storage")
 	srv := handler.NewServer(services, st)
 	if err := srv.Run(conf.APIPort, srv); err != nil {

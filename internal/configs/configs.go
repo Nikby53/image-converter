@@ -1,11 +1,14 @@
 package configs
 
-import "os"
+import (
+	"os"
+)
 
 type Config struct {
-	DBConf  *DBConfig
-	APIPort string
-	AWSConf *AWSConfig
+	DBConf       *DBConfig
+	APIPort      string
+	AWSConf      *AWSConfig
+	RabbitMQConf *RabbitMQConfig
 }
 
 // DBConfig is config of the database.
@@ -26,6 +29,10 @@ type AWSConfig struct {
 	Region     string
 }
 
+type RabbitMQConfig struct {
+	RabbitURL string
+}
+
 func NewConfig() *Config {
 	return &Config{
 		DBConf: &DBConfig{
@@ -43,5 +50,8 @@ func NewConfig() *Config {
 			Region:     os.Getenv("AWS_REGION"),
 		},
 		APIPort: os.Getenv("API_PORT"),
+		RabbitMQConf: &RabbitMQConfig{
+			RabbitURL: os.Getenv("RABBIT_URL"),
+		},
 	}
 }

@@ -38,6 +38,7 @@ func connectToAws(conf *configs.AWSConfig) (*session.Session, error) {
 	}
 	return s3session, nil
 }
+
 func initS3ServiceClient(conf *configs.AWSConfig) (*s3.S3, error) {
 	s3session, err := connectToAws(conf)
 	if err != nil {
