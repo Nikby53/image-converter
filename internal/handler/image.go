@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -75,11 +76,16 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "can't download image", http.StatusInternalServerError)
 		return
 	}
-	_, err = s.services.ConvertImage(sourceFile, targetFormat, ratio)
+	convertedImage, err := s.services.ConvertImage(sourceFile, targetFormat, ratio)
 	if err != nil {
 		logrus.Printf("can't convert image: %v", err)
 		return
 	}
+	err = ioutil.WriteFile(filename+"."+targetFormat, convertedImage, 0644)
+	if err != nil {
+		return
+	}
+	fmt.Fprintf(w, "successfully uploaded file\n")
 	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
