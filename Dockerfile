@@ -1,9 +1,16 @@
-FROM golang:latest
+FROM golang:latest as builder
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+COPY .env .
+RUN ls -la .
 
-RUN go version
-ENV GOPATH=/
+RUN go mod download
+COPY . .
+RUN go build -o main ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/main.go
+FROM alpine:latest
+WORKDIR /app
+COPY --from=builder ["/app/main", "/app"]
 
-COPY ./ ./
-RUN go build -o image-converter ./cmd/main.go
-
-CMD ["./image-converter"]
+CMD ["sh", "-c", "/app/main"]

@@ -1,21 +1,30 @@
 version: '3.3'
-
 services:
-  image-converter:
-    build: ./
-    command: ./image-converter
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgresql
-
   postgresql:
-    restart: always
     image: postgres:latest
+    restart: always
     container_name: postgresql
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     hostname: "postgres.local"
     ports:
       - "5438:5432"
     volumes:
       - ./scripts/sql.sql:/docker-entrypoint-initdb.d/sql.sql
       - ./data:/var/lib/postgresql/data/
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env
+    container_name: api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgresql
+
