@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -19,16 +19,17 @@ func validateConvert(sourceFormat, filename, targetFormat string, ratio int) err
 	if sourceFormat == "" || targetFormat == "" {
 		return fmt.Errorf("name of the format should not be empty")
 	}
-	if ratio < 1 || ratio > 99 {
-		return fmt.Errorf("ratio should be in range of 1 to 99")
+	if ratio < 1 || ratio > 100 {
+		return fmt.Errorf("ratio should be in range of 1 to 100")
 	}
 	// TODO finish validate func
 	return nil
 }
 
 const (
-	processing = "processing"
-	done       = "done"
+	processing   = "processing"
+	done         = "done"
+	defaultRatio = 100
 )
 
 // RequestID is for id output in JSON.
@@ -39,17 +40,20 @@ type RequestID struct {
 func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("image")
 	if err != nil {
-		logrus.Printf("error retrieving the file %v", err)
+		s.logger.Printf("error retrieving the file %v", err)
 		return
 	}
 	defer file.Close()
 	sourceFormat := r.FormValue("sourceFormat")
 	targetFormat := r.FormValue("targetFormat")
 	filename := strings.TrimSuffix(header.Filename, "."+sourceFormat)
-	ratio, err := strconv.Atoi(r.FormValue("ratio"))
-	if err != nil {
-		http.Error(w, "invalid ratio", http.StatusBadRequest)
-		return
+	ratio := defaultRatio
+	if r.FormValue("ratio") != "" {
+		ratio, err = strconv.Atoi(r.FormValue("ratio"))
+		if err != nil {
+			http.Error(w, "invalid ratio", http.StatusBadRequest)
+			return
+		}
 	}
 	err = validateConvert(sourceFormat, filename, targetFormat, ratio)
 	if err != nil {
@@ -71,21 +75,17 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "can't download image", http.StatusInternalServerError)
 		return
 	}
-	convertedImage, err := s.services.ConvertImage(sourceFile, targetFormat, ratio)
+	_, err = s.services.ConvertImage(sourceFile, targetFormat, ratio)
 	if err != nil {
 		logrus.Printf("can't convert image: %v", err)
 		return
 	}
-	err = ioutil.WriteFile(filename+"."+targetFormat, convertedImage, 0644)
-	if err != nil {
-		return
-	}
-	fmt.Fprintf(w, "successfully uploaded file\n")
 	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
+	s.logger.Infof("user with id %d converted image", usersID)
 	requestID, err := s.services.RequestsHistory(sourceFormat, targetFormat, imageID, filename, usersID, ratio)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
@@ -102,22 +102,23 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	}
 	err = s.storage.UploadTargetFile(filename+"."+targetFormat, targetImageID)
 	if err != nil {
-		logrus.Printf("can't upload image: %v", err)
+		s.logger.Printf("can't upload image: %v", err)
 		return
 	}
 	err = s.services.UpdateRequest(done, imageID, targetImageID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
+
 	}
 	err = json.NewEncoder(w).Encode(RequestID{ID: requestID})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		logrus.Printf("error encoding json: %v", err)
+		s.logger.Printf("error encoding json: %v", err)
 		return
 	}
 }
 
-func (s *Server) requestHistory(w http.ResponseWriter, r *http.Request) {
+func (s *Server) requests(w http.ResponseWriter, r *http.Request) {
 	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
@@ -136,10 +137,6 @@ func (s *Server) requestHistory(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(historyJSON))
 }
 
-type downloadFromURL struct {
-	ImageURL string `json:"image_url"`
-}
-
 func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -153,5 +150,16 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprint(w, &downloadFromURL{ImageURL: url})
+	client := &http.Client{}
+	resp, err := client.Get(url)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+	name, format := s.services.GetImage(imageID)
+	w.Header().Set("Content-Disposition", "attachment; filename="+name+"."+format)
+	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
+	io.Copy(w, resp.Body)
 }

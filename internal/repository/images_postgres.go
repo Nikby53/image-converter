@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/Nikby53/image-converter/internal/models"
@@ -68,4 +70,18 @@ func (r *Repository) GetImageID(id string) (string, error) {
 		return "", fmt.Errorf("can't get id: %w", err)
 	}
 	return imageID, nil
+}
+
+func (r *Repository) GetImage(id string) (name, format string) {
+	var imageName, imageFormat string
+	query := fmt.Sprintf("SELECT name, format FROM %s WHERE id=$1", images)
+	row := r.db.QueryRow(query, id)
+	if err := row.Scan(&imageName, &imageFormat); err != nil {
+		return imageName, imageFormat
+	}
+	return imageName, imageFormat
+}
+
+func (r *Repository) StartTx(ctx context.Context) (*sql.Tx, error) {
+	return r.db.BeginTx(ctx, nil)
 }

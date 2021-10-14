@@ -2,9 +2,12 @@ package handler
 
 import (
 	"context"
-	"github.com/go-openapi/runtime/middleware"
 	"net/http"
 	"time"
+
+	"github.com/Nikby53/image-converter/internal/logs"
+
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
@@ -17,6 +20,7 @@ type Server struct {
 	services   service.ServicesInterface
 	storage    storage.StorageInterface
 	httpServer *http.Server
+	logger     *logs.StandardLogger
 }
 
 // NewServer configures server.
@@ -25,8 +29,9 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 		router:   mux.NewRouter(),
 		services: service,
 		storage:  storage,
+		logger:   logs.NewLogger(),
 	}
-	s.router.HandleFunc("/signup", s.signUp).Methods("POST")
+	s.router.HandleFunc("/user/signup", s.signUp).Methods("POST")
 	// swagger:operation POST /signup signup signup
 	// ---
 	// summary: Registers a user.
@@ -44,7 +49,7 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 	//     description: unauthorized user
 	//   "500":
 	//     description: internal server error
-	s.router.HandleFunc("/login", s.login).Methods("POST")
+	s.router.HandleFunc("/user/login", s.login).Methods("POST")
 	// swagger:operation POST /login login login
 	// ---
 	// summary: Authorizes the user.
@@ -63,8 +68,8 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 	//   "500":
 	//     description: internal server error
 	api := s.router.NewRoute().Subrouter()
-	api.Use(s.UserIdentity)
-	api.HandleFunc("/convert", s.convert).Methods("POST")
+	api.Use(s.userIdentity)
+	api.HandleFunc("/image/convert", s.convert).Methods("POST")
 	// swagger:operation POST /convert convert convert
 	// ---
 	// summary: Create a request to convert an image
@@ -99,8 +104,8 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 	//     description: unauthorized user
 	//   "500":
 	//     description: internal server error
-	api.HandleFunc("/requestHistory", s.requestHistory).Methods("GET")
-	api.HandleFunc("/downloadImage/{id}", s.downloadImage).Methods("GET")
+	api.HandleFunc("/requests", s.requests).Methods("GET")
+	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
 	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)

@@ -13,7 +13,7 @@ const (
 )
 
 // UserIdentity checks if the user is authorized or not.
-func (s *Server) UserIdentity(next http.Handler) http.Handler {
+func (s *Server) userIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get(authorizationHeader)
 		if authHeader == "" {

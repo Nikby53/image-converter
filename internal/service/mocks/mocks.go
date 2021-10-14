@@ -193,6 +193,10 @@ type MockServiceInterface struct {
 	recorder *MockServiceInterfaceMockRecorder
 }
 
+func (m *MockServiceInterface) GetImage(id string) (name, format string) {
+	return "", ""
+}
+
 // MockServiceInterfaceMockRecorder is the mock recorder for MockServiceInterface.
 type MockServiceInterfaceMockRecorder struct {
 	mock *MockServiceInterface

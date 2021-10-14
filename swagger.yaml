@@ -4,16 +4,16 @@ info:
   description: Service that expose a RESTful API to convert JPEG to PNG and vice versa and compress the image
     with the compression ratio specified by the user. The user has the ability to view the history and status of
     their requests (for example, queued, processed, completed) and upload the original image and the processed one.
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: http://localhost:8000/
     description: API Server
 paths:
-  /login:
+  /user/login:
     post:
       summary: User authorization
       tags:
-        - userF
+        - user
       requestBody:
         $ref: '#/components/requestBodies/UserRequest'
       responses:
@@ -29,14 +29,14 @@ paths:
                     format: JWT
               example:
                 JWT-token: |
-                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzM5Njk5MjMsImlhdCI6MTYzMzk1NTUyMywiaWQiOjV9.qoWhUboKD9OjgUUL6BkInQKZrZklWUIlAhbCWW9nl7A
         500:
-          $ref: '#/components/responses/InternalServerError'
-  /signup:
+          description: internal server error
+  /user/signup:
     post:
       summary: User registration
       tags:
-        - users
+        - user
       requestBody:
         $ref: '#/components/requestBodies/UserRequest'
       responses:
@@ -52,13 +52,11 @@ paths:
                     format: string
               example:
                 id: 1
-        400:
-          $ref: '#/components/responses/BadRequest'
-        409:
-          $ref: '#/components/responses/UserAlreadyExists'
+        401:
+          description: unauthorized user
         500:
-          $ref: '#/components/responses/InternalServerError'
-  /convert:
+          description: internal server error
+  /image/convert:
     post:
       summary: Create a request to convert an image
       tags:
@@ -81,12 +79,12 @@ paths:
               example:
                 id: '18'
         400:
-          $ref: '#/components/responses/BadRequest'
+          description: Bad request
         401:
-          $ref: '#/components/responses/Unauthorized'
+          description: unauthorized user
         500:
-          $ref: '#/components/responses/InternalServerError'
-  /downloadImage/{id}:
+          description: internal server error
+  /image/download/{id}:
     get:
       summary: Download needed image by id
       tags:
@@ -115,22 +113,22 @@ paths:
                     type: string
                     description: link for download each available file in AWS S3 bucket
               example:
-                link: http(s)://s3.amazonaws.com/path/to/the/file/file_name.extension
+                link: Download
         400:
-          $ref: '#/components/responses/BadRequest'
+          description: Bad request
         401:
-          $ref: '#/components/responses/Unauthorized'
+          description: unauthorized user
         404:
-          $ref: '#/components/responses/NotFound'
+          description: Not found
         500:
-          $ref: '#/components/responses/InternalServerError'
-  /requestHistory:
+          description: internal server error
+  /requests:
     get:
       summary: Get user request history
       tags:
-        - requestsHistory
+        - requests
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       responses:
         200:
           description: The user gets the request history of the user
@@ -141,7 +139,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/RequestsHistoryResponse'
         500:
-          $ref: '#/components/responses/InternalServerError'
+          description: internal server error
 components:
   schemas:
     RequestsHistoryResponse:
@@ -183,14 +181,12 @@ components:
         updated: 2021-10-08T22:26:30.624475 Z
         original_img_id: 31
         target_img_id: 32
-  # Security scheme definitions
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       description: Enter JWT Bearer token only
       bearerFormat: JWT
-  #Reusable request bodies
   requestBodies:
     UserRequest:
       description: A JSON object represened as user to add to the system
@@ -236,50 +232,3 @@ components:
             source_format: png
             target_format: jpeg
             ratio: 4
-  # Reusable responses, such as 401 Unauthorized or 400 Bad Request
-  responses:
-    BadRequest:
-      description: The request could not be understood by the server due to malformed syntax
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            statusCode: "400"
-            message: The request could not be understood by the server due to malformed syntax
-    Unauthorized:
-      description: The request requires user authentication
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            statusCode: "401"
-            message: The request requires user authentication
-    NotFound:
-      description: The server has not found anything matching the request URI
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            statusCode: "404"
-            message: The server has not found anything matching the request URI
-    UserAlreadyExists:
-      description: A similar user is already registered in the system
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            statusCode: "409"
-            message: A similar user is already registered in the system
-    InternalServerError:
-      description: The server encountered an unexpected condition which prevented it from fulfilling the request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            statusCode: "500"
-            message: The server encountered an unexpected condition which prevented it from fulfilling the request

@@ -77,3 +77,7 @@ func (s *Service) UpdateRequest(status, imageID, targetID string) error {
 func (s *Service) GetImageID(id string) (string, error) {
 	return s.repoImage.GetImageID(id)
 }
+
+func (s *Service) GetImage(id string) (name, format string) {
+	return s.repoImage.GetImage(id)
+}

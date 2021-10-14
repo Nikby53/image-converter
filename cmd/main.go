@@ -31,7 +31,7 @@ import (
 
 func main() {
 	var logger = logs.NewLogger()
-	logger.Info("Server is starting")
+	logger.Infoln("Server is starting")
 	err := app.Start()
 	if err != nil {
 		logger.Fatalf("failed to start app: %v", err)

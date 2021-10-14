@@ -7,24 +7,18 @@ import (
 	"os"
 	"time"
 
+	"github.com/Nikby53/image-converter/internal/configs"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-// Config is config for aws s3 storage.
-type Config struct {
-	BucketName string
-	AccID      string
-	SecretKey  string
-	Region     string
-}
-
 // Storage holds config and s3 methods.
 type Storage struct {
 	svc  *s3.S3
-	conf Config
+	conf *configs.AWSConfig
 }
 
 type StorageInterface interface {
@@ -34,7 +28,7 @@ type StorageInterface interface {
 	DownloadImageFromID(fileID string) (string, error)
 }
 
-func connectToAws(conf Config) (*session.Session, error) {
+func connectToAws(conf *configs.AWSConfig) (*session.Session, error) {
 	s3session, err := session.NewSession(&aws.Config{
 		Region:      aws.String(conf.Region),
 		Credentials: credentials.NewStaticCredentials(conf.AccID, conf.SecretKey, ""),
@@ -44,7 +38,7 @@ func connectToAws(conf Config) (*session.Session, error) {
 	}
 	return s3session, nil
 }
-func initS3ServiceClient(conf Config) (*s3.S3, error) {
+func initS3ServiceClient(conf *configs.AWSConfig) (*s3.S3, error) {
 	s3session, err := connectToAws(conf)
 	if err != nil {
 		return nil, err
@@ -54,7 +48,7 @@ func initS3ServiceClient(conf Config) (*s3.S3, error) {
 }
 
 // New is constructor for Storage.
-func New(conf Config) (*Storage, error) {
+func New(conf *configs.AWSConfig) (*Storage, error) {
 	svc, err := initS3ServiceClient(conf)
 	if err != nil {
 		return nil, err

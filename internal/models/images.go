@@ -1,8 +1,11 @@
 package models
 
+import "os"
+
 // Images information about images.
 type Images struct {
-	ID     int    `json:"id"`
-	Format string `json:"format"`
-	Name   string `json:"name"`
+	ID     int
+	File   *os.File
+	Format string
+	Name   string
 }

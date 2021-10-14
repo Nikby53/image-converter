@@ -97,11 +97,10 @@ type tokenJWT struct {
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var input signInInput
-
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		logrus.Printf("signIn: can't decode request body: %v", err)
+		s.logger.Printf("signIn: can't decode request body: %v", err)
 		return
 	}
 	err = input.ValidateSignIn(r)
@@ -118,7 +117,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		Token: token})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		logrus.Printf("signIn: error encoding json: %v", err)
+		s.logger.Printf("signIn: error encoding json: %v", err)
 		return
 	}
 }

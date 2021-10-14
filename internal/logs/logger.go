@@ -1,7 +1,6 @@
 package logs
 
 import (
-	"fmt"
 	"runtime"
 
 	log "github.com/sirupsen/logrus"
@@ -20,14 +19,14 @@ func NewLogger() *StandardLogger {
 		FullTimestamp:          true,
 		DisableLevelTruncation: true,
 		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
-			return "", fmt.Sprintf("%s:%d", frame.File, frame.Line)
+			return "", ""
 		},
 	}
 	return standardLogger
 }
 
-func (l *StandardLogger) Info(args ...interface{}) {
-	l.logger.Info(args...)
+func (l *StandardLogger) Infoln(args ...interface{}) {
+	l.logger.Infoln(args...)
 }
 
 func (l *StandardLogger) Fatalf(format string, args ...interface{}) {
@@ -40,4 +39,8 @@ func (l *StandardLogger) Infof(format string, args ...interface{}) {
 
 func (l *StandardLogger) Errorf(format string, args ...interface{}) {
 	l.logger.Errorf(format, args...)
+}
+
+func (l *StandardLogger) Printf(format string, args ...interface{}) {
+	l.logger.Printf(format, args)
 }
