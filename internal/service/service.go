@@ -1,6 +1,8 @@
 package service
 
 import (
+	"io"
+
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/repository"
 )
@@ -15,7 +17,7 @@ type Authorization interface {
 // Images contains methods for images.
 type Images interface {
 	InsertImage(filename, format string) (string, error)
-	ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error)
+	ConvertImage(sourceImage io.ReadSeeker, targetFormat string, ratio int) (io.ReadSeeker, error)
 	RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error)
 	GetRequestFromID(userID int) ([]models.Request, error)
 	UpdateRequest(status, imageID, targetID string) error

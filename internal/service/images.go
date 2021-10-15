@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"io"
 
 	"github.com/Nikby53/image-converter/internal/models"
 )
@@ -33,8 +34,8 @@ func (s *Service) InsertImage(filename, format string) (string, error) {
 
 // ConvertImage converts JPG to PNG image and vice versa and compress images with
 // the compression ratio specified by the user.
-func (s *Service) ConvertImage(imageBytes []byte, targetFormat string, ratio int) ([]byte, error) {
-	img, _, err := image.Decode(bytes.NewReader(imageBytes))
+func (s *Service) ConvertImage(sourceImage io.ReadSeeker, targetFormat string, ratio int) (io.ReadSeeker, error) {
+	img, _, err := image.Decode(sourceImage)
 	if err != nil {
 		return nil, errUnableToDecode
 	}
@@ -55,7 +56,7 @@ func (s *Service) ConvertImage(imageBytes []byte, targetFormat string, ratio int
 		return nil, fmt.Errorf("unsupported format: %s", targetFormat)
 	}
 
-	return buf.Bytes(), nil
+	return bytes.NewReader(buf.Bytes()), nil
 }
 
 // RequestsHistory inserts history of the users request to the database.

@@ -2,12 +2,13 @@ package handler
 
 import (
 	"errors"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/Nikby53/image-converter/internal/service/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestHandler_userIdentity(t *testing.T) {
@@ -78,11 +79,12 @@ func TestHandler_userIdentity(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			repo := mocks.NewMockServiceInterface(c)
-			test.mockBehavior(repo, test.token)
+			services := mocks.NewMockServiceInterface(c)
+			test.mockBehavior(services, test.token)
 
 			storage := Server{storage: nil}
-			handler := NewServer(repo, storage.storage)
+			broker := Server{messageBroker: nil}
+			handler := NewServer(services, storage.storage, broker.messageBroker)
 			r := mux.NewRouter()
 			r.HandleFunc("identity", handler.login)
 

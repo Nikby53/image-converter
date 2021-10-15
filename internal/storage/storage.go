@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,7 +25,7 @@ type Storage struct {
 type StorageInterface interface {
 	UploadFile(image io.ReadSeeker, fileID string) error
 	UploadTargetFile(filename, fileID string) error
-	DownloadFile(fileID string) ([]byte, error)
+	DownloadFile(fileID string) (io.ReadSeeker, error)
 	DownloadImageFromID(fileID string) (string, error)
 }
 
@@ -92,7 +93,7 @@ func (s *Storage) UploadTargetFile(filename, fileID string) error {
 }
 
 // DownloadFile downloads file from aws storage.
-func (s *Storage) DownloadFile(fileID string) ([]byte, error) {
+func (s *Storage) DownloadFile(fileID string) (io.ReadSeeker, error) {
 	resp, err := s.svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(s.conf.BucketName),
 		Key:    aws.String(fileID),
@@ -105,7 +106,7 @@ func (s *Storage) DownloadFile(fileID string) ([]byte, error) {
 		return nil, fmt.Errorf("can't serialize response body: %w", err)
 	}
 
-	return buf, nil
+	return bytes.NewReader(buf), nil
 }
 
 // DownloadImageFromID downloads image from image id.

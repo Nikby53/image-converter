@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -80,16 +79,12 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		s.logger.Printf("can't convert image: %v", err)
 		return
 	}
-	err = ioutil.WriteFile(filename+"."+targetFormat, convertedImage, 0644)
-	if err != nil {
-		return
-	}
 	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
-	s.logger.Infof("user with id %d converted image", usersID)
+	s.logger.Infof("user with id %v successfully convert image with id %v", usersID, imageID)
 	requestID, err := s.services.RequestsHistory(sourceFormat, targetFormat, imageID, filename, usersID, ratio)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
@@ -105,7 +100,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
 		return
 	}
-	err = s.storage.UploadTargetFile(filename+"."+targetFormat, targetImageID)
+	err = s.storage.UploadFile(convertedImage, targetImageID)
 	if err != nil {
 		s.logger.Printf("can't upload image: %v", err)
 		return
