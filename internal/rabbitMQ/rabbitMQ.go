@@ -19,6 +19,7 @@ func NewRabbitMQ(conf *configs.RabbitMQConfig) (*Client, error) {
 	conn, err := amqp.Dial(conf.RabbitURL)
 	if err != nil {
 		logger.Fatalf("can't connect to AMQP: %s", err)
+		return nil, err
 	}
 	defer conn.Close()
 	ch, err := conn.Channel()
