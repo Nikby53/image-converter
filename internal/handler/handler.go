@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Nikby53/image-converter/internal/rabbitMQ"
+
 	"github.com/Nikby53/image-converter/internal/logs"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -16,20 +18,22 @@ import (
 
 // Server are complex of routers and services.
 type Server struct {
-	router     *mux.Router
-	services   service.ServicesInterface
-	storage    storage.StorageInterface
-	httpServer *http.Server
-	logger     *logs.StandardLogger
+	router        *mux.Router
+	services      service.ServicesInterface
+	storage       storage.StorageInterface
+	httpServer    *http.Server
+	logger        *logs.StandardLogger
+	messageBroker *rabbitMQ.Client
 }
 
 // NewServer configures server.
-func NewServer(service service.ServicesInterface, storage storage.StorageInterface) *Server {
+func NewServer(service service.ServicesInterface, storage storage.StorageInterface, broker *rabbitMQ.Client) *Server {
 	s := Server{
-		router:   mux.NewRouter(),
-		services: service,
-		storage:  storage,
-		logger:   logs.NewLogger(),
+		router:        mux.NewRouter(),
+		services:      service,
+		storage:       storage,
+		logger:        logs.NewLogger(),
+		messageBroker: broker,
 	}
 	s.router.HandleFunc("/user/signup", s.signUp).Methods("POST")
 	// swagger:operation POST /signup signup signup

@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+
+	"github.com/Nikby53/image-converter/internal/rabbitMQ"
 	"github.com/joho/godotenv"
 
 	"github.com/Nikby53/image-converter/internal/configs"
@@ -33,9 +35,13 @@ func Start() error {
 	if err != nil {
 		logger.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
 	}
-	//rabbit:= rabbitMQ.NewRabbitMQ(conf.RabbitMQConf)
 	logger.Infoln("connected to awsS3 storage")
-	srv := handler.NewServer(services, st)
+	broker, err := rabbitMQ.NewRabbitMQ(conf.RabbitMQConf)
+	if err != nil {
+		logger.Fatalf("failed to initialize rabbitMQ message broker: %s", err.Error())
+	}
+	logger.Infoln("connected to rabbitMQ")
+	srv := handler.NewServer(services, st, broker)
 	if err := srv.Run(conf.APIPort, srv); err != nil {
 		logger.Fatalf("error occurred while running http server: %s", err.Error())
 	}
