@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 )
 
 func validateConvert(sourceFormat, filename, targetFormat string, ratio int) error {
@@ -68,7 +67,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	}
 	err = s.storage.UploadFile(file, imageID)
 	if err != nil {
-		logrus.Printf("can't upload image: %v", err)
+		s.logger.Printf("can't upload image: %v", err)
 		return
 	}
 	sourceFile, err := s.storage.DownloadFile(imageID)
@@ -78,14 +77,13 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	}
 	convertedImage, err := s.services.ConvertImage(sourceFile, targetFormat, ratio)
 	if err != nil {
-		logrus.Printf("can't convert image: %v", err)
+		s.logger.Printf("can't convert image: %v", err)
 		return
 	}
 	err = ioutil.WriteFile(filename+"."+targetFormat, convertedImage, 0644)
 	if err != nil {
 		return
 	}
-	fmt.Fprintf(w, "successfully uploaded file\n")
 	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
@@ -105,6 +103,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	err = s.services.UpdateRequest(processing, imageID, targetImageID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
+		return
 	}
 	err = s.storage.UploadTargetFile(filename+"."+targetFormat, targetImageID)
 	if err != nil {
@@ -114,6 +113,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	err = s.services.UpdateRequest(done, imageID, targetImageID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
+		return
 
 	}
 	err = json.NewEncoder(w).Encode(RequestID{ID: requestID})
