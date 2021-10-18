@@ -158,9 +158,14 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
-	name, format := s.services.GetImage(imageID)
+	name, format, err := s.services.GetImage(imageID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("repository error, %v", err), http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Disposition", "attachment; filename="+name+"."+format)
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
 	io.Copy(w, resp.Body)
+	s.logger.Infof("user download image with id %v", imageID)
 }
