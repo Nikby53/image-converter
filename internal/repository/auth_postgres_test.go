@@ -36,7 +36,7 @@ func TestRepository_CreateUser(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Empty Fields",
+			name: "Error",
 			mock: func() {
 				rows := sqlmock.NewRows([]string{"id"})
 				mock.ExpectQuery("INSERT INTO users").

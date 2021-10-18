@@ -79,6 +79,6 @@ func (s *Service) GetImageID(id string) (string, error) {
 	return s.repoImage.GetImageID(id)
 }
 
-func (s *Service) GetImage(id string) (name, format string) {
+func (s *Service) GetImage(id string) (name, format string, err error) {
 	return s.repoImage.GetImage(id)
 }

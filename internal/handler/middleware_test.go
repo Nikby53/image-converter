@@ -12,7 +12,7 @@ import (
 )
 
 func TestHandler_userIdentity(t *testing.T) {
-	type mockBehavior func(r *mocks.MockServiceInterface, token string)
+	type mockBehavior func(r *mocks.MockServicesInterface, token string)
 
 	testTable := []struct {
 		name                 string
@@ -28,7 +28,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerName:  "Authorization",
 			headerValue: "Bearer token",
 			token:       "token",
-			mockBehavior: func(r *mocks.MockServiceInterface, token string) {
+			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
 				r.EXPECT().ParseToken(token).Return(1, nil)
 			},
 			expectedStatusCode:   200,
@@ -39,7 +39,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerName:           "",
 			headerValue:          "Bearer token",
 			token:                "token",
-			mockBehavior:         func(r *mocks.MockServiceInterface, token string) {},
+			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
 			expectedResponseBody: `{"message":"empty auth header"}`,
 		},
@@ -48,7 +48,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerName:           "Authorization",
 			headerValue:          "Bearr token",
 			token:                "token",
-			mockBehavior:         func(r *mocks.MockServiceInterface, token string) {},
+			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
 			expectedResponseBody: `{"message":"invalid auth header"}`,
 		},
@@ -57,7 +57,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerName:           "Authorization",
 			headerValue:          "Bearer ",
 			token:                "token",
-			mockBehavior:         func(r *mocks.MockServiceInterface, token string) {},
+			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
 			expectedResponseBody: `{"message":"token is empty"}`,
 		},
@@ -66,7 +66,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerName:  "Authorization",
 			headerValue: "Bearer token",
 			token:       "token",
-			mockBehavior: func(r *mocks.MockServiceInterface, token string) {
+			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
 				r.EXPECT().ParseToken(token).Return(0, errors.New("invalid token"))
 			},
 			expectedStatusCode:   401,
@@ -79,7 +79,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			services := mocks.NewMockServiceInterface(c)
+			services := mocks.NewMockServicesInterface(c)
 			test.mockBehavior(services, test.token)
 
 			storage := Server{storage: nil}
