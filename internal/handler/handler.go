@@ -36,78 +36,10 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 		messageBroker: broker,
 	}
 	s.router.HandleFunc("/user/signup", s.signUp).Methods("POST")
-	// swagger:operation POST /signup signup signup
-	// ---
-	// summary: Registers a user.
-	// description: Could be any user.
-	// parameters:
-	// - name: user
-	//   in: body
-	//   description: the user to create
-	//   schema:
-	//     "$ref": "#/definitions/User"
-	// responses:
-	//   "201":
-	//     description: user created successfully
-	//   "401":
-	//     description: unauthorized user
-	//   "500":
-	//     description: internal server error
 	s.router.HandleFunc("/user/login", s.login).Methods("POST")
-	// swagger:operation POST /login login login
-	// ---
-	// summary: Authorizes the user.
-	// description: Only authorized user has access.
-	// parameters:
-	// - name: user
-	//   in: body
-	//   description: the user to create
-	//   schema:
-	//     "$ref": "#/definitions/User"
-	// responses:
-	//   "200":
-	//     description: successful operation
-	//   "403":
-	//     description: not enough right
-	//   "500":
-	//     description: internal server error
 	api := s.router.NewRoute().Subrouter()
 	api.Use(s.userIdentity)
 	api.HandleFunc("/image/convert", s.convert).Methods("POST")
-	// swagger:operation POST /convert convert convert
-	// ---
-	// summary: Create a request to convert an image
-	// description: Receives an image from an input form and converts it PNG to JPG and vice versa.
-	// security:
-	// - bearerAuth: []
-	// parameters:
-	//  content:
-	//	multipart/form-data:
-	//  schema:
-	//	type: object
-	// properties:
-	//  file:
-	//	type: string
-	//  format: binary
-	//  source_format:
-	//	type: string
-	//  enum: [jpeg, png]
-	//	target_format:
-	//	type: string
-	//	enum: [jpeg, png]
-	//	ratio:
-	//	type: integer
-	//	minimum: 1
-	//	maximum: 9
-	//	description: Image compression ratio
-	//   required: true
-	// responses:
-	//   "200":
-	//     description: successful operation
-	//   "401":
-	//     description: unauthorized user
-	//   "500":
-	//     description: internal server error
 	api.HandleFunc("/requests", s.requests).Methods("GET")
 	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
 	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
