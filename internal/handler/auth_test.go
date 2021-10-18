@@ -13,7 +13,7 @@ import (
 )
 
 func TestHandler_signUp(t *testing.T) {
-	type mockBehavior func(r *mocks.MockServiceInterface, user models.User)
+	type mockBehavior func(r *mocks.MockServicesInterface, user models.User)
 
 	tests := []struct {
 		name                 string
@@ -30,22 +30,55 @@ func TestHandler_signUp(t *testing.T) {
 				Email:    "email@mail.ru",
 				Password: "qwertyuiop",
 			},
-			mockBehavior: func(r *mocks.MockServiceInterface, user models.User) {
+			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
 				r.EXPECT().CreateUser(user).Return(1, nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: "{\"id\":1}\n",
 		},
 		{
-			name:      "Wrong Input",
-			inputBody: `{"email": "email", "password": ""}`,
+			name:      "Empty password",
+			inputBody: `{"email": "email@email.com", "password": ""}`,
 			inputUser: models.User{
-				Email:    "email",
+				Email:    "email@email.com",
 				Password: "",
 			},
-			mockBehavior:         func(r *mocks.MockServiceInterface, user models.User) {},
+			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: "password should be not empty\n",
+		},
+		{
+			name:      "Empty email",
+			inputBody: `{"email": "", "password": "12312312441"}`,
+			inputUser: models.User{
+				Email:    "",
+				Password: "12312312441",
+			},
+			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: "email should be not empty\n",
+		},
+		{
+			name:      "Invalid email",
+			inputBody: `{"email": "retwerwe", "password": "12312312441"}`,
+			inputUser: models.User{
+				Email:    "retwerwe",
+				Password: "12312312441",
+			},
+			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: "invalid email\n",
+		},
+		{
+			name:      "Invalid email",
+			inputBody: `{"email": "retwerwe", "password": "12312312441"}`,
+			inputUser: models.User{
+				Email:    "retwe.rwe@gmail.com",
+				Password: "12312312441",
+			},
+			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: "invalid email\n",
 		},
 	}
 
@@ -53,15 +86,15 @@ func TestHandler_signUp(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			services := mocks.NewMockServiceInterface(c)
+			services := mocks.NewMockServicesInterface(c)
 			tt.mockBehavior(services, tt.inputUser)
 			storage := Server{storage: nil}
 			broker := Server{messageBroker: nil}
 			handler := NewServer(services, storage.storage, broker.messageBroker)
 			r := mux.NewRouter()
-			r.HandleFunc("/sign-up", handler.signUp).Methods("POST")
+			r.HandleFunc("/user/signup", handler.signUp).Methods("POST")
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/sign-up", bytes.NewBufferString(tt.inputBody))
+			req := httptest.NewRequest("POST", "/user/signup", bytes.NewBufferString(tt.inputBody))
 			r.ServeHTTP(w, req)
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
 			assert.Equal(t, tt.expectedResponseBody, w.Body.String())
@@ -70,7 +103,7 @@ func TestHandler_signUp(t *testing.T) {
 }
 
 func TestHandler_login(t *testing.T) {
-	type mockBehavior func(r *mocks.MockServiceInterface, user models.User)
+	type mockBehavior func(r *mocks.MockServicesInterface, user models.User)
 
 	tests := []struct {
 		name                 string
@@ -87,11 +120,33 @@ func TestHandler_login(t *testing.T) {
 				Email:    "12sdrfsdf3121",
 				Password: "12332ferfwf1",
 			},
-			mockBehavior: func(r *mocks.MockServiceInterface, user models.User) {
+			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
 				r.EXPECT().GenerateToken(user.Email, user.Password)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: "{\"token\":\"\"}\n",
+		},
+		{
+			name:      "Empty password",
+			inputBody: `{"email": "12sdrfsdf3121@gmail.com", "password": ""}`,
+			inputUser: models.User{
+				Email:    "12sdrfsdf3121@gmail.com",
+				Password: "",
+			},
+			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: "password should be not empty\n",
+		},
+		{
+			name:      "Empty email",
+			inputBody: `{"email": "", "password": "1233123123"}`,
+			inputUser: models.User{
+				Email:    "",
+				Password: "1233123123",
+			},
+			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: "email should be not empty\n",
 		},
 	}
 
@@ -99,15 +154,15 @@ func TestHandler_login(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			services := mocks.NewMockServiceInterface(c)
+			services := mocks.NewMockServicesInterface(c)
 			tt.mockBehavior(services, tt.inputUser)
 			storage := Server{storage: nil}
 			broker := Server{messageBroker: nil}
 			handler := NewServer(services, storage.storage, broker.messageBroker)
 			r := mux.NewRouter()
-			r.HandleFunc("/login", handler.login).Methods("POST")
+			r.HandleFunc("/user/login", handler.login).Methods("POST")
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/login", bytes.NewBufferString(tt.inputBody))
+			req := httptest.NewRequest("POST", "/user/login", bytes.NewBufferString(tt.inputBody))
 			r.ServeHTTP(w, req)
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
 			assert.Equal(t, tt.expectedResponseBody, w.Body.String())

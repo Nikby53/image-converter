@@ -23,8 +23,6 @@ type Registration struct {
 	models.User
 }
 
-var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-
 // ValidateSignUp validates signUp handler.
 func (r *Registration) ValidateSignUp(req *http.Request) error {
 	if r.Email == "" {
@@ -33,6 +31,7 @@ func (r *Registration) ValidateSignUp(req *http.Request) error {
 	if r.Password == "" {
 		return errPasswordEmpty
 	}
+	var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 	if !emailRegexp.MatchString(r.Email) {
 		return errInvalidEmail
 	}
