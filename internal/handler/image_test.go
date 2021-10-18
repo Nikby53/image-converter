@@ -41,7 +41,7 @@ func TestHandler_requests(t *testing.T) {
 	}
 	reqJSON, err := json.MarshalIndent(req, "\t", "")
 	if err != nil {
-		t.Fatalf("can't marshal response body: %v", err)
+		t.Fatalf("can't marshal: %v", err)
 	}
 	type mockBehavior func(r *mocks.MockServicesInterface)
 	tests := []struct {
