@@ -32,12 +32,12 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 			return
 		}
 		token := HeaderParts[1]
-		UserID, err := s.services.ParseToken(token)
+		userID, err := s.services.ParseToken(token)
 		if err != nil {
 			http.Error(w, "can't parse jwt token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), userCtx, UserID)
+		ctx := context.WithValue(r.Context(), userCtx, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -46,10 +46,13 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 func (s *Server) GetIDFromToken(r *http.Request) (int, error) {
 	authHeader := r.Header.Get(authorizationHeader)
 	HeaderParts := strings.Split(authHeader, " ")
+	if len(HeaderParts) != 2 || HeaderParts[0] != "Bearer" {
+		return 0, nil
+	}
 	token := HeaderParts[1]
-	UserID, err := s.services.ParseToken(token)
+	userID, err := s.services.ParseToken(token)
 	if err != nil {
 		return 0, fmt.Errorf("can't parse jwt token %w", err)
 	}
-	return UserID, nil
+	return userID, nil
 }

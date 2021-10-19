@@ -21,8 +21,7 @@ type Images interface {
 	RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error)
 	GetRequestFromID(userID int) ([]models.Request, error)
 	UpdateRequest(status, imageID, targetID string) error
-	GetImageID(id string) (string, error)
-	GetImage(id string) (name, format string, err error)
+	GetImageByID(id string) (models.Images, error)
 }
 
 // ServicesInterface holds Authorization and Images interfaces.

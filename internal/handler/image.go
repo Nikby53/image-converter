@@ -141,12 +141,12 @@ func (s *Server) requests(w http.ResponseWriter, r *http.Request) {
 func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	imageID, err := s.services.GetImageID(id)
+	image, err := s.services.GetImageByID(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, fmt.Sprintf("repository error, %v", err), http.StatusInternalServerError)
 		return
 	}
-	url, err := s.storage.DownloadImageFromID(imageID)
+	url, err := s.storage.DownloadImageFromID(image.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -158,14 +158,9 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
-	name, format, err := s.services.GetImage(imageID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("repository error, %v", err), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Disposition", "attachment; filename="+name+"."+format)
+	w.Header().Set("Content-Disposition", "attachment; filename="+image.Name+"."+image.Format)
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
 	io.Copy(w, resp.Body)
-	s.logger.Infof("user download image with id %v", imageID)
+	s.logger.Infof("user successfully download image with id %v", image.ID)
 }

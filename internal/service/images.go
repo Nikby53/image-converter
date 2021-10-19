@@ -75,10 +75,6 @@ func (s *Service) UpdateRequest(status, imageID, targetID string) error {
 }
 
 // GetImageID finds id of the image.
-func (s *Service) GetImageID(id string) (string, error) {
-	return s.repoImage.GetImageID(id)
-}
-
-func (s *Service) GetImage(id string) (name, format string, err error) {
-	return s.repoImage.GetImage(id)
+func (s *Service) GetImageByID(id string) (models.Images, error) {
+	return s.repoImage.GetImageByID(id)
 }

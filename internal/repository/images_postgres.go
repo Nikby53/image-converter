@@ -62,24 +62,14 @@ func (r *Repository) GetRequestFromID(userID int) ([]models.Request, error) {
 }
 
 // GetImageID gets id of the image.
-func (r *Repository) GetImageID(id string) (string, error) {
-	var imageID string
-	query := fmt.Sprintf("SELECT id FROM %s WHERE id=$1", images)
-	err := r.db.QueryRow(query, id).Scan(&imageID)
+func (r *Repository) GetImageByID(id string) (models.Images, error) {
+	var image models.Images
+	query := fmt.Sprintf("SELECT id, name, format FROM %s WHERE id=$1", images)
+	err := r.db.QueryRow(query, id).Scan(&image.ID, &image.Name, &image.Format)
 	if err != nil {
-		return "", fmt.Errorf("can't get id: %w", err)
+		return models.Images{}, fmt.Errorf("can't get id: %w", err)
 	}
-	return imageID, nil
-}
-
-func (r *Repository) GetImage(id string) (name, format string, err error) {
-	var imageName, imageFormat string
-	query := fmt.Sprintf("SELECT name, format FROM %s WHERE id=$1", images)
-	row := r.db.QueryRow(query, id)
-	if err := row.Scan(&imageName, &imageFormat); err != nil {
-		return imageName, imageFormat, fmt.Errorf("cant get image: %w", err)
-	}
-	return imageName, imageFormat, nil
+	return image, nil
 }
 
 func (r *Repository) StartTx(ctx context.Context) (*sql.Tx, error) {

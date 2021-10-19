@@ -270,40 +270,44 @@ func TestRepository_GetRequestFromID(t *testing.T) {
 	}
 }
 
-func TestRepository_GetImageID(t *testing.T) {
+func TestRepository_GetImageByID(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	r := New(db)
-
-	query := "SELECT id FROM images"
+	query := "SELECT id, name, format FROM images"
 	tests := []struct {
 		name    string
 		mock    func()
 		input   string
-		want    string
+		want    models.Images
 		wantErr bool
 	}{
 		{
 			name: "Ok",
 			mock: func() {
-				rows := sqlmock.NewRows([]string{"id"}).
-					AddRow(1)
+				rows := sqlmock.NewRows([]string{"id", "name", "format"}).
+					AddRow("1", "image", "png")
 				mock.ExpectQuery(query).
 					WithArgs("1").WillReturnRows(rows)
 			},
-			input:   "1",
-			want:    "1",
+			input: "1",
+			want: models.Images{
+				ID:     "1",
+				Format: "png",
+				Name:   "image",
+			},
 			wantErr: false,
 		},
 		{
 			name: "Not found",
 			mock: func() {
-				rows := sqlmock.NewRows([]string{"id"})
+				rows := sqlmock.NewRows([]string{"id", "name", "format"})
 				mock.ExpectQuery(query).
-					WithArgs("").WillReturnRows(rows)
+					WithArgs("1123").WillReturnRows(rows)
 			},
+			input:   "1123",
 			wantErr: true,
 		},
 	}
@@ -311,56 +315,12 @@ func TestRepository_GetImageID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := r.GetImageID(tt.input)
+			got, err := r.GetImageByID(tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
-			}
-			assert.NoError(t, mock.ExpectationsWereMet())
-		})
-	}
-}
-
-func TestRepository_GetImage(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	r := New(db)
-	type args struct {
-		name   string
-		format string
-	}
-	query := "SELECT name, format FROM images"
-	tests := []struct {
-		name    string
-		mock    func()
-		input   string
-		want    args
-		wantErr bool
-	}{
-
-		{
-			name: "Error",
-			mock: func() {
-				rows := sqlmock.NewRows([]string{"name", "format"})
-				mock.ExpectQuery(query).
-					WithArgs("").WillReturnRows(rows)
-			},
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mock()
-			_, _, err := r.GetImage(tt.input)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
 			}
 			assert.NoError(t, mock.ExpectationsWereMet())
 		})
