@@ -1,11 +1,8 @@
 package models
 
-import "os"
-
 // Images information about images.
 type Images struct {
-	ID     int
-	File   *os.File
+	ID     string
 	Format string
 	Name   string
 }

@@ -6,16 +6,7 @@ package models
 //
 // swagger:model User
 type User struct {
-	// the ID for this user
-	//
-	// required: false
-	ID int `json:"id" db:"id"`
-	// the Email for this user
-	//
-	// required: true
-	Email string `json:"email"`
-	// the password for this user
-	//
-	// required: true
+	ID       int    `json:"id" db:"id"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
