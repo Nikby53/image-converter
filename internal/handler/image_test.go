@@ -115,8 +115,7 @@ func TestHandler_downloadImage(t *testing.T) {
 			name: "Ok",
 			mockBehavior: func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, server Server) {
 				w.EXPECT().GetImageByID(gomock.Any()).Return(imageModel, nil)
-				r.EXPECT().DownloadImageFromID(imageModel.ID).Return("https://images-convert.s3.eu-central-1.amazonaws.com/5?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVU5FA7EW3LEOGAOA%2F20211019%2Feu-central-1%2Fs3%2Faws4_request&X-Amz-Date=20211019T112019Z&X-Amz-Expires=600&X-Amz-SignedHeaders=host&X-Amz-Signature=599a2445e2e9b37a39c531b125df5216975546aa4c9156f25cc0fb30bda89ea9", nil)
-				server.ParseUrl("https://images-convert.s3.eu-central-1.amazonaws.com/5?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVU5FA7EW3LEOGAOA%2F20211019%2Feu-central-1%2Fs3%2Faws4_request&X-Amz-Date=20211019T112019Z&X-Amz-Expires=600&X-Amz-SignedHeaders=host&X-Amz-Signature=599a2445e2e9b37a39c531b125df5216975546aa4c9156f25cc0fb30bda89ea9")
+				r.EXPECT().DownloadImageFromID(imageModel.ID).Return("htts://image", nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: "",

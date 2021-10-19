@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -71,14 +70,4 @@ func (s *Server) Run(port string, handler http.Handler) error {
 // Shutdown stops the server.
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.Shutdown(ctx)
-}
-
-func (s *Server) ParseUrl(url string) error {
-	client := &http.Client{}
-	resp, err := client.Get(url)
-	if err != nil {
-		return fmt.Errorf("error %w", err)
-	}
-	defer resp.Body.Close()
-	return nil
 }
