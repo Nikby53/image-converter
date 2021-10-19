@@ -61,7 +61,7 @@ func (r *Repository) GetRequestFromID(userID int) ([]models.Request, error) {
 	return requestModel, nil
 }
 
-// GetImageID gets id of the image.
+// GetImageByID gets id of the image.
 func (r *Repository) GetImageByID(id string) (models.Images, error) {
 	var image models.Images
 	query := fmt.Sprintf("SELECT id, name, format FROM %s WHERE id=$1", images)

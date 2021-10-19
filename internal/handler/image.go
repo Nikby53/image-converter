@@ -127,7 +127,7 @@ func (s *Server) requests(w http.ResponseWriter, r *http.Request) {
 	}
 	history, err := s.services.GetRequestFromID(usersID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("can't get request history %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("repository error %v", err), http.StatusInternalServerError)
 		return
 	}
 	historyJSON, err := json.MarshalIndent(&history, "\t", "")
@@ -151,6 +151,7 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	fmt.Println(url)
 	client := &http.Client{}
 	resp, err := client.Get(url)
 	if err != nil {

@@ -12,7 +12,7 @@ type Client struct {
 	connection *amqp.Connection
 	channel    *amqp.Channel
 	queue      amqp.Queue
-	logger     *logs.StandardLogger
+	logger     *logs.Logger
 }
 
 func NewRabbitMQ(conf *configs.RabbitMQConfig) (*Client, error) {

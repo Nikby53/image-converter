@@ -1,4 +1,4 @@
-package mocks
+package mocksstorage
 
 import (
 	io "io"
@@ -30,7 +30,7 @@ func (m *MockStorageInterface) EXPECT() *MockStorageInterfaceMockRecorder {
 	return m.recorder
 }
 
-// DownloadFile mocks base method.
+// DownloadFile mocksstorage base method.
 func (m *MockStorageInterface) DownloadFile(fileID string) (io.ReadSeeker, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DownloadFile", fileID)
@@ -45,7 +45,7 @@ func (mr *MockStorageInterfaceMockRecorder) DownloadFile(fileID interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadFile", reflect.TypeOf((*MockStorageInterface)(nil).DownloadFile), fileID)
 }
 
-// DownloadImageFromID mocks base method.
+// DownloadImageFromID mocksstorage base method.
 func (m *MockStorageInterface) DownloadImageFromID(fileID string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DownloadImageFromID", fileID)
@@ -60,7 +60,7 @@ func (mr *MockStorageInterfaceMockRecorder) DownloadImageFromID(fileID interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadImageFromID", reflect.TypeOf((*MockStorageInterface)(nil).DownloadImageFromID), fileID)
 }
 
-// UploadFile mocks base method.
+// UploadFile mocksstorage base method.
 func (m *MockStorageInterface) UploadFile(image io.ReadSeeker, fileID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UploadFile", image, fileID)
@@ -74,7 +74,7 @@ func (mr *MockStorageInterfaceMockRecorder) UploadFile(image, fileID interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockStorageInterface)(nil).UploadFile), image, fileID)
 }
 
-// UploadTargetFile mocks base method.
+// UploadTargetFile mocksstorage base method.
 func (m *MockStorageInterface) UploadTargetFile(filename, fileID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UploadTargetFile", filename, fileID)

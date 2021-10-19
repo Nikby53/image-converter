@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -42,8 +43,8 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 	api.HandleFunc("/image/convert", s.convert).Methods("POST")
 	api.HandleFunc("/requests", s.requests).Methods("GET")
 	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
-	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("/api/openapi-spec/")))
-	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
+	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)
 	s.router.Handle("/docs", sh)
 
@@ -70,4 +71,14 @@ func (s *Server) Run(port string, handler http.Handler) error {
 // Shutdown stops the server.
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.Shutdown(ctx)
+}
+
+func (s *Server) ParseUrl(url string) error {
+	client := &http.Client{}
+	resp, err := client.Get(url)
+	if err != nil {
+		return fmt.Errorf("error %w", err)
+	}
+	defer resp.Body.Close()
+	return nil
 }
