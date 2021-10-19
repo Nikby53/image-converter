@@ -16,7 +16,7 @@ import (
 )
 
 func TestHandler_requests(t *testing.T) {
-	req := []models.Request{{
+	request := []models.Request{{
 		Filename:      "img",
 		Status:        "done",
 		SourceFormat:  "png",
@@ -39,7 +39,7 @@ func TestHandler_requests(t *testing.T) {
 			TargetImgID:   "8",
 		},
 	}
-	reqJSON, err := json.MarshalIndent(req, "\t", "")
+	requestJSON, err := json.MarshalIndent(request, "\t", "")
 	if err != nil {
 		t.Fatalf("can't marshal: %v", err)
 	}
@@ -53,10 +53,18 @@ func TestHandler_requests(t *testing.T) {
 		{
 			name: "Ok",
 			mockBehavior: func(r *mocks.MockServicesInterface) {
-				r.EXPECT().GetRequestFromID(2).Return(req, nil)
+				r.EXPECT().GetRequestFromID(0).Return(request, nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: string(reqJSON),
+			expectedResponseBody: string(requestJSON),
+		},
+		{
+			name: "Ok",
+			mockBehavior: func(r *mocks.MockServicesInterface) {
+				r.EXPECT().GetRequestFromID(gomock.Any()).Return(request, nil)
+			},
+			expectedStatusCode:   500,
+			expectedResponseBody: string(requestJSON),
 		},
 	}
 	for _, tt := range tests {
