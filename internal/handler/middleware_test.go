@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -10,6 +11,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
+
+func testHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("1"))
+}
 
 func TestHandler_userIdentity(t *testing.T) {
 	type mockBehavior func(r *mocks.MockServicesInterface, token string)
@@ -41,7 +46,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			token:                "token",
 			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"message":"empty auth header"}`,
+			expectedResponseBody: "empty authorization handler\n",
 		},
 		{
 			name:                 "Invalid Header Value",
@@ -50,7 +55,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			token:                "token",
 			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"message":"invalid auth header"}`,
+			expectedResponseBody: "invalid auth header\n",
 		},
 		{
 			name:                 "Empty Token",
@@ -59,7 +64,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			token:                "token",
 			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"message":"token is empty"}`,
+			expectedResponseBody: "token is empty\n",
 		},
 		{
 			name:        "Parse Error",
@@ -67,10 +72,10 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerValue: "Bearer token",
 			token:       "token",
 			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(0, errors.New("invalid token"))
+				r.EXPECT().ParseToken(token).Return(0, errors.New("can't parse jwt token\n"))
 			},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"message":"invalid token"}`,
+			expectedResponseBody: "can't parse jwt token\n",
 		},
 	}
 
@@ -81,12 +86,10 @@ func TestHandler_userIdentity(t *testing.T) {
 
 			services := mocks.NewMockServicesInterface(c)
 			test.mockBehavior(services, test.token)
-
-			storage := Server{storage: nil}
-			broker := Server{messageBroker: nil}
-			handler := NewServer(services, storage.storage, broker.messageBroker)
+			s := &Server{services: services}
 			r := mux.NewRouter()
-			r.HandleFunc("identity", handler.login)
+			r.Use(s.userIdentity)
+			r.HandleFunc("/identity", testHandler).Methods("GET")
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/identity", nil)
@@ -94,8 +97,8 @@ func TestHandler_userIdentity(t *testing.T) {
 
 			r.ServeHTTP(w, req)
 
-			assert.Equal(t, w.Code, test.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), test.expectedResponseBody)
+			assert.Equal(t, test.expectedStatusCode, w.Code)
+			assert.Equal(t, test.expectedResponseBody, w.Body.String())
 		})
 	}
 }
