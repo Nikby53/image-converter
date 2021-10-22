@@ -50,11 +50,7 @@ func (s *Service) ConvertImage(sourceImage io.ReadSeeker, targetFormat string, r
 			return nil, errCantConvertInJPG
 		}
 	case JPG, JPEG:
-		var quality *jpeg.Options
-		if ratio != 0 {
-			quality.Quality = ratio
-		}
-		if err := jpeg.Encode(buf, img, quality); err != nil {
+		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: ratio}); err != nil {
 			return nil, errCantConvertInPNG
 		}
 	default:
