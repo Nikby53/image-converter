@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -79,6 +80,19 @@ func TestHandler_signUp(t *testing.T) {
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: "invalid email\n",
+		},
+		{
+			name:      "Similar user",
+			inputBody: `{"email": "email@mail.ru", "password": "qwertyuiop"}`,
+			inputUser: models.User{
+				Email:    "email@mail.ru",
+				Password: "qwertyuiop",
+			},
+			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
+				r.EXPECT().CreateUser(user).Return(0, fmt.Errorf("A similar user is already registered in the system"))
+			},
+			expectedStatusCode:   409,
+			expectedResponseBody: "A similar user is already registered in the system\n",
 		},
 	}
 
