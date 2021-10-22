@@ -30,11 +30,11 @@ func Start() error {
 	logger.Infoln("connected to db")
 	repos := repository.New(db)
 	reposImage := repository.New(db)
-	services := service.New(repos, reposImage)
 	st, err := storage.New(conf.AWSConf)
 	if err != nil {
 		logger.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
 	}
+	services := service.New(repos, reposImage, st, logger)
 	logger.Infoln("connected to awsS3 storage")
 	broker, err := rabbitMQ.NewRabbitMQ(conf.RabbitMQConf)
 	if err != nil {

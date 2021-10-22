@@ -8,6 +8,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"mime/multipart"
 
 	"github.com/Nikby53/image-converter/internal/models"
 )
@@ -49,7 +50,11 @@ func (s *Service) ConvertImage(sourceImage io.ReadSeeker, targetFormat string, r
 			return nil, errCantConvertInJPG
 		}
 	case JPG, JPEG:
-		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: ratio}); err != nil {
+		var quality *jpeg.Options
+		if ratio != 0 {
+			quality.Quality = ratio
+		}
+		if err := jpeg.Encode(buf, img, quality); err != nil {
 			return nil, errCantConvertInPNG
 		}
 	default:
@@ -57,6 +62,61 @@ func (s *Service) ConvertImage(sourceImage io.ReadSeeker, targetFormat string, r
 	}
 
 	return bytes.NewReader(buf.Bytes()), nil
+}
+
+const (
+	processing = "processing"
+	done       = "done"
+)
+
+type ConvertPayLoad struct {
+	SourceFormat string
+	TargetFormat string
+	Filename     string
+	Ratio        int
+	File         multipart.File
+	UsersID      int
+}
+
+func (s *Service) Convert(payload ConvertPayLoad) (string, error) {
+	imageID, err := s.repoImage.InsertImage(payload.Filename, payload.SourceFormat)
+	if err != nil {
+		return "", fmt.Errorf("can't insert image into db: %w", err)
+	}
+	err = s.storage.UploadFile(payload.File, imageID)
+	if err != nil {
+		return "", fmt.Errorf("can't upload file: %w", err)
+	}
+	sourceFile, err := s.storage.DownloadFile(imageID)
+	if err != nil {
+		return "", fmt.Errorf("can't download image: %w", err)
+	}
+	convertedImage, err := s.ConvertImage(sourceFile, payload.TargetFormat, payload.Ratio)
+	if err != nil {
+		return "", fmt.Errorf("can't convert image: %w", err)
+	}
+	s.logger.Infof("user with id %v successfully convert image with id %v", payload.UsersID, imageID)
+	requestID, err := s.repoImage.RequestsHistory(payload.SourceFormat, payload.TargetFormat, imageID, payload.Filename, payload.UsersID, payload.Ratio)
+	if err != nil {
+		return "", fmt.Errorf("can't make request: %w", err)
+	}
+	targetImageID, err := s.repoImage.InsertImage(payload.Filename, payload.TargetFormat)
+	if err != nil {
+		return "", fmt.Errorf("can't insert image into db: %w", err)
+	}
+	err = s.repoImage.UpdateRequest(processing, imageID, targetImageID)
+	if err != nil {
+		return "", fmt.Errorf("can't update status: %w", err)
+	}
+	err = s.storage.UploadFile(convertedImage, targetImageID)
+	if err != nil {
+		return "", fmt.Errorf("can't upload image: %w", err)
+	}
+	err = s.repoImage.UpdateRequest(done, imageID, targetImageID)
+	if err != nil {
+		return "", fmt.Errorf("can't update status: %w", err)
+	}
+	return requestID, nil
 }
 
 // RequestsHistory inserts history of the users request to the database.

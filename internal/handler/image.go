@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nikby53/image-converter/internal/service"
+
 	"github.com/gorilla/mux"
 )
 
@@ -21,13 +23,12 @@ func validateConvert(sourceFormat, filename, targetFormat string, ratio int) err
 	if ratio < 1 || ratio > 100 {
 		return fmt.Errorf("ratio should be in range of 1 to 100")
 	}
+
 	// TODO finish validate func
 	return nil
 }
 
 const (
-	processing   = "processing"
-	done         = "done"
 	defaultRatio = 100
 )
 
@@ -59,57 +60,23 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	imageID, err := s.services.InsertImage(filename, sourceFormat)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
-		return
-	}
-	err = s.storage.UploadFile(file, imageID)
-	if err != nil {
-		s.logger.Printf("can't upload image: %v", err)
-		return
-	}
-	sourceFile, err := s.storage.DownloadFile(imageID)
-	if err != nil {
-		http.Error(w, "can't download image", http.StatusInternalServerError)
-		return
-	}
-	convertedImage, err := s.services.ConvertImage(sourceFile, targetFormat, ratio)
-	if err != nil {
-		s.logger.Printf("can't convert image: %v", err)
-		return
-	}
 	usersID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
-	s.logger.Infof("user with id %v successfully convert image with id %v", usersID, imageID)
-	requestID, err := s.services.RequestsHistory(sourceFormat, targetFormat, imageID, filename, usersID, ratio)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
-		return
+	payload := service.ConvertPayLoad{
+		SourceFormat: sourceFormat,
+		TargetFormat: targetFormat,
+		Filename:     filename,
+		Ratio:        ratio,
+		File:         file,
+		UsersID:      usersID,
 	}
-	targetImageID, err := s.services.InsertImage(filename, targetFormat)
+	requestID, err := s.services.Convert(payload)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("repository error: %v", err), http.StatusInternalServerError)
+		http.Error(w, "can't convert image", http.StatusInternalServerError)
 		return
-	}
-	err = s.services.UpdateRequest(processing, imageID, targetImageID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
-		return
-	}
-	err = s.storage.UploadFile(convertedImage, targetImageID)
-	if err != nil {
-		s.logger.Printf("can't upload image: %v", err)
-		return
-	}
-	err = s.services.UpdateRequest(done, imageID, targetImageID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("can't update request: %v", err), http.StatusInternalServerError)
-		return
-
 	}
 	err = json.NewEncoder(w).Encode(RequestID{ID: requestID})
 	if err != nil {
@@ -151,7 +118,6 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(url)
 	client := &http.Client{}
 	resp, err := client.Get(url)
 	if err != nil {
@@ -160,7 +126,7 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 	w.Header().Set("Content-Disposition", "attachment; filename="+image.Name+"."+image.Format)
-	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	w.Header().Set("Content-Type", image.Format)
 	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
 	io.Copy(w, resp.Body)
 	s.logger.Infof("user successfully download image with id %v", image.ID)

@@ -8,7 +8,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-openapi/runtime v0.20.0
 	github.com/go-openapi/spec v0.20.4 // indirect
-	github.com/go-test/deep v1.0.8
 	github.com/golang/mock v1.5.0
 	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/gorilla/mux v1.8.0
