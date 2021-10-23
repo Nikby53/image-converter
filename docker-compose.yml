@@ -9,7 +9,6 @@ services:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
-    hostname: "postgres.local"
     ports:
       - "5438:5432"
     volumes:
