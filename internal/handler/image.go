@@ -40,6 +40,7 @@ type RequestID struct {
 func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("image")
 	if err != nil {
+		http.Error(w, fmt.Sprintf("invalid header value ( %v", err), http.StatusBadRequest)
 		s.logger.Printf("error retrieving the file %v", err)
 		return
 	}
@@ -75,7 +76,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	}
 	requestID, err := s.services.Convert(payload)
 	if err != nil {
-		http.Error(w, "can't convert image", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	err = json.NewEncoder(w).Encode(RequestID{ID: requestID})
