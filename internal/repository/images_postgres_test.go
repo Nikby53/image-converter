@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +22,8 @@ func TestRepository_InsertImage(t *testing.T) {
 		format   string
 	}
 	query := "INSERT INTO images"
-	r := New(db)
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	r := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
@@ -86,7 +89,8 @@ func TestRepository_RequestsHistory(t *testing.T) {
 		ratio        int
 	}
 	query := "INSERT INTO request"
-	r := New(db)
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	r := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
@@ -157,7 +161,8 @@ func TestRepository_UpdateRequest(t *testing.T) {
 		targetID string
 	}
 	query := "UPDATE request SET status"
-	r := New(db)
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	r := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
@@ -207,7 +212,8 @@ func TestRepository_GetRequestFromID(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	query := "SELECT created, updated, sourceformat, targetformat,status, ratio, filename, image_id, target_id FROM request"
-	r := New(db)
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	r := New(sqlxDB)
 
 	tests := []struct {
 		name    string
@@ -275,7 +281,8 @@ func TestRepository_GetImageByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-	r := New(db)
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	r := New(sqlxDB)
 	query := "SELECT id, name, format FROM images"
 	tests := []struct {
 		name    string

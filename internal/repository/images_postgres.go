@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/Nikby53/image-converter/internal/models"
@@ -13,7 +11,7 @@ func (r *Repository) InsertImage(filename, format string) (string, error) {
 	var imageID string
 	query := fmt.Sprintf("INSERT INTO %s (name, format) VALUES ($1, $2) RETURNING id", images)
 
-	err := r.db.QueryRow(query, filename, format).Scan(&imageID)
+	err := r.db.QueryRowx(query, filename, format).Scan(&imageID)
 	if err != nil {
 		return "", fmt.Errorf("can't insert image: %w", err)
 	}
@@ -25,7 +23,7 @@ func (r *Repository) InsertImage(filename, format string) (string, error) {
 func (r *Repository) RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
 	var requestID string
 	query := fmt.Sprintf("INSERT INTO %s (sourceformat, targetFormat,image_id,filename,user_id, ratio,status) VALUES ($1, $2, $3, $4,$5, $6, 'queued') RETURNING id", request)
-	err := r.db.QueryRow(query, sourceFormat, targetFormat, imageID, filename, userID, ratio).Scan(&requestID)
+	err := r.db.QueryRowx(query, sourceFormat, targetFormat, imageID, filename, userID, ratio).Scan(&requestID)
 	if err != nil {
 		return "", fmt.Errorf("can't insert request: %w", err)
 	}
@@ -65,13 +63,9 @@ func (r *Repository) GetRequestFromID(userID int) ([]models.Request, error) {
 func (r *Repository) GetImageByID(id string) (models.Images, error) {
 	var image models.Images
 	query := fmt.Sprintf("SELECT id, name, format FROM %s WHERE id=$1", images)
-	err := r.db.QueryRow(query, id).Scan(&image.ID, &image.Name, &image.Format)
+	err := r.db.QueryRowx(query, id).Scan(&image.ID, &image.Name, &image.Format)
 	if err != nil {
 		return models.Images{}, fmt.Errorf("can't get id: %w", err)
 	}
 	return image, nil
-}
-
-func (r *Repository) StartTx(ctx context.Context) (*sql.Tx, error) {
-	return r.db.BeginTx(ctx, nil)
 }

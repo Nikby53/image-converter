@@ -3,6 +3,8 @@ package repository
 import (
 	"testing"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/stretchr/testify/assert"
@@ -13,7 +15,8 @@ func TestRepository_CreateUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-	repo := New(db)
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
@@ -75,7 +78,8 @@ func TestRepository_GetUser(t *testing.T) {
 		email    string
 		password string
 	}
-	repo := New(db)
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
