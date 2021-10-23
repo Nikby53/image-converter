@@ -1,8 +1,6 @@
 package service
 
 import (
-	"github.com/Nikby53/image-converter/internal/logs"
-
 	"github.com/Nikby53/image-converter/internal/storage"
 
 	"github.com/Nikby53/image-converter/internal/models"
@@ -34,18 +32,14 @@ type ServicesInterface interface {
 
 // Service contains repository interfaces.
 type Service struct {
-	repo      repository.AuthorizationRepository
-	repoImage repository.ImagesRepository
-	storage   *storage.Storage
-	logger    logs.Logger
+	repo    repository.RepositoryInterface
+	storage *storage.Storage
 }
 
 // New is constructor for Service.
-func New(repos repository.AuthorizationRepository, reposImages repository.ImagesRepository, storageAWS *storage.Storage, logger *logs.Logger) *Service {
+func New(repo repository.RepositoryInterface, storageAWS *storage.Storage) *Service {
 	return &Service{
-		repo:      repos,
-		repoImage: reposImages,
-		storage:   storageAWS,
-		logger:    *logger,
+		repo:    repo,
+		storage: storageAWS,
 	}
 }

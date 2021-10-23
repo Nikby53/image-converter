@@ -10,6 +10,8 @@ import (
 	"io"
 	"mime/multipart"
 
+	"github.com/Nikby53/image-converter/internal/repository"
+
 	"github.com/Nikby53/image-converter/internal/models"
 )
 
@@ -30,7 +32,7 @@ const (
 
 // InsertImage inserts image information to database.
 func (s *Service) InsertImage(filename, format string) (string, error) {
-	return s.repoImage.InsertImage(filename, format)
+	return s.repo.InsertImage(filename, format)
 }
 
 // ConvertImage converts JPG to PNG image and vice versa and compress images with
@@ -75,62 +77,63 @@ type ConvertPayLoad struct {
 }
 
 func (s *Service) Convert(payload ConvertPayLoad) (string, error) {
-	imageID, err := s.repoImage.InsertImage(payload.Filename, payload.SourceFormat)
-	if err != nil {
-		return "", fmt.Errorf("can't insert image into db: %w", err)
-	}
-	err = s.storage.UploadFile(payload.File, imageID)
-	if err != nil {
-		return "", fmt.Errorf("can't upload file: %w", err)
-	}
-	sourceFile, err := s.storage.DownloadFile(imageID)
-	if err != nil {
-		return "", fmt.Errorf("can't download image: %w", err)
-	}
-	convertedImage, err := s.ConvertImage(sourceFile, payload.TargetFormat, payload.Ratio)
+	convertedImage, err := s.ConvertImage(payload.File, payload.TargetFormat, payload.Ratio)
 	if err != nil {
 		return "", fmt.Errorf("can't convert image: %w", err)
 	}
-	s.logger.Infof("user with id %v successfully convert image with id %v", payload.UsersID, imageID)
-	requestID, err := s.repoImage.RequestsHistory(payload.SourceFormat, payload.TargetFormat, imageID, payload.Filename, payload.UsersID, payload.Ratio)
+	requestID, err := s.repo.Transactional(func(repo repository.RepositoryInterface) (string, error) {
+		imageID, err := repo.InsertImage(payload.Filename, payload.SourceFormat)
+		if err != nil {
+			return "", fmt.Errorf("can't insert image into db: %w", err)
+		}
+		targetImageID, err := repo.InsertImage(payload.Filename, payload.TargetFormat)
+		if err != nil {
+			return "", fmt.Errorf("can't insert image into db: %w", err)
+		}
+		requestID, err := repo.RequestsHistory(payload.SourceFormat, payload.TargetFormat, imageID, payload.Filename, payload.UsersID, payload.Ratio)
+		if err != nil {
+			return "", fmt.Errorf("can't make request: %w", err)
+		}
+		err = repo.UpdateRequest(processing, imageID, targetImageID)
+		if err != nil {
+			return "", fmt.Errorf("can't update status: %w", err)
+		}
+		err = repo.UpdateRequest(done, imageID, targetImageID)
+		if err != nil {
+			return "", fmt.Errorf("can't update status: %w", err)
+		}
+		err = s.storage.UploadFile(payload.File, imageID)
+		if err != nil {
+			return "", fmt.Errorf("can't upload file: %w", err)
+		}
+		err = s.storage.UploadFile(convertedImage, targetImageID)
+		if err != nil {
+			return "", fmt.Errorf("can't upload image: %w", err)
+		}
+		return requestID, nil
+	})
 	if err != nil {
-		return "", fmt.Errorf("can't make request: %w", err)
-	}
-	targetImageID, err := s.repoImage.InsertImage(payload.Filename, payload.TargetFormat)
-	if err != nil {
-		return "", fmt.Errorf("can't insert image into db: %w", err)
-	}
-	err = s.repoImage.UpdateRequest(processing, imageID, targetImageID)
-	if err != nil {
-		return "", fmt.Errorf("can't update status: %w", err)
-	}
-	err = s.storage.UploadFile(convertedImage, targetImageID)
-	if err != nil {
-		return "", fmt.Errorf("can't upload image: %w", err)
-	}
-	err = s.repoImage.UpdateRequest(done, imageID, targetImageID)
-	if err != nil {
-		return "", fmt.Errorf("can't update status: %w", err)
+		return "", err
 	}
 	return requestID, nil
 }
 
 // RequestsHistory inserts history of the users request to the database.
 func (s *Service) RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
-	return s.repoImage.RequestsHistory(sourceFormat, targetFormat, imageID, filename, userID, ratio)
+	return s.repo.RequestsHistory(sourceFormat, targetFormat, imageID, filename, userID, ratio)
 }
 
 // GetRequestFromID gets request from user id.
 func (s *Service) GetRequestFromID(userID int) ([]models.Request, error) {
-	return s.repoImage.GetRequestFromID(userID)
+	return s.repo.GetRequestFromID(userID)
 }
 
 // UpdateRequest updates status of request.
 func (s *Service) UpdateRequest(status, imageID, targetID string) error {
-	return s.repoImage.UpdateRequest(status, imageID, targetID)
+	return s.repo.UpdateRequest(status, imageID, targetID)
 }
 
 // GetImageID finds id of the image.
 func (s *Service) GetImageByID(id string) (models.Images, error) {
-	return s.repoImage.GetImageByID(id)
+	return s.repo.GetImageByID(id)
 }
