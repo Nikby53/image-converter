@@ -9,7 +9,7 @@ servers:
   - url: http://localhost:8000/
     description: API Server
 paths:
-  /user/login:
+  /auth/login:
     post:
       summary: User authorization
       tags:
@@ -32,7 +32,7 @@ paths:
                   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzM5Njk5MjMsImlhdCI6MTYzMzk1NTUyMywiaWQiOjV9.qoWhUboKD9OjgUUL6BkInQKZrZklWUIlAhbCWW9nl7A
         500:
           description: internal server error
-  /user/signup:
+  /auth/signup:
     post:
       summary: User registration
       tags:

@@ -35,8 +35,8 @@ func NewServer(service service.ServicesInterface, storage storage.StorageInterfa
 		logger:        logs.NewLogger(),
 		messageBroker: broker,
 	}
-	s.router.HandleFunc("/user/signup", s.signUp).Methods("POST")
-	s.router.HandleFunc("/user/login", s.login).Methods("POST")
+	s.router.HandleFunc("/auth/signup", s.signUp).Methods("POST")
+	s.router.HandleFunc("/auth/login", s.login).Methods("POST")
 	api := s.router.NewRoute().Subrouter()
 	api.Use(s.userIdentity)
 	api.HandleFunc("/image/convert", s.convert).Methods("POST")
