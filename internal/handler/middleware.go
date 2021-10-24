@@ -42,7 +42,7 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 	})
 }
 
-// GetIDFromToken gets the id from user token.
+// GetIDFromToken gets the id from the user token.
 func (s *Server) GetIDFromToken(r *http.Request) (int, error) {
 	authHeader := r.Header.Get(authorizationHeader)
 	HeaderParts := strings.Split(authHeader, " ")

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,8 +24,6 @@ func validateConvert(sourceFormat, filename, targetFormat string, ratio int) err
 	if ratio < 1 || ratio > 100 {
 		return fmt.Errorf("ratio should be in range of 1 to 100")
 	}
-
-	// TODO finish validate func
 	return nil
 }
 
@@ -44,7 +43,13 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		s.logger.Printf("error retrieving the file %v", err)
 		return
 	}
-	defer file.Close()
+	defer func(file multipart.File) {
+		err := file.Close()
+		if err != nil {
+			s.logger.Infof("failed to close file %v", err)
+			return
+		}
+	}(file)
 	sourceFormat := r.FormValue("sourceFormat")
 	targetFormat := r.FormValue("targetFormat")
 	filename := strings.TrimSuffix(header.Filename, "."+sourceFormat)
@@ -61,7 +66,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	usersID, err := s.GetIDFromToken(r)
+	userID, err := s.GetIDFromToken(r)
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
@@ -72,13 +77,14 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		Filename:     filename,
 		Ratio:        ratio,
 		File:         file,
-		UsersID:      usersID,
+		UsersID:      userID,
 	}
-	requestID, err := s.services.Convert(payload)
+	requestID, err := s.services.Conversion(payload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	s.logger.Infof("user successfully convert image with request id %v", requestID)
 	err = json.NewEncoder(w).Encode(RequestID{ID: requestID})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -125,10 +131,20 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			s.logger.Infof("failed to close body %v", err)
+			return
+		}
+	}(resp.Body)
 	w.Header().Set("Content-Disposition", "attachment; filename="+image.Name+"."+image.Format)
 	w.Header().Set("Content-Type", image.Format)
 	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
-	io.Copy(w, resp.Body)
+	_, err = io.Copy(w, resp.Body)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error in copy %v", err), http.StatusInternalServerError)
+		return
+	}
 	s.logger.Infof("user successfully download image with id %v", image.ID)
 }
