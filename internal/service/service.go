@@ -1,10 +1,9 @@
 package service
 
 import (
-	"github.com/Nikby53/image-converter/internal/storage"
-
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/repository"
+	"github.com/Nikby53/image-converter/internal/storage"
 )
 
 // Authorization contains methods for authorization of a user.
@@ -21,7 +20,7 @@ type Images interface {
 	GetRequestFromID(userID int) ([]models.Request, error)
 	UpdateRequest(status, imageID, targetID string) error
 	GetImageByID(id string) (models.Images, error)
-	Conversion(payload ConvertPayLoad) (string, error)
+	Conversion(payload ConversionPayLoad) (string, error)
 }
 
 // ServicesInterface holds Authorization and Images interfaces.
@@ -32,12 +31,12 @@ type ServicesInterface interface {
 
 // Service contains repository interfaces.
 type Service struct {
-	repo    repository.RepositoryInterface
+	repo    repository.RepoInterface
 	storage *storage.Storage
 }
 
 // New is constructor for Service.
-func New(repo repository.RepositoryInterface, storageAWS *storage.Storage) *Service {
+func New(repo repository.RepoInterface, storageAWS *storage.Storage) *Service {
 	return &Service{
 		repo:    repo,
 		storage: storageAWS,

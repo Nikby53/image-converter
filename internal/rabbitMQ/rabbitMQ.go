@@ -1,6 +1,8 @@
 package rabbitMQ
 
 import (
+	"fmt"
+
 	"github.com/Nikby53/image-converter/internal/configs"
 	"github.com/Nikby53/image-converter/internal/logs"
 	"github.com/streadway/amqp"
@@ -8,28 +10,38 @@ import (
 
 var logger = logs.NewLogger()
 
+// Client struct contains.
 type Client struct {
 	connection *amqp.Connection
 	channel    *amqp.Channel
 	queue      amqp.Queue
-	logger     *logs.Logger
 }
 
+// NewRabbitMQ is set up rabbitMQ connection.
 func NewRabbitMQ(conf *configs.RabbitMQConfig) (*Client, error) {
 	conn, err := amqp.Dial(conf.RabbitURL)
 	if err != nil {
-		logger.Fatalf("can't connect to AMQP: %s", err)
-		return nil, err
+		return nil, fmt.Errorf("can't connect to AMQP: %w", err)
 	}
-	defer conn.Close()
+	defer func(conn *amqp.Connection) {
+		err := conn.Close()
+		if err != nil {
+			logger.Errorf("can't close connection %v", err)
+		}
+	}(conn)
 	ch, err := conn.Channel()
 	if err != nil {
-		logger.Fatalf("can't open the channel: %s", err)
+		return nil, fmt.Errorf("can't create an AMQP channel: %w", err)
 	}
-	defer ch.Close()
+	defer func(ch *amqp.Channel) {
+		err := ch.Close()
+		if err != nil {
+			logger.Errorf("can't close channel %v", err)
+		}
+	}(ch)
 	q, err := ch.QueueDeclare("", false, false, false, false, nil)
 	if err != nil {
-		logger.Fatalf("can't declare the queue: %s", err)
+		return nil, fmt.Errorf("can't declare queue %w", err)
 	}
 	return &Client{connection: conn, channel: ch, queue: q}, nil
 }

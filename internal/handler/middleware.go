@@ -7,9 +7,12 @@ import (
 	"strings"
 )
 
+// UserIDCtx is custom type.
+type UserIDCtx string
+
 const (
 	authorizationHeader = "Authorization"
-	userCtx             = "userId"
+	userCtx             = "userID"
 )
 
 // UserIdentity checks if the user is authorized or not.
@@ -37,7 +40,7 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 			http.Error(w, "can't parse jwt token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), userCtx, userID)
+		ctx := context.WithValue(r.Context(), UserIDCtx(userCtx), userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

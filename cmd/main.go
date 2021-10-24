@@ -1,26 +1,3 @@
-// Golang SwaggerUI image-service
-//
-// Documentation of our awesome API
-//
-//     Schemes: http
-//     BasePath: /
-//     Version: 1.1.0
-//     Host: localhost:8000
-//
-//     Consumes:
-//     - application/json
-//
-//     Produces:
-//     - application/json
-//
-//     Security:
-//     - basic
-//
-//    SecurityDefinitions:
-//    basic:
-//      type: basic
-//
-// swagger:meta
 package main
 
 import (

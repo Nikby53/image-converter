@@ -3,9 +3,8 @@ package repository
 import (
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/Nikby53/image-converter/internal/configs"
+	"github.com/jmoiron/sqlx"
 )
 
 const users = "users"

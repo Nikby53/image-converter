@@ -5,14 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Nikby53/image-converter/internal/rabbitMQ"
-
 	"github.com/Nikby53/image-converter/internal/logs"
-
-	"github.com/go-openapi/runtime/middleware"
-
+	"github.com/Nikby53/image-converter/internal/rabbitMQ"
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -20,18 +17,18 @@ import (
 type Server struct {
 	router        *mux.Router
 	services      service.ServicesInterface
-	storage       storage.StorageInterface
+	storage       storage.StoragesInterface
 	httpServer    *http.Server
 	logger        *logs.Logger
 	messageBroker *rabbitMQ.Client
 }
 
 // NewServer configures server.
-func NewServer(service service.ServicesInterface, storage storage.StorageInterface, broker *rabbitMQ.Client) *Server {
+func NewServer(src service.ServicesInterface, st storage.StoragesInterface, broker *rabbitMQ.Client) *Server {
 	s := Server{
 		router:        mux.NewRouter(),
-		services:      service,
-		storage:       storage,
+		services:      src,
+		storage:       st,
 		logger:        logs.NewLogger(),
 		messageBroker: broker,
 	}
@@ -69,5 +66,5 @@ func (s *Server) Run(port string, handler http.Handler) error {
 
 // Shutdown stops the server.
 func (s *Server) Shutdown(ctx context.Context) error {
-	return s.Shutdown(ctx)
+	return s.httpServer.Shutdown(ctx)
 }

@@ -3,17 +3,14 @@ package app
 import (
 	"context"
 
-	"github.com/Nikby53/image-converter/internal/rabbitMQ"
-	"github.com/joho/godotenv"
-
 	"github.com/Nikby53/image-converter/internal/configs"
-
-	"github.com/Nikby53/image-converter/internal/logs"
-
 	"github.com/Nikby53/image-converter/internal/handler"
+	"github.com/Nikby53/image-converter/internal/logs"
+	"github.com/Nikby53/image-converter/internal/rabbitMQ"
 	"github.com/Nikby53/image-converter/internal/repository"
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
+	"github.com/joho/godotenv"
 )
 
 // Start starts the server.

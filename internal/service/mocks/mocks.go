@@ -100,7 +100,7 @@ func (m *MockImages) EXPECT() *MockImagesMockRecorder {
 }
 
 // Conversion mocks base method.
-func (m *MockImages) Conversion(payload service.ConvertPayLoad) (string, error) {
+func (m *MockImages) Conversion(payload service.ConversionPayLoad) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Conversion", payload)
 	ret0, _ := ret[0].(string)
@@ -212,7 +212,7 @@ func (m *MockServicesInterface) EXPECT() *MockServicesInterfaceMockRecorder {
 }
 
 // Conversion mocks base method.
-func (m *MockServicesInterface) Conversion(payload service.ConvertPayLoad) (string, error) {
+func (m *MockServicesInterface) Conversion(payload service.ConversionPayLoad) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Conversion", payload)
 	ret0, _ := ret[0].(string)

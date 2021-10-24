@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/Nikby53/image-converter/internal/service"
-
 	"github.com/gorilla/mux"
 )
 
@@ -40,14 +39,13 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("image")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("invalid header value ( %v", err), http.StatusBadRequest)
-		s.logger.Printf("error retrieving the file %v", err)
+		s.logger.Errorf("error retrieving the file %v", err)
 		return
 	}
 	defer func(file multipart.File) {
 		err := file.Close()
 		if err != nil {
-			s.logger.Infof("failed to close file %v", err)
-			return
+			s.logger.Errorf("failed to close file %v", err)
 		}
 	}(file)
 	sourceFormat := r.FormValue("sourceFormat")
@@ -71,7 +69,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
-	payload := service.ConvertPayLoad{
+	payload := service.ConversionPayLoad{
 		SourceFormat: sourceFormat,
 		TargetFormat: targetFormat,
 		Filename:     filename,
@@ -131,13 +129,12 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
+	defer func() {
+		err := resp.Body.Close()
 		if err != nil {
-			s.logger.Infof("failed to close body %v", err)
-			return
+			s.logger.Errorf("can't close body %v", err)
 		}
-	}(resp.Body)
+	}()
 	w.Header().Set("Content-Disposition", "attachment; filename="+image.Name+"."+image.Format)
 	w.Header().Set("Content-Type", image.Format)
 	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))

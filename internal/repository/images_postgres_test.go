@@ -5,10 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Nikby53/image-converter/internal/models"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 

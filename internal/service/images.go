@@ -10,9 +10,8 @@ import (
 	"io"
 	"mime/multipart"
 
-	"github.com/Nikby53/image-converter/internal/repository"
-
 	"github.com/Nikby53/image-converter/internal/models"
+	"github.com/Nikby53/image-converter/internal/repository"
 )
 
 var (
@@ -35,7 +34,7 @@ func (s *Service) InsertImage(filename, format string) (string, error) {
 	return s.repo.InsertImage(filename, format)
 }
 
-// ConvertImage converts JPG to PNG image and vice versa and compress images with
+// ConvertToType converts JPG to PNG image and vice versa and compress images with
 // the compression ratio specified by the user.
 func (s *Service) ConvertToType(sourceImage io.ReadSeeker, targetFormat string, ratio int) (io.ReadSeeker, error) {
 	img, _, err := image.Decode(sourceImage)
@@ -67,7 +66,8 @@ const (
 	done       = "done"
 )
 
-type ConvertPayLoad struct {
+// ConversionPayLoad is payload for Conversion.
+type ConversionPayLoad struct {
 	SourceFormat string
 	TargetFormat string
 	Filename     string
@@ -76,12 +76,13 @@ type ConvertPayLoad struct {
 	UsersID      int
 }
 
-func (s *Service) Conversion(payload ConvertPayLoad) (string, error) {
+// Conversion func is for all conversion logic.
+func (s *Service) Conversion(payload ConversionPayLoad) (string, error) {
 	convertedImage, err := s.ConvertToType(payload.File, payload.TargetFormat, payload.Ratio)
 	if err != nil {
 		return "", fmt.Errorf("can't convert image: %w", err)
 	}
-	requestID, err := s.repo.Transactional(func(repo repository.RepositoryInterface) (string, error) {
+	requestID, err := s.repo.Transactional(func(repo repository.RepoInterface) (string, error) {
 		imageID, err := repo.InsertImage(payload.Filename, payload.SourceFormat)
 		if err != nil {
 			return "", fmt.Errorf("can't insert image into db: %w", err)
@@ -133,7 +134,7 @@ func (s *Service) UpdateRequest(status, imageID, targetID string) error {
 	return s.repo.UpdateRequest(status, imageID, targetID)
 }
 
-// GetImageID finds id of the image.
+// GetImageByID get information of image by id.
 func (s *Service) GetImageByID(id string) (models.Images, error) {
 	return s.repo.GetImageByID(id)
 }

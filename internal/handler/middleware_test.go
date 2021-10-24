@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,7 +13,10 @@ import (
 )
 
 func testHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("1"))
+	_, err := w.Write([]byte("1"))
+	if err != nil {
+		return
+	}
 }
 
 func TestHandler_userIdentity(t *testing.T) {
@@ -72,7 +75,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerValue: "Bearer token",
 			token:       "token",
 			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(0, errors.New("can't parse jwt token\n"))
+				r.EXPECT().ParseToken(token).Return(0, fmt.Errorf("can't parse jwt token"))
 			},
 			expectedStatusCode:   401,
 			expectedResponseBody: "can't parse jwt token\n",

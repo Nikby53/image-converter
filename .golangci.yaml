@@ -54,12 +54,15 @@ issues:
         - unused
         - goconst
         - gomnd
+        - bodyclose
     - path: tests/
       linters:
         - unused
         - goconst
         - gomnd
+        - bodyclose
     - path: utests/
       linters:
         - unused
         - goconst
+        - bodyclose

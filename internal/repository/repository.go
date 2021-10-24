@@ -4,10 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
-
 	"github.com/Nikby53/image-converter/internal/models"
+	"github.com/jmoiron/sqlx"
 )
 
 // AuthorizationRepository interface contains database methods of the user.
@@ -25,10 +23,12 @@ type ImagesRepository interface {
 	GetImageByID(id string) (models.Images, error)
 }
 
-type RepositoryInterface interface {
+// RepoInterface contains AuthorizationRepository,
+// ImagesRepository and Transactional func.
+type RepoInterface interface {
 	AuthorizationRepository
 	ImagesRepository
-	Transactional(f func(repo RepositoryInterface) (string, error)) (string, error)
+	Transactional(f func(repo RepoInterface) (string, error)) (string, error)
 }
 
 // Repository struct provides access to the database.
@@ -43,7 +43,8 @@ func New(db *sqlx.DB) *Repository {
 	}
 }
 
-func (r *Repository) Transactional(f func(repo RepositoryInterface) (string, error)) (string, error) {
+// Transactional func begins transactions,rollback and commit them.
+func (r *Repository) Transactional(f func(repo RepoInterface) (string, error)) (string, error) {
 	sqlDB, ok := r.db.(*sqlx.DB)
 	if !ok {
 		return "", errors.New("couldn't bring to DB")
@@ -52,23 +53,24 @@ func (r *Repository) Transactional(f func(repo RepositoryInterface) (string, err
 	if err != nil {
 		return "", fmt.Errorf("couldn't start transaction:%s", err)
 	}
-
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			err := tx.Rollback()
+			if err != nil {
+				_ = fmt.Errorf("cannot rollback transaction:%w", err)
+				return
+			}
 			return
 		}
 		err = tx.Commit()
 		if err != nil {
-			logrus.Infof("error from(commit) tx %v", err.Error())
+			_ = fmt.Errorf("cannot commit transaction: %w", err)
+			return
 		}
-
 	}()
-
 	str, err := f(&Repository{db: tx})
 	if err != nil {
 		return "", err
 	}
-
 	return str, nil
 }

@@ -3,15 +3,16 @@ package storage
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"time"
+
 	"github.com/Nikby53/image-converter/internal/configs"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"io"
-	"io/ioutil"
-	"os"
-	"time"
 )
 
 // Storage holds config and s3 methods.

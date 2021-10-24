@@ -18,14 +18,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Nikby53/image-converter/internal/storage/mocksstorage"
-
 	"github.com/Nikby53/image-converter/internal/models"
-
+	"github.com/Nikby53/image-converter/internal/service/mocks"
+	"github.com/Nikby53/image-converter/internal/storage/mocksstorage"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/Nikby53/image-converter/internal/service/mocks"
 )
 
 func TestHandler_requests(t *testing.T) {
@@ -245,8 +242,8 @@ func TestHandler_downloadImage(t *testing.T) {
 }
 
 func requestTest(t *testing.T, filename, paramName, url, targetFormat string, params map[string]string) *http.Request {
-	newfilename := strings.TrimSuffix(filename, "."+"png")
-	file, err := os.Create(newfilename + "." + targetFormat)
+	newFileName := strings.TrimSuffix(filename, "."+"png")
+	file, err := os.Create(newFileName + "." + targetFormat)
 	if err != nil {
 		assert.NoError(t, err)
 	}
@@ -271,7 +268,7 @@ func requestTest(t *testing.T, filename, paramName, url, targetFormat string, pa
 		assert.NoError(t, err)
 	}
 	_, err = io.Copy(part, file)
-
+	assert.NoError(t, err)
 	for key, val := range params {
 		_ = writer.WriteField(key, val)
 	}

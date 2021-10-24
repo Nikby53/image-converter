@@ -4,6 +4,7 @@ import (
 	"os"
 )
 
+// Config struct contains all configs.
 type Config struct {
 	DBConf       *DBConfig
 	APIPort      string
@@ -29,10 +30,12 @@ type AWSConfig struct {
 	Region     string
 }
 
+// RabbitMQConfig is config for rabbitMQ message broker.
 type RabbitMQConfig struct {
 	RabbitURL string
 }
 
+// NewConfig is constructor for Config that sets up all configs.
 func NewConfig() *Config {
 	return &Config{
 		DBConf: &DBConfig{
