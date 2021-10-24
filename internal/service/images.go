@@ -37,7 +37,7 @@ func (s *Service) InsertImage(filename, format string) (string, error) {
 
 // ConvertImage converts JPG to PNG image and vice versa and compress images with
 // the compression ratio specified by the user.
-func (s *Service) ConvertImage(sourceImage io.ReadSeeker, targetFormat string, ratio int) (io.ReadSeeker, error) {
+func (s *Service) ConvertToType(sourceImage io.ReadSeeker, targetFormat string, ratio int) (io.ReadSeeker, error) {
 	img, _, err := image.Decode(sourceImage)
 	if err != nil {
 		return nil, errUnableToDecode
@@ -76,8 +76,8 @@ type ConvertPayLoad struct {
 	UsersID      int
 }
 
-func (s *Service) Convert(payload ConvertPayLoad) (string, error) {
-	convertedImage, err := s.ConvertImage(payload.File, payload.TargetFormat, payload.Ratio)
+func (s *Service) Conversion(payload ConvertPayLoad) (string, error) {
+	convertedImage, err := s.ConvertToType(payload.File, payload.TargetFormat, payload.Ratio)
 	if err != nil {
 		return "", fmt.Errorf("can't convert image: %w", err)
 	}

@@ -21,7 +21,7 @@ type Images interface {
 	GetRequestFromID(userID int) ([]models.Request, error)
 	UpdateRequest(status, imageID, targetID string) error
 	GetImageByID(id string) (models.Images, error)
-	Convert(payload ConvertPayLoad) (string, error)
+	Conversion(payload ConvertPayLoad) (string, error)
 }
 
 // ServicesInterface holds Authorization and Images interfaces.
