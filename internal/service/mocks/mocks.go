@@ -99,19 +99,19 @@ func (m *MockImages) EXPECT() *MockImagesMockRecorder {
 	return m.recorder
 }
 
-// Convert mocks base method.
-func (m *MockImages) Convert(payload service.ConvertPayLoad) (string, error) {
+// Conversion mocks base method.
+func (m *MockImages) Conversion(payload service.ConvertPayLoad) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Convert", payload)
+	ret := m.ctrl.Call(m, "Conversion", payload)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Convert indicates an expected call of Convert.
-func (mr *MockImagesMockRecorder) Convert(payload interface{}) *gomock.Call {
+// Conversion indicates an expected call of Conversion.
+func (mr *MockImagesMockRecorder) Conversion(payload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Convert", reflect.TypeOf((*MockImages)(nil).Convert), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Conversion", reflect.TypeOf((*MockImages)(nil).Conversion), payload)
 }
 
 // GetImageByID mocks base method.
@@ -211,19 +211,19 @@ func (m *MockServicesInterface) EXPECT() *MockServicesInterfaceMockRecorder {
 	return m.recorder
 }
 
-// Convert mocks base method.
-func (m *MockServicesInterface) Convert(payload service.ConvertPayLoad) (string, error) {
+// Conversion mocks base method.
+func (m *MockServicesInterface) Conversion(payload service.ConvertPayLoad) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Convert", payload)
+	ret := m.ctrl.Call(m, "Conversion", payload)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Convert indicates an expected call of Convert.
-func (mr *MockServicesInterfaceMockRecorder) Convert(payload interface{}) *gomock.Call {
+// Conversion indicates an expected call of Conversion.
+func (mr *MockServicesInterfaceMockRecorder) Conversion(payload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Convert", reflect.TypeOf((*MockServicesInterface)(nil).Convert), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Conversion", reflect.TypeOf((*MockServicesInterface)(nil).Conversion), payload)
 }
 
 // CreateUser mocks base method.
