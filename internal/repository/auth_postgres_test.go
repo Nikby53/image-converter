@@ -15,6 +15,7 @@ func TestRepository_CreateUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+	query := "INSERT INTO users"
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
 	repo := New(sqlxDB)
 	tests := []struct {
@@ -42,7 +43,7 @@ func TestRepository_CreateUser(t *testing.T) {
 			name: "Error",
 			mock: func() {
 				rows := sqlmock.NewRows([]string{"id"})
-				mock.ExpectQuery("INSERT INTO users").
+				mock.ExpectQuery(query).
 					WithArgs("Test", "").WillReturnRows(rows)
 			},
 			input: models.User{
@@ -74,6 +75,7 @@ func TestRepository_GetUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+	query := "SELECT id FROM users"
 	type args struct {
 		email    string
 		password string
@@ -92,7 +94,7 @@ func TestRepository_GetUser(t *testing.T) {
 			mock: func() {
 				rows := sqlmock.NewRows([]string{"id"}).
 					AddRow(1)
-				mock.ExpectQuery("SELECT id FROM users").
+				mock.ExpectQuery(query).
 					WithArgs("petrov@gmail.com", "13125412312Vv").WillReturnRows(rows)
 			},
 			input: args{

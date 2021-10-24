@@ -70,6 +70,7 @@ func (s *Service) ParseToken(accessToken string) (int, error) {
 
 	return claims.ID, nil
 }
+
 func generatePasswordHash(password string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))

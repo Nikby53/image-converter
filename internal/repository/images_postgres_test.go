@@ -23,7 +23,7 @@ func TestRepository_InsertImage(t *testing.T) {
 	}
 	query := "INSERT INTO images"
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
-	r := New(sqlxDB)
+	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
@@ -63,7 +63,7 @@ func TestRepository_InsertImage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := r.InsertImage(tt.input.filename, tt.input.format)
+			got, err := repo.InsertImage(tt.input.filename, tt.input.format)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -90,7 +90,7 @@ func TestRepository_RequestsHistory(t *testing.T) {
 	}
 	query := "INSERT INTO request"
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
-	r := New(sqlxDB)
+	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
@@ -138,7 +138,7 @@ func TestRepository_RequestsHistory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := r.RequestsHistory(tt.input.sourceFormat, tt.input.targetFormat, tt.input.imagesID, tt.input.filename, tt.input.userID, tt.input.ratio)
+			got, err := repo.RequestsHistory(tt.input.sourceFormat, tt.input.targetFormat, tt.input.imagesID, tt.input.filename, tt.input.userID, tt.input.ratio)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -162,7 +162,7 @@ func TestRepository_UpdateRequest(t *testing.T) {
 	}
 	query := "UPDATE request SET status"
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
-	r := New(sqlxDB)
+	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
 		mock    func()
@@ -198,7 +198,7 @@ func TestRepository_UpdateRequest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			err := r.UpdateRequest(tt.input.status, tt.input.imageID, tt.input.targetID)
+			err := repo.UpdateRequest(tt.input.status, tt.input.imageID, tt.input.targetID)
 			if tt.wantErr {
 				assert.Error(t, err)
 			}
@@ -213,7 +213,7 @@ func TestRepository_GetRequestFromID(t *testing.T) {
 	}
 	query := "SELECT created, updated, sourceformat, targetformat,status, ratio, filename, image_id, target_id FROM request"
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
-	r := New(sqlxDB)
+	repo := New(sqlxDB)
 
 	tests := []struct {
 		name    string
@@ -264,7 +264,7 @@ func TestRepository_GetRequestFromID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := r.GetRequestFromID(tt.input)
+			got, err := repo.GetRequestFromID(tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -282,7 +282,7 @@ func TestRepository_GetImageByID(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
-	r := New(sqlxDB)
+	repo := New(sqlxDB)
 	query := "SELECT id, name, format FROM images"
 	tests := []struct {
 		name    string
@@ -322,7 +322,7 @@ func TestRepository_GetImageByID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := r.GetImageByID(tt.input)
+			got, err := repo.GetImageByID(tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
