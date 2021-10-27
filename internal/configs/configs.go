@@ -2,13 +2,15 @@ package configs
 
 import (
 	"os"
+
+	"github.com/Nikby53/image-converter/internal/storage"
 )
 
 // Config struct contains all configs.
 type Config struct {
 	DBConf       *DBConfig
 	APIPort      string
-	AWSConf      *AWSConfig
+	AWSConf      *storage.AWSConfig
 	RabbitMQConf *RabbitMQConfig
 }
 
@@ -20,14 +22,6 @@ type DBConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
-}
-
-// AWSConfig is config for aws s3 storage.
-type AWSConfig struct {
-	BucketName string
-	AccID      string
-	SecretKey  string
-	Region     string
 }
 
 // RabbitMQConfig is config for rabbitMQ message broker.
@@ -46,7 +40,7 @@ func NewConfig() *Config {
 			DBName:   os.Getenv("DB_NAME"),
 			SSLMode:  os.Getenv("DB_SSL_MODE"),
 		},
-		AWSConf: &AWSConfig{
+		AWSConf: &storage.AWSConfig{
 			BucketName: os.Getenv("AWS_BUCKET_NAME"),
 			AccID:      os.Getenv("AWS_ACC_ID"),
 			SecretKey:  os.Getenv("AWS_SECRET_KEY"),
