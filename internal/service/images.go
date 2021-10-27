@@ -103,6 +103,7 @@ func (s *Service) Conversion(payload ConversionPayLoad) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("can't update status: %w", err)
 		}
+		payload.File.Seek(0, io.SeekStart)
 		err = s.storage.UploadFile(payload.File, imageID)
 		if err != nil {
 			return "", fmt.Errorf("can't upload file: %w", err)
