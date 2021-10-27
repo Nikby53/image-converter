@@ -14,8 +14,7 @@ import (
 )
 
 // Start starts the server.
-func Start() error {
-	var logger = logs.NewLogger()
+func Start(logger *logs.Logger) error {
 	if err := godotenv.Load(); err != nil {
 		logger.Fatalf("error loading env variables: %s", err.Error())
 	}
