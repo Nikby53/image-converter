@@ -60,7 +60,7 @@ func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id, err := s.services.CreateUser(input.User)
+	id, err := s.services.CreateUser(r.Context(), input.User)
 	if err != nil {
 		http.Error(w, "A similar user is already registered in the system", http.StatusConflict)
 		return

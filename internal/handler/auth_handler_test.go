@@ -9,7 +9,6 @@ import (
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/service/mocks"
 	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +31,7 @@ func TestHandler_signUp(t *testing.T) {
 				Password: "qwertyuiop",
 			},
 			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
-				r.EXPECT().CreateUser(user).Return(1, nil)
+				r.EXPECT().CreateUser(gomock.Any(), user).Return(1, nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: "{\"id\":1}\n",
@@ -89,7 +88,7 @@ func TestHandler_signUp(t *testing.T) {
 				Password: "qwertyuiop",
 			},
 			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
-				r.EXPECT().CreateUser(user).Return(0, fmt.Errorf("A similar user is already registered in the system"))
+				r.EXPECT().CreateUser(gomock.Any(), user).Return(0, fmt.Errorf("A similar user is already registered in the system"))
 			},
 			expectedStatusCode:   409,
 			expectedResponseBody: "A similar user is already registered in the system\n",
@@ -104,12 +103,10 @@ func TestHandler_signUp(t *testing.T) {
 			tt.mockBehavior(services, tt.inputUser)
 			storage := Server{storage: nil}
 			broker := Server{messageBroker: nil}
-			handler := NewServer(services, storage.storage, broker.messageBroker)
-			r := mux.NewRouter()
-			r.HandleFunc("/user/signup", handler.signUp).Methods("POST")
+			server := NewServer(services, storage.storage, broker.messageBroker)
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/user/signup", bytes.NewBufferString(tt.inputBody))
-			r.ServeHTTP(w, req)
+			req := httptest.NewRequest("POST", "/auth/signup", bytes.NewBufferString(tt.inputBody))
+			server.router.ServeHTTP(w, req)
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
 			assert.Equal(t, tt.expectedResponseBody, w.Body.String())
 		})
@@ -172,12 +169,10 @@ func TestHandler_login(t *testing.T) {
 			tt.mockBehavior(services, tt.inputUser)
 			storage := Server{storage: nil}
 			broker := Server{messageBroker: nil}
-			handler := NewServer(services, storage.storage, broker.messageBroker)
-			r := mux.NewRouter()
-			r.HandleFunc("/user/login", handler.login).Methods("POST")
+			server := NewServer(services, storage.storage, broker.messageBroker)
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/user/login", bytes.NewBufferString(tt.inputBody))
-			r.ServeHTTP(w, req)
+			req := httptest.NewRequest("POST", "/auth/login", bytes.NewBufferString(tt.inputBody))
+			server.router.ServeHTTP(w, req)
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
 			assert.Equal(t, tt.expectedResponseBody, w.Body.String())
 		})

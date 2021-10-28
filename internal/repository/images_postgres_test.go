@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -62,7 +63,7 @@ func TestRepository_InsertImage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := repo.InsertImage(tt.input.filename, tt.input.format)
+			got, err := repo.InsertImage(context.Background(), tt.input.filename, tt.input.format)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -137,7 +138,7 @@ func TestRepository_RequestsHistory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := repo.RequestsHistory(tt.input.sourceFormat, tt.input.targetFormat, tt.input.imagesID, tt.input.filename, tt.input.userID, tt.input.ratio)
+			got, err := repo.RequestsHistory(context.Background(), tt.input.sourceFormat, tt.input.targetFormat, tt.input.imagesID, tt.input.filename, tt.input.userID, tt.input.ratio)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -197,7 +198,7 @@ func TestRepository_UpdateRequest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			err := repo.UpdateRequest(tt.input.status, tt.input.imageID, tt.input.targetID)
+			err := repo.UpdateRequest(context.Background(), tt.input.status, tt.input.imageID, tt.input.targetID)
 			if tt.wantErr {
 				assert.Error(t, err)
 			}
@@ -263,7 +264,7 @@ func TestRepository_GetRequestFromID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := repo.GetRequestFromID(tt.input)
+			got, err := repo.GetRequestFromID(context.Background(), tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -321,7 +322,7 @@ func TestRepository_GetImageByID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := repo.GetImageByID(tt.input)
+			got, err := repo.GetImageByID(context.Background(), tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

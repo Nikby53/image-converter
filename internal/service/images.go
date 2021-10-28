@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"image"
@@ -30,8 +31,8 @@ const (
 )
 
 // InsertImage inserts image information to database.
-func (s *Service) InsertImage(filename, format string) (string, error) {
-	return s.repo.InsertImage(filename, format)
+func (s *Service) InsertImage(ctx context.Context, filename, format string) (string, error) {
+	return s.repo.InsertImage(ctx, filename, format)
 }
 
 // ConvertToType converts JPG to PNG image and vice versa and compress images with
@@ -77,33 +78,36 @@ type ConversionPayLoad struct {
 }
 
 // Conversion func is for all conversion logic.
-func (s *Service) Conversion(payload ConversionPayLoad) (string, error) {
+func (s *Service) Conversion(ctx context.Context, payload ConversionPayLoad) (string, error) {
 	convertedImage, err := s.ConvertToType(payload.File, payload.TargetFormat, payload.Ratio)
 	if err != nil {
 		return "", fmt.Errorf("can't convert image: %w", err)
 	}
 	requestID, err := s.repo.Transactional(func(repo repository.RepoInterface) (string, error) {
-		imageID, err := repo.InsertImage(payload.Filename, payload.SourceFormat)
+		imageID, err := repo.InsertImage(ctx, payload.Filename, payload.SourceFormat)
 		if err != nil {
 			return "", fmt.Errorf("can't insert image into db: %w", err)
 		}
-		targetImageID, err := repo.InsertImage(payload.Filename, payload.TargetFormat)
+		targetImageID, err := repo.InsertImage(ctx, payload.Filename, payload.TargetFormat)
 		if err != nil {
 			return "", fmt.Errorf("can't insert image into db: %w", err)
 		}
-		requestID, err := repo.RequestsHistory(payload.SourceFormat, payload.TargetFormat, imageID, payload.Filename, payload.UsersID, payload.Ratio)
+		requestID, err := repo.RequestsHistory(ctx, payload.SourceFormat, payload.TargetFormat, imageID, payload.Filename, payload.UsersID, payload.Ratio)
 		if err != nil {
 			return "", fmt.Errorf("can't make request: %w", err)
 		}
-		err = repo.UpdateRequest(processing, imageID, targetImageID)
+		err = repo.UpdateRequest(ctx, processing, imageID, targetImageID)
 		if err != nil {
 			return "", fmt.Errorf("can't update status: %w", err)
 		}
-		err = repo.UpdateRequest(done, imageID, targetImageID)
+		err = repo.UpdateRequest(ctx, done, imageID, targetImageID)
 		if err != nil {
 			return "", fmt.Errorf("can't update status: %w", err)
 		}
-		payload.File.Seek(0, io.SeekStart)
+		_, err = payload.File.Seek(0, io.SeekStart)
+		if err != nil {
+			return "", fmt.Errorf("can't reset counter: %w", err)
+		}
 		err = s.storage.UploadFile(payload.File, imageID)
 		if err != nil {
 			return "", fmt.Errorf("can't upload file: %w", err)
@@ -121,21 +125,21 @@ func (s *Service) Conversion(payload ConversionPayLoad) (string, error) {
 }
 
 // RequestsHistory inserts history of the users request to the database.
-func (s *Service) RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
-	return s.repo.RequestsHistory(sourceFormat, targetFormat, imageID, filename, userID, ratio)
+func (s *Service) RequestsHistory(ctx context.Context, sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
+	return s.repo.RequestsHistory(ctx, sourceFormat, targetFormat, imageID, filename, userID, ratio)
 }
 
 // GetRequestFromID gets request from user id.
-func (s *Service) GetRequestFromID(userID int) ([]models.Request, error) {
-	return s.repo.GetRequestFromID(userID)
+func (s *Service) GetRequestFromID(ctx context.Context, userID int) ([]models.Request, error) {
+	return s.repo.GetRequestFromID(ctx, userID)
 }
 
 // UpdateRequest updates status of request.
-func (s *Service) UpdateRequest(status, imageID, targetID string) error {
-	return s.repo.UpdateRequest(status, imageID, targetID)
+func (s *Service) UpdateRequest(ctx context.Context, status, imageID, targetID string) error {
+	return s.repo.UpdateRequest(ctx, status, imageID, targetID)
 }
 
 // GetImageByID get information of image by id.
-func (s *Service) GetImageByID(id string) (models.Images, error) {
-	return s.repo.GetImageByID(id)
+func (s *Service) GetImageByID(ctx context.Context, id string) (models.Images, error) {
+	return s.repo.GetImageByID(ctx, id)
 }

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -10,17 +11,17 @@ import (
 
 // AuthorizationRepository interface contains database methods of the user.
 type AuthorizationRepository interface {
-	CreateUser(user models.User) (int, error)
-	GetUser(email, password string) (models.User, error)
+	CreateUser(ctx context.Context, user models.User) (int, error)
+	GetUser(ctx context.Context, email, password string) (models.User, error)
 }
 
 // ImagesRepository interface contains database methods of images.
 type ImagesRepository interface {
-	InsertImage(filename, format string) (string, error)
-	RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error)
-	GetRequestFromID(userID int) ([]models.Request, error)
-	UpdateRequest(status, imageID, targetID string) error
-	GetImageByID(id string) (models.Images, error)
+	InsertImage(ctx context.Context, filename, format string) (string, error)
+	RequestsHistory(ctx context.Context, sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error)
+	GetRequestFromID(ctx context.Context, userID int) ([]models.Request, error)
+	UpdateRequest(ctx context.Context, status, imageID, targetID string) error
+	GetImageByID(ctx context.Context, id string) (models.Images, error)
 }
 
 // RepoInterface contains AuthorizationRepository,
@@ -33,7 +34,7 @@ type RepoInterface interface {
 
 // Repository struct provides access to the database.
 type Repository struct {
-	db sqlx.Ext
+	db sqlx.ExtContext
 }
 
 // New is constructor of the Repository.

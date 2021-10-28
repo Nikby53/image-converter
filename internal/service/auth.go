@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"crypto/sha1"
 	"errors"
 	"fmt"
@@ -27,14 +28,14 @@ type tokenClaims struct {
 }
 
 // CreateUser method creates user.
-func (s *Service) CreateUser(user models.User) (id int, err error) {
+func (s *Service) CreateUser(ctx context.Context, user models.User) (id int, err error) {
 	user.Password = generatePasswordHash(user.Password)
-	return s.repo.CreateUser(user)
+	return s.repo.CreateUser(ctx, user)
 }
 
 // GenerateToken generates jwt token for user.
 func (s *Service) GenerateToken(email, password string) (string, error) {
-	users, err := s.repo.GetUser(email, generatePasswordHash(password))
+	users, err := s.repo.GetUser(context.Background(), email, generatePasswordHash(password))
 	if err != nil {
 		return "", err
 	}

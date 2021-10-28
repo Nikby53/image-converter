@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -57,7 +58,7 @@ func TestRepository_CreateUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			got, err := repo.CreateUser(tt.input)
+			got, err := repo.CreateUser(context.Background(), tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -123,7 +124,7 @@ func TestRepository_GetUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := repo.GetUser(tt.input.email, tt.input.password)
+			got, err := repo.GetUser(context.Background(), tt.input.email, tt.input.password)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

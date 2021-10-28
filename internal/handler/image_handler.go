@@ -77,7 +77,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		File:         file,
 		UsersID:      userID,
 	}
-	requestID, err := s.services.Conversion(payload)
+	requestID, err := s.services.Conversion(r.Context(), payload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -97,7 +97,7 @@ func (s *Server) requests(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
 	}
-	history, err := s.services.GetRequestFromID(usersID)
+	history, err := s.services.GetRequestFromID(r.Context(), usersID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("repository error %v", err), http.StatusInternalServerError)
 		return
@@ -113,7 +113,7 @@ func (s *Server) requests(w http.ResponseWriter, r *http.Request) {
 func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	image, err := s.services.GetImageByID(id)
+	image, err := s.services.GetImageByID(r.Context(), id)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("repository error, %v", err), http.StatusInternalServerError)
 		return

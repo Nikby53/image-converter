@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	models "github.com/Nikby53/image-converter/internal/models"
@@ -32,18 +33,18 @@ func (m *MockAuthorization) EXPECT() *MockAuthorizationMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockAuthorization) CreateUser(user models.User) (int, error) {
+func (m *MockAuthorization) CreateUser(ctx context.Context, user models.User) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", user)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockAuthorizationMockRecorder) CreateUser(user interface{}) *gomock.Call {
+func (mr *MockAuthorizationMockRecorder) CreateUser(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockAuthorization)(nil).CreateUser), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockAuthorization)(nil).CreateUser), ctx, user)
 }
 
 // GenerateToken mocks base method.
@@ -100,92 +101,92 @@ func (m *MockImages) EXPECT() *MockImagesMockRecorder {
 }
 
 // Conversion mocks base method.
-func (m *MockImages) Conversion(payload service.ConversionPayLoad) (string, error) {
+func (m *MockImages) Conversion(ctx context.Context, payload service.ConversionPayLoad) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Conversion", payload)
+	ret := m.ctrl.Call(m, "Conversion", ctx, payload)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Conversion indicates an expected call of Conversion.
-func (mr *MockImagesMockRecorder) Conversion(payload interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) Conversion(ctx, payload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Conversion", reflect.TypeOf((*MockImages)(nil).Conversion), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Conversion", reflect.TypeOf((*MockImages)(nil).Conversion), ctx, payload)
 }
 
 // GetImageByID mocks base method.
-func (m *MockImages) GetImageByID(id string) (models.Images, error) {
+func (m *MockImages) GetImageByID(ctx context.Context, id string) (models.Images, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetImageByID", id)
+	ret := m.ctrl.Call(m, "GetImageByID", ctx, id)
 	ret0, _ := ret[0].(models.Images)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetImageByID indicates an expected call of GetImageByID.
-func (mr *MockImagesMockRecorder) GetImageByID(id interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) GetImageByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageByID", reflect.TypeOf((*MockImages)(nil).GetImageByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageByID", reflect.TypeOf((*MockImages)(nil).GetImageByID), ctx, id)
 }
 
 // GetRequestFromID mocks base method.
-func (m *MockImages) GetRequestFromID(userID int) ([]models.Request, error) {
+func (m *MockImages) GetRequestFromID(ctx context.Context, userID int) ([]models.Request, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRequestFromID", userID)
+	ret := m.ctrl.Call(m, "GetRequestFromID", ctx, userID)
 	ret0, _ := ret[0].([]models.Request)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRequestFromID indicates an expected call of GetRequestFromID.
-func (mr *MockImagesMockRecorder) GetRequestFromID(userID interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) GetRequestFromID(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRequestFromID", reflect.TypeOf((*MockImages)(nil).GetRequestFromID), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRequestFromID", reflect.TypeOf((*MockImages)(nil).GetRequestFromID), ctx, userID)
 }
 
 // InsertImage mocks base method.
-func (m *MockImages) InsertImage(filename, format string) (string, error) {
+func (m *MockImages) InsertImage(ctx context.Context, filename, format string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertImage", filename, format)
+	ret := m.ctrl.Call(m, "InsertImage", ctx, filename, format)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // InsertImage indicates an expected call of InsertImage.
-func (mr *MockImagesMockRecorder) InsertImage(filename, format interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) InsertImage(ctx, filename, format interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertImage", reflect.TypeOf((*MockImages)(nil).InsertImage), filename, format)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertImage", reflect.TypeOf((*MockImages)(nil).InsertImage), ctx, filename, format)
 }
 
 // RequestsHistory mocks base method.
-func (m *MockImages) RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
+func (m *MockImages) RequestsHistory(ctx context.Context, sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestsHistory", sourceFormat, targetFormat, imageID, filename, userID, ratio)
+	ret := m.ctrl.Call(m, "RequestsHistory", ctx, sourceFormat, targetFormat, imageID, filename, userID, ratio)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RequestsHistory indicates an expected call of RequestsHistory.
-func (mr *MockImagesMockRecorder) RequestsHistory(sourceFormat, targetFormat, imageID, filename, userID, ratio interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) RequestsHistory(ctx, sourceFormat, targetFormat, imageID, filename, userID, ratio interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestsHistory", reflect.TypeOf((*MockImages)(nil).RequestsHistory), sourceFormat, targetFormat, imageID, filename, userID, ratio)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestsHistory", reflect.TypeOf((*MockImages)(nil).RequestsHistory), ctx, sourceFormat, targetFormat, imageID, filename, userID, ratio)
 }
 
 // UpdateRequest mocks base method.
-func (m *MockImages) UpdateRequest(status, imageID, targetID string) error {
+func (m *MockImages) UpdateRequest(ctx context.Context, status, imageID, targetID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateRequest", status, imageID, targetID)
+	ret := m.ctrl.Call(m, "UpdateRequest", ctx, status, imageID, targetID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateRequest indicates an expected call of UpdateRequest.
-func (mr *MockImagesMockRecorder) UpdateRequest(status, imageID, targetID interface{}) *gomock.Call {
+func (mr *MockImagesMockRecorder) UpdateRequest(ctx, status, imageID, targetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockImages)(nil).UpdateRequest), status, imageID, targetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockImages)(nil).UpdateRequest), ctx, status, imageID, targetID)
 }
 
 // MockServicesInterface is a mock of ServicesInterface interface.
@@ -212,33 +213,33 @@ func (m *MockServicesInterface) EXPECT() *MockServicesInterfaceMockRecorder {
 }
 
 // Conversion mocks base method.
-func (m *MockServicesInterface) Conversion(payload service.ConversionPayLoad) (string, error) {
+func (m *MockServicesInterface) Conversion(ctx context.Context, payload service.ConversionPayLoad) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Conversion", payload)
+	ret := m.ctrl.Call(m, "Conversion", ctx, payload)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Conversion indicates an expected call of Conversion.
-func (mr *MockServicesInterfaceMockRecorder) Conversion(payload interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) Conversion(ctx, payload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Conversion", reflect.TypeOf((*MockServicesInterface)(nil).Conversion), payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Conversion", reflect.TypeOf((*MockServicesInterface)(nil).Conversion), ctx, payload)
 }
 
 // CreateUser mocks base method.
-func (m *MockServicesInterface) CreateUser(user models.User) (int, error) {
+func (m *MockServicesInterface) CreateUser(ctx context.Context, user models.User) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", user)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockServicesInterfaceMockRecorder) CreateUser(user interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) CreateUser(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockServicesInterface)(nil).CreateUser), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockServicesInterface)(nil).CreateUser), ctx, user)
 }
 
 // GenerateToken mocks base method.
@@ -257,48 +258,48 @@ func (mr *MockServicesInterfaceMockRecorder) GenerateToken(email, password inter
 }
 
 // GetImageByID mocks base method.
-func (m *MockServicesInterface) GetImageByID(id string) (models.Images, error) {
+func (m *MockServicesInterface) GetImageByID(ctx context.Context, id string) (models.Images, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetImageByID", id)
+	ret := m.ctrl.Call(m, "GetImageByID", ctx, id)
 	ret0, _ := ret[0].(models.Images)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetImageByID indicates an expected call of GetImageByID.
-func (mr *MockServicesInterfaceMockRecorder) GetImageByID(id interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) GetImageByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageByID", reflect.TypeOf((*MockServicesInterface)(nil).GetImageByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageByID", reflect.TypeOf((*MockServicesInterface)(nil).GetImageByID), ctx, id)
 }
 
 // GetRequestFromID mocks base method.
-func (m *MockServicesInterface) GetRequestFromID(userID int) ([]models.Request, error) {
+func (m *MockServicesInterface) GetRequestFromID(ctx context.Context, userID int) ([]models.Request, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRequestFromID", userID)
+	ret := m.ctrl.Call(m, "GetRequestFromID", ctx, userID)
 	ret0, _ := ret[0].([]models.Request)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRequestFromID indicates an expected call of GetRequestFromID.
-func (mr *MockServicesInterfaceMockRecorder) GetRequestFromID(userID interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) GetRequestFromID(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRequestFromID", reflect.TypeOf((*MockServicesInterface)(nil).GetRequestFromID), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRequestFromID", reflect.TypeOf((*MockServicesInterface)(nil).GetRequestFromID), ctx, userID)
 }
 
 // InsertImage mocks base method.
-func (m *MockServicesInterface) InsertImage(filename, format string) (string, error) {
+func (m *MockServicesInterface) InsertImage(ctx context.Context, filename, format string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertImage", filename, format)
+	ret := m.ctrl.Call(m, "InsertImage", ctx, filename, format)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // InsertImage indicates an expected call of InsertImage.
-func (mr *MockServicesInterfaceMockRecorder) InsertImage(filename, format interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) InsertImage(ctx, filename, format interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertImage", reflect.TypeOf((*MockServicesInterface)(nil).InsertImage), filename, format)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertImage", reflect.TypeOf((*MockServicesInterface)(nil).InsertImage), ctx, filename, format)
 }
 
 // ParseToken mocks base method.
@@ -317,30 +318,30 @@ func (mr *MockServicesInterfaceMockRecorder) ParseToken(accessToken interface{})
 }
 
 // RequestsHistory mocks base method.
-func (m *MockServicesInterface) RequestsHistory(sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
+func (m *MockServicesInterface) RequestsHistory(ctx context.Context, sourceFormat, targetFormat, imageID, filename string, userID, ratio int) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestsHistory", sourceFormat, targetFormat, imageID, filename, userID, ratio)
+	ret := m.ctrl.Call(m, "RequestsHistory", ctx, sourceFormat, targetFormat, imageID, filename, userID, ratio)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RequestsHistory indicates an expected call of RequestsHistory.
-func (mr *MockServicesInterfaceMockRecorder) RequestsHistory(sourceFormat, targetFormat, imageID, filename, userID, ratio interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) RequestsHistory(ctx, sourceFormat, targetFormat, imageID, filename, userID, ratio interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestsHistory", reflect.TypeOf((*MockServicesInterface)(nil).RequestsHistory), sourceFormat, targetFormat, imageID, filename, userID, ratio)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestsHistory", reflect.TypeOf((*MockServicesInterface)(nil).RequestsHistory), ctx, sourceFormat, targetFormat, imageID, filename, userID, ratio)
 }
 
 // UpdateRequest mocks base method.
-func (m *MockServicesInterface) UpdateRequest(status, imageID, targetID string) error {
+func (m *MockServicesInterface) UpdateRequest(ctx context.Context, status, imageID, targetID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateRequest", status, imageID, targetID)
+	ret := m.ctrl.Call(m, "UpdateRequest", ctx, status, imageID, targetID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateRequest indicates an expected call of UpdateRequest.
-func (mr *MockServicesInterfaceMockRecorder) UpdateRequest(status, imageID, targetID interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) UpdateRequest(ctx, status, imageID, targetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockServicesInterface)(nil).UpdateRequest), status, imageID, targetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRequest", reflect.TypeOf((*MockServicesInterface)(nil).UpdateRequest), ctx, status, imageID, targetID)
 }
