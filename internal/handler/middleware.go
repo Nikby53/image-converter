@@ -12,7 +12,7 @@ type UserIDCtx string
 
 const (
 	authorizationHeader = "Authorization"
-	userCtx             = "userID"
+	UserCtxKey          = "userID"
 )
 
 // UserIdentity checks if the user is authorized or not.
@@ -40,14 +40,17 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 			http.Error(w, "can't parse jwt token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), UserIDCtx(userCtx), userID)
+		ctx := context.WithValue(r.Context(), UserIDCtx(UserCtxKey), userID)
 		r = r.Clone(ctx)
 		next.ServeHTTP(w, r)
 	})
 }
 
 func (s *Server) GetIDFromContext(ctx context.Context) (int, error) {
-	userIDCtx := ctx.Value(UserIDCtx(userCtx))
+	userIDCtx := ctx.Value(UserIDCtx(UserCtxKey))
+	if userIDCtx == nil {
+		return 0, fmt.Errorf("can't get id from context")
+	}
 	userID, ok := userIDCtx.(int)
 	if !ok {
 		return 0, fmt.Errorf("can't convert to int")

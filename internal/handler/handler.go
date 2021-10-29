@@ -32,18 +32,7 @@ func NewServer(src service.ServicesInterface, st storage.StoragesInterface, brok
 		logger:        logs.NewLogger(),
 		messageBroker: broker,
 	}
-	s.router.HandleFunc("/auth/signup", s.signUp).Methods("POST")
-	s.router.HandleFunc("/auth/login", s.login).Methods("POST")
-	api := s.router.NewRoute().Subrouter()
-	api.Use(s.userIdentity)
-	api.HandleFunc("/image/convert", s.convert).Methods("POST")
-	api.HandleFunc("/requests", s.requests).Methods("GET")
-	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
-	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
-	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
-	sh := middleware.SwaggerUI(opts, nil)
-	s.router.Handle("/docs", sh)
-
+	s.initRouters()
 	return &s
 }
 
@@ -67,4 +56,18 @@ func (s *Server) Run(port string, handler http.Handler) error {
 // Shutdown stops the server.
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
+}
+
+func (s *Server) initRouters() {
+	s.router.HandleFunc("/auth/signup", s.signUp).Methods("POST")
+	s.router.HandleFunc("/auth/login", s.login).Methods("POST")
+	api := s.router.NewRoute().Subrouter()
+	api.Use(s.userIdentity)
+	api.HandleFunc("/image/convert", s.convert).Methods("POST")
+	api.HandleFunc("/requests", s.requests).Methods("GET")
+	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
+	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
+	sh := middleware.SwaggerUI(opts, nil)
+	s.router.Handle("/docs", sh)
 }
