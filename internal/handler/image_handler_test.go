@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -53,7 +54,7 @@ func TestHandler_requests(t *testing.T) {
 	if err != nil {
 		t.Fatalf("can't marshal: %v", err)
 	}
-	type mockBehavior func(r *mocks.MockServicesInterface, token string)
+	type mockBehavior func(r *mocks.MockServicesInterface, token string, ctx context.Context)
 	tests := []struct {
 		name                 string
 		mockBehavior         mockBehavior
@@ -65,8 +66,8 @@ func TestHandler_requests(t *testing.T) {
 	}{
 		{
 			name: "Ok",
-			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(1, nil).Times(2)
+			mockBehavior: func(r *mocks.MockServicesInterface, token string, ctx context.Context) {
+				r.EXPECT().ParseToken(token).Return(1, nil)
 				r.EXPECT().GetRequestFromID(gomock.Any(), 1).Return(request, nil)
 			},
 			headerName:           "Authorization",
@@ -77,8 +78,8 @@ func TestHandler_requests(t *testing.T) {
 		},
 		{
 			name: "Repo error",
-			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(1, nil).Times(2)
+			mockBehavior: func(r *mocks.MockServicesInterface, token string, ctx context.Context) {
+				r.EXPECT().ParseToken(token).Return(1, nil)
 				r.EXPECT().GetRequestFromID(gomock.Any(), 1).Return(nil, fmt.Errorf(""))
 			},
 			headerName:           "Authorization",
@@ -89,7 +90,7 @@ func TestHandler_requests(t *testing.T) {
 		},
 		{
 			name:                 "Invalid token",
-			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
+			mockBehavior:         func(r *mocks.MockServicesInterface, token string, ctx context.Context) {},
 			headerName:           "Authorization",
 			headerValue:          "Bearer ",
 			token:                "token",
@@ -97,10 +98,9 @@ func TestHandler_requests(t *testing.T) {
 			expectedResponseBody: "token is empty\n",
 		},
 		{
-			name: "Can't get id from jwt token",
-			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(1, nil).Times(1)
-				r.EXPECT().ParseToken(token).Return(1, fmt.Errorf("")).Times(1)
+			name: "Can't get id from context",
+			mockBehavior: func(r *mocks.MockServicesInterface, token string, ctx context.Context) {
+				r.EXPECT().ParseToken(token)
 			},
 			headerName:           "Authorization",
 			headerValue:          "Bearer token",
@@ -114,12 +114,13 @@ func TestHandler_requests(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 			services := mocks.NewMockServicesInterface(c)
-			tt.mockBehavior(services, tt.token)
+			tt.mockBehavior(services, tt.token, context.Background())
 			storage := Server{storage: nil}
 			broker := Server{messageBroker: nil}
 			server := NewServer(services, storage.storage, broker.messageBroker)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/requests", nil)
+			req.Context()
 			req.Header.Set(tt.headerName, tt.headerValue)
 			server.router.ServeHTTP(w, req)
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
@@ -300,7 +301,7 @@ func TestHandler_convert(t *testing.T) {
 		{
 			name: "Ok",
 			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
-				w.EXPECT().ParseToken(token).Return(1, nil).Times(2)
+				w.EXPECT().ParseToken(token).Return(1, nil)
 				w.EXPECT().Conversion(gomock.Any(), gomock.Any()).
 					Return("1", nil)
 			},
@@ -338,7 +339,7 @@ func TestHandler_convert(t *testing.T) {
 		{
 			name: "name of the format should not be empty",
 			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
-				w.EXPECT().ParseToken(token).Return(1, nil).Times(1)
+				w.EXPECT().ParseToken(token).Return(1, nil)
 			},
 			headerName:  "Authorization",
 			headerValue: "Bearer token",
@@ -356,7 +357,7 @@ func TestHandler_convert(t *testing.T) {
 		{
 			name: "invalid header value",
 			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
-				w.EXPECT().ParseToken(token).Return(1, nil).Times(1)
+				w.EXPECT().ParseToken(token).Return(1, nil)
 			},
 			headerName:  "Authorization",
 			headerValue: "Bearer token",
@@ -372,9 +373,8 @@ func TestHandler_convert(t *testing.T) {
 			expectedResponseBody: "invalid header value ( http: no such file\n",
 		},
 		{
-			name: "Can't get id from jwt token",
+			name: "can't parse jwt token",
 			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(1, nil).Times(1)
 				r.EXPECT().ParseToken(token).Return(1, fmt.Errorf("")).Times(1)
 			},
 			headerName:  "Authorization",
@@ -387,13 +387,13 @@ func TestHandler_convert(t *testing.T) {
 			},
 			formValue:            "image",
 			targetFormat:         "jpg",
-			expectedStatusCode:   500,
-			expectedResponseBody: "can't get id from jwt token\n",
+			expectedStatusCode:   401,
+			expectedResponseBody: "can't parse jwt token\n",
 		},
 		{
 			name: "Can't convert",
 			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(1, nil).Times(2)
+				r.EXPECT().ParseToken(token).Return(1, nil)
 				r.EXPECT().Conversion(gomock.Any(), gomock.Any()).Return("0", fmt.Errorf("can't convert image"))
 			},
 			headerName:  "Authorization",

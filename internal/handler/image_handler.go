@@ -64,7 +64,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	userID, err := s.GetIDFromToken(r)
+	userID, err := s.GetIDFromContext(r.Context())
 	if err != nil {
 		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
 		return
@@ -92,9 +92,9 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) requests(w http.ResponseWriter, r *http.Request) {
-	usersID, err := s.GetIDFromToken(r)
+	usersID, err := s.GetIDFromContext(r.Context())
 	if err != nil {
-		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
+		http.Error(w, "can't get id from context", http.StatusInternalServerError)
 		return
 	}
 	history, err := s.services.GetRequestFromID(r.Context(), usersID)

@@ -41,21 +41,16 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), UserIDCtx(userCtx), userID)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		r = r.Clone(ctx)
+		next.ServeHTTP(w, r)
 	})
 }
 
-// GetIDFromToken gets the id from the user token.
-func (s *Server) GetIDFromToken(r *http.Request) (int, error) {
-	authHeader := r.Header.Get(authorizationHeader)
-	HeaderParts := strings.Split(authHeader, " ")
-	if len(HeaderParts) != 2 || HeaderParts[0] != "Bearer" {
-		return 0, nil
-	}
-	token := HeaderParts[1]
-	userID, err := s.services.ParseToken(token)
-	if err != nil {
-		return 0, fmt.Errorf("can't parse jwt token %w", err)
+func (s *Server) GetIDFromContext(ctx context.Context) (int, error) {
+	userIDCtx := ctx.Value(UserIDCtx(userCtx))
+	userID, ok := userIDCtx.(int)
+	if !ok {
+		return 0, fmt.Errorf("can't convert to int")
 	}
 	return userID, nil
 }
