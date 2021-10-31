@@ -51,8 +51,7 @@ func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		logrus.Printf("signUp: can't decode request body: %v", err)
+		http.Error(w, fmt.Sprintf("signUp: can't decode request body: %v", err), http.StatusBadRequest)
 		return
 	}
 	err = input.ValidateSignUp(r)
@@ -73,13 +72,13 @@ func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type signInInput struct {
+type loginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 // ValidateSignIn validates signIp handler.
-func (r *signInInput) ValidateSignIn(req *http.Request) error {
+func (r *loginInput) ValidateSignIn(req *http.Request) error {
 	if r.Email == "" {
 		return errEmailEmpty
 	}
@@ -95,11 +94,10 @@ type tokenJWT struct {
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var input signInInput
+	var input loginInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		s.logger.Printf("signIn: can't decode request body: %v", err)
+		http.Error(w, fmt.Sprintf("login: can't decode request body: %v", err), http.StatusBadRequest)
 		return
 	}
 	err = input.ValidateSignIn(r)
@@ -116,7 +114,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		Token: token})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		s.logger.Printf("signIn: error encoding json: %v", err)
+		s.logger.Printf("login: error encoding json: %v", err)
 		return
 	}
 }
