@@ -11,6 +11,6 @@ func main() {
 	logger.Infoln("Server is starting")
 	err := app.Start(logger)
 	if err != nil {
-		logger.Fatalf("failed to start app:  %v", err)
+		logger.Fatalf("failed to start app: %v", err)
 	}
 }
