@@ -8,10 +8,9 @@ import (
 
 // Config struct contains all configs.
 type Config struct {
-	DBConf       *DBConfig
-	APIPort      string
-	AWSConf      *storage.AWSConfig
-	RabbitMQConf *RabbitMQConfig
+	DBConf  *DBConfig
+	APIPort string
+	AWSConf *storage.AWSConfig
 }
 
 // DBConfig is config of the database.
@@ -22,11 +21,6 @@ type DBConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
-}
-
-// RabbitMQConfig is config for rabbitMQ message broker.
-type RabbitMQConfig struct {
-	RabbitURL string
 }
 
 // NewConfig is constructor for Config that sets up all configs.
@@ -47,8 +41,5 @@ func NewConfig() *Config {
 			Region:     os.Getenv("AWS_REGION"),
 		},
 		APIPort: os.Getenv("API_PORT"),
-		RabbitMQConf: &RabbitMQConfig{
-			RabbitURL: os.Getenv("RABBIT_URL"),
-		},
 	}
 }

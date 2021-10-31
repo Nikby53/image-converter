@@ -9,7 +9,6 @@ import (
 	"github.com/Nikby53/image-converter/internal/configs"
 	"github.com/Nikby53/image-converter/internal/handler"
 	"github.com/Nikby53/image-converter/internal/logs"
-	"github.com/Nikby53/image-converter/internal/rabbitMQ"
 	"github.com/Nikby53/image-converter/internal/repository"
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
@@ -32,14 +31,9 @@ func Start(logger *logs.Logger) error {
 	if err != nil {
 		logger.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
 	}
-	services := service.New(repo, st)
 	logger.Infoln("connected to storage")
-	broker, err := rabbitMQ.NewRabbitMQ(conf.RabbitMQConf)
-	if err != nil {
-		logger.Fatalf("failed to initialize rabbitMQ message broker: %s", err.Error())
-	}
-	logger.Infoln("connected to rabbitMQ")
-	srv := handler.NewServer(services, st, broker)
+	services := service.New(repo, st)
+	srv := handler.NewServer(services, st)
 	go func() {
 		if err := srv.Run(conf.APIPort, srv); err != nil {
 			logger.Fatalf("error occurred while running http server: %s", err.Error())
