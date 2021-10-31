@@ -230,5 +230,5 @@ components:
           example:
             file: sequence of bytes
             source_format: png
-            target_format: jpeg
+            target_format: jpg
             ratio: 77
