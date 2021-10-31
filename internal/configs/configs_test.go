@@ -10,7 +10,7 @@ import (
 
 func TestNewConfig(t *testing.T) {
 	os.Clearenv()
-	err := os.Setenv("APi_PORT", "8000")
+	err := os.Setenv("API_PORT", "8000")
 	if err != nil {
 		assert.NoError(t, err)
 	}
