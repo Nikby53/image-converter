@@ -5,6 +5,7 @@ services:
     restart: always
     container_name: postgresql
     env_file: .env
+    hostname: "postgresql.local"
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -12,7 +13,7 @@ services:
     ports:
       - "5438:5432"
     volumes:
-      - ./scripts/sql.sql:/docker-entrypoint-initdb.d/sql.sql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data:/var/lib/postgresql/data/
 
   api:
@@ -21,9 +22,14 @@ services:
       dockerfile: Dockerfile
     restart: always
     env_file: .env
+    hostname: "api.local"
     container_name: api
     ports:
       - "8000:8000"
     depends_on:
       - postgresql
 
+volumes:
+  postgresql:
+    driver: local
+  database-data:

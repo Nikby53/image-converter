@@ -1,4 +1,9 @@
-CREATE database imageconverter;
+select 'create database imageconverter'
+    where not exists(select from pg_database where datname = 'imageconverter');
+\gexec
+
+
+\c imageconverter
 
 CREATE TABLE if not exists users
 (
