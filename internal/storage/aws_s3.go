@@ -1,11 +1,8 @@
 package storage
 
 import (
-	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -70,42 +67,6 @@ func (s *Storage) UploadFile(image io.ReadSeeker, fileID string) error {
 	}
 
 	return nil
-}
-
-// UploadTargetFile uploads target file to aws s3 bucket.
-func (s *Storage) UploadTargetFile(filename, fileID string) error {
-	f, err := os.Open(filename)
-	if err != nil {
-		panic(err)
-	}
-	_, err = s.svc.PutObject(&s3.PutObjectInput{
-		Body:   f,
-		Bucket: aws.String(s.conf.BucketName),
-		Key:    aws.String(fileID),
-		ACL:    aws.String(s3.BucketCannedACLPublicRead),
-	})
-	if err != nil {
-		return fmt.Errorf("can't upload file: %w", err)
-	}
-
-	return nil
-}
-
-// DownloadFile downloads file from aws storage.
-func (s *Storage) DownloadFile(fileID string) (io.ReadSeeker, error) {
-	resp, err := s.svc.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(s.conf.BucketName),
-		Key:    aws.String(fileID),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("can't download file with id %s: %w", fileID, err)
-	}
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("can't serialize response body: %w", err)
-	}
-
-	return bytes.NewReader(buf), nil
 }
 
 // DownloadImageFromID downloads image from image id.
