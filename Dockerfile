@@ -10,5 +10,4 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder ["/app/main", "/app"]
 COPY ["./.env", "/app"]
-COPY ["./swagger.yaml", "/app"]
 CMD ["sh", "-c", "/app/main"]
