@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/Nikby53/image-converter/internal/logs"
-	"github.com/Nikby53/image-converter/internal/rabbitMQ"
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
 	"github.com/go-openapi/runtime/middleware"
@@ -15,22 +14,20 @@ import (
 
 // Server are complex of routers and services.
 type Server struct {
-	router        *mux.Router
-	services      service.ServicesInterface
-	storage       storage.StoragesInterface
-	httpServer    *http.Server
-	logger        *logs.Logger
-	messageBroker *rabbitMQ.Client
+	router     *mux.Router
+	services   service.ServicesInterface
+	storage    storage.StoragesInterface
+	httpServer *http.Server
+	logger     *logs.Logger
 }
 
 // NewServer configures server.
-func NewServer(src service.ServicesInterface, st storage.StoragesInterface, broker *rabbitMQ.Client) *Server {
+func NewServer(src service.ServicesInterface, st storage.StoragesInterface) *Server {
 	s := Server{
-		router:        mux.NewRouter(),
-		services:      src,
-		storage:       st,
-		logger:        logs.NewLogger(),
-		messageBroker: broker,
+		router:   mux.NewRouter(),
+		services: src,
+		storage:  st,
+		logger:   logs.NewLogger(),
 	}
 	s.initRouters()
 	return &s
@@ -66,7 +63,7 @@ func (s *Server) initRouters() {
 	api.HandleFunc("/image/convert", s.convert).Methods("POST")
 	api.HandleFunc("/requests", s.requests).Methods("GET")
 	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
-	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./api/openapi-spec/")))
 	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)
 	s.router.Handle("/docs", sh)
