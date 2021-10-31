@@ -2,9 +2,11 @@ package app
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/Nikby53/image-converter/internal/configs"
 	"github.com/Nikby53/image-converter/internal/handler"
@@ -35,17 +37,20 @@ func Start(logger *logs.Logger) error {
 	services := service.New(repo, st)
 	srv := handler.NewServer(services, st)
 	go func() {
-		if err := srv.Run(conf.APIPort, srv); err != nil {
-			logger.Fatalf("error occurred while running http server: %s", err.Error())
+		if err := srv.Run(conf.APIPort, srv); err != nil && err != http.ErrServerClosed {
+			logger.Errorf("error occurred while running http server: %s", err.Error())
 		}
 	}()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
-	logger.Infoln("server exited properly")
-	if err := srv.Shutdown(context.Background()); err != nil {
+	logger.Infoln("Server shutting down...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
 		logger.Errorf("error occurred on server shutting down: %s", err.Error())
 	}
+	logger.Infoln("Server stopped")
 	if err := db.Close(); err != nil {
 		logger.Errorf("error occurred on db connection close: %s", err.Error())
 	}
