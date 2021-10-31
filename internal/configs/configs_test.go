@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Nikby53/image-converter/internal/storage"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -68,14 +69,11 @@ func TestNewConfig(t *testing.T) {
 			Port:     "5432",
 			SSLMode:  "disable",
 		},
-		AWSConf: &AWSConfig{
+		AWSConf: &storage.AWSConfig{
 			Region:     "eu-central-1",
 			AccID:      "REWPOUGHEROPFGFOVNSDFGUWREHSG",
 			SecretKey:  "ASDPOJHADPOKHJASPODJA{OSDJAPOIHDQWEIQWJEJ",
 			BucketName: "converter",
-		},
-		RabbitMQConf: &RabbitMQConfig{
-			RabbitURL: "amqp://guest:guest@localhost:5672/",
 		},
 	}
 	assert.Equal(t, expected, actual)

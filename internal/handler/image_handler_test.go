@@ -121,8 +121,7 @@ func TestHandler_requests(t *testing.T) {
 			services := mocks.NewMockServicesInterface(c)
 			tt.mockBehavior(services, tt.token, context.Background())
 			storage := Server{storage: nil}
-			broker := Server{messageBroker: nil}
-			server := NewServer(services, storage.storage, broker.messageBroker)
+			server := NewServer(services, storage.storage)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/requests", nil)
 			req.Header.Set(tt.headerName, tt.headerValue)
@@ -226,8 +225,7 @@ func TestHandler_downloadImage(t *testing.T) {
 			services := mocks.NewMockServicesInterface(c)
 			st := mocksstorage.NewMockStorageInterface(c)
 			tt.mockBehavior(st, services, tt.token)
-			broker := Server{messageBroker: nil}
-			server := NewServer(services, st, broker.messageBroker)
+			server := NewServer(services, st)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/image/download/1", nil)
 			req.Header.Set(tt.headerName, tt.headerValue)
@@ -421,8 +419,7 @@ func TestHandler_convert(t *testing.T) {
 			services := mocks.NewMockServicesInterface(c)
 			tt.mockBehavior(services, tt.token)
 			storage := Server{storage: nil}
-			broker := Server{messageBroker: nil}
-			server := NewServer(services, storage.storage, broker.messageBroker)
+			server := NewServer(services, storage.storage)
 			w := httptest.NewRecorder()
 			req := requestTest(t, "image.png", tt.formValue, "/image/convert", tt.targetFormat, tt.params)
 			req.Header.Set(tt.headerName, tt.headerValue)

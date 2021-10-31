@@ -12,7 +12,8 @@ type UserIDCtx string
 
 const (
 	authorizationHeader = "Authorization"
-	UserCtxKey          = "userID"
+	// UserCtxKey is user's id context key.
+	UserCtxKey = "userID"
 )
 
 // UserIdentity checks if the user is authorized or not.
@@ -46,6 +47,7 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 	})
 }
 
+// GetIDFromContext get user's id from context.
 func (s *Server) GetIDFromContext(ctx context.Context) (int, error) {
 	userIDCtx := ctx.Value(UserIDCtx(UserCtxKey))
 	if userIDCtx == nil {

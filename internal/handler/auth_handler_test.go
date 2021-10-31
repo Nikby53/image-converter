@@ -102,8 +102,7 @@ func TestHandler_signUp(t *testing.T) {
 			services := mocks.NewMockServicesInterface(c)
 			tt.mockBehavior(services, tt.inputUser)
 			storage := Server{storage: nil}
-			broker := Server{messageBroker: nil}
-			server := NewServer(services, storage.storage, broker.messageBroker)
+			server := NewServer(services, storage.storage)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/auth/signup", bytes.NewBufferString(tt.inputBody))
 			server.router.ServeHTTP(w, req)
@@ -168,8 +167,7 @@ func TestHandler_login(t *testing.T) {
 			services := mocks.NewMockServicesInterface(c)
 			tt.mockBehavior(services, tt.inputUser)
 			storage := Server{storage: nil}
-			broker := Server{messageBroker: nil}
-			server := NewServer(services, storage.storage, broker.messageBroker)
+			server := NewServer(services, storage.storage)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/auth/login", bytes.NewBufferString(tt.inputBody))
 			server.router.ServeHTTP(w, req)
