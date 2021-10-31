@@ -93,6 +93,18 @@ func TestHandler_signUp(t *testing.T) {
 			expectedStatusCode:   409,
 			expectedResponseBody: "A similar user is already registered in the system\n",
 		},
+		{
+			name:      "Cannot unmarshal",
+			inputBody: "[]",
+			inputUser: models.User{
+				Email:    "email@mail.ru",
+				Password: "qwertyuiop",
+			},
+			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
+			},
+			expectedStatusCode:   400,
+			expectedResponseBody: "signUp: can't decode request body: json: cannot unmarshal array into Go value of type handler.Registration\n",
+		},
 	}
 
 	for _, tt := range tests {
@@ -157,6 +169,18 @@ func TestHandler_login(t *testing.T) {
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: "email should be not empty\n",
+		},
+		{
+			name:      "Cannot unmarshal",
+			inputBody: "[]",
+			inputUser: models.User{
+				Email:    "email@mail.ru",
+				Password: "qwertyuiop",
+			},
+			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
+			},
+			expectedStatusCode:   400,
+			expectedResponseBody: "login: can't decode request body: json: cannot unmarshal array into Go value of type handler.loginInput\n",
 		},
 	}
 
