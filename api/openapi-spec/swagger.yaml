@@ -11,7 +11,7 @@ servers:
 paths:
   /auth/login:
     post:
-      summary: User authorization qweqwe
+      summary: User authorization
       tags:
         - auth
       requestBody:
@@ -60,7 +60,7 @@ paths:
     post:
       summary: Create a request to convert an image
       tags:
-        - images
+        - image
       security:
         - bearerAuth: []
       requestBody:
@@ -88,7 +88,7 @@ paths:
     get:
       summary: Download needed image by id
       tags:
-        - images
+        - image
       security:
         - bearerAuth: []
       parameters:
@@ -100,7 +100,7 @@ paths:
             type: string
             format: string
           example:
-            id: '2'
+            2
       responses:
         200:
           description: The image is ready to download
@@ -161,13 +161,13 @@ components:
           type: integer
         created:
           type: string
-          format: timestamp
+          format: date-time
         updated:
           type: string
           format: timestamp
         original_img_id:
           type: string
-          format: string
+          format:  timestamp
         target_img_id:
           type: string
           format: string
@@ -177,8 +177,8 @@ components:
         source_format: png
         target_format: jpg
         ratio: 65
-        created: 2021-10-08T22:26:30.624475 Z
-        updated: 2021-10-08T22:26:30.624475 Z
+        created: 2020-10-11 T 20:17:03 Z
+        updated: 2020-10-11 T 20:17:14 Z
         original_img_id: 31
         target_img_id: 32
   securitySchemes:
@@ -231,4 +231,4 @@ components:
             file: sequence of bytes
             source_format: png
             target_format: jpeg
-            ratio: 4
+            ratio: 77
