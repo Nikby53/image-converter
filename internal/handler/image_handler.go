@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -13,15 +14,35 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var (
+	errShouldBeJpg  = errors.New("name of source format should be jpg")
+	errShouldBeJpeg = errors.New("name of source format should be jpeg")
+	errShouldBePng  = errors.New("name of source format should be png")
+	errEmptyFormat  = errors.New("name of the format should not be empty")
+	errInvalidRatio = errors.New("ratio should be in range of 1 to 100")
+)
+
 func validateConvert(sourceFormat, filename, targetFormat string, ratio int) error {
-	if filename == "" {
-		return fmt.Errorf("name of the file should not be empty")
+	if strings.Contains(filename, ".jpg") {
+		if sourceFormat != "jpg" {
+			return errShouldBeJpg
+		}
+	}
+	if strings.Contains(filename, ".jpeg") {
+		if sourceFormat != "jpeg" {
+			return errShouldBeJpeg
+		}
+	}
+	if strings.Contains(filename, ".png") {
+		if sourceFormat != "png" {
+			return errShouldBePng
+		}
 	}
 	if sourceFormat == "" || targetFormat == "" {
-		return fmt.Errorf("name of the format should not be empty")
+		return errEmptyFormat
 	}
 	if ratio < 1 || ratio > 100 {
-		return fmt.Errorf("ratio should be in range of 1 to 100")
+		return errInvalidRatio
 	}
 	return nil
 }
@@ -59,7 +80,7 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	err = validateConvert(sourceFormat, filename, targetFormat, ratio)
+	err = validateConvert(sourceFormat, header.Filename, targetFormat, ratio)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
