@@ -54,10 +54,6 @@ func TestNewConfig(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	err = os.Setenv("RABBIT_URL", "amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		return
-	}
 	actual := NewConfig()
 	expected := &Config{
 		APIPort: "8000",
