@@ -360,6 +360,42 @@ func TestHandler_convert(t *testing.T) {
 			expectedResponseBody: "invalid header value ( http: no such file\n",
 		},
 		{
+			name: "Source format should be jpg",
+			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+				w.EXPECT().ParseToken(token).Return(1, nil)
+			},
+			headerName:  "Authorization",
+			headerValue: "Bearer token",
+			token:       "token",
+			params: map[string]string{
+				"sourceFormat": "erqer",
+				"targetFormat": "png",
+				"ratio":        "77",
+			},
+			formValue:            "image",
+			expectedStatusCode:   400,
+			targetFormat:         "jpg",
+			expectedResponseBody: "name of source format should be png\n",
+		},
+		{
+			name: "Source format should be png",
+			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+				w.EXPECT().ParseToken(token).Return(1, nil)
+			},
+			headerName:  "Authorization",
+			headerValue: "Bearer token",
+			token:       "token",
+			params: map[string]string{
+				"sourceFormat": "qweqeqw",
+				"targetFormat": "jpg",
+				"ratio":        "77",
+			},
+			formValue:            "image",
+			expectedStatusCode:   400,
+			targetFormat:         "jpg",
+			expectedResponseBody: "name of source format should be png\n",
+		},
+		{
 			name: "can't parse jwt token",
 			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
 				r.EXPECT().ParseToken(token).Return(1, fmt.Errorf("")).Times(1)
