@@ -24,3 +24,4 @@ lint:
 .PHONY: test
 test:
 	$(GOTEST) ./... -v
+
