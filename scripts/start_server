@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /home/ec2-user/app
+go build cmd/main.go
+./main
