@@ -1,20 +1,5 @@
 version: '3.3'
 services:
-  postgresql:
-    image: postgres:latest
-    restart: always
-    container_name: postgresql
-    env_file: .env
-    hostname: "postgresql.local"
-    environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    ports:
-      - "5438:5432"
-    volumes:
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./data:/var/lib/postgresql/data/
   api:
     build:
       context: .
