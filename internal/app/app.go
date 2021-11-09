@@ -54,5 +54,6 @@ func Start(logger *logs.Logger) error {
 	if err := db.Close(); err != nil {
 		logger.Errorf("error occurred on db connection close: %s", err.Error())
 	}
+	logger.Infoln("Database stopped")
 	return nil
 }
