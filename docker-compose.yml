@@ -10,8 +10,6 @@ services:
     container_name: api
     ports:
       - "8000:8000"
-    depends_on:
-      - postgresql
 volumes:
   postgresql:
     driver: local
