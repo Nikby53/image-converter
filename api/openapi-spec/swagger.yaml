@@ -7,6 +7,7 @@ info:
   version: 1.1.0
 servers:
   - url: http://localhost:8000/
+  - url: http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/
     description: API Server
 paths:
   /auth/login:
