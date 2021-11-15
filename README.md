@@ -28,7 +28,7 @@ AWS_REGION=
 Use `make run` to build&run project, `make lint` to check code with linter.
 
 ## Architecture Diagram
-![](schema/Architecture diagram.jpg)
+![](schema/Architecture.jpg)
 
 ## Entity–relationship model
 ![](schema/ERD.jpg)
