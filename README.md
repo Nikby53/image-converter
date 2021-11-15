@@ -27,8 +27,11 @@ AWS_REGION=
 
 Use `make run` to build&run project, `make lint` to check code with linter.
 
-## ER Diagram
-![](schema/ER.jpg)
+## Architecture Diagram
+![](schema/Architecture diagram.jpg)
+
+## Entity–relationship model
+![](schema/ERD.jpg)
 
 # Endpoints
  * /auth/signup - user registration [POST]
@@ -36,5 +39,7 @@ Use `make run` to build&run project, `make lint` to check code with linter.
  * /image/convert - convert and compress image [POST]
  * /image/download/{id} - downloads needed image [GET]
  * /requests - get the user's requests history [GET]
+
+
 
 
