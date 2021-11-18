@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"crypto/sha1"
 	"errors"
-	"fmt"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/dgrijalva/jwt-go"
@@ -14,10 +14,11 @@ import (
 var (
 	errInvalidSigningMethod = errors.New("invalid signing method")
 	errTokenClaimsNotType   = errors.New("token claims are not of type *tokenClaims")
+	errWrongPassword        = errors.New("wrong password")
+	errGenHashPassword      = errors.New("can't generate hash password")
 )
 
 const (
-	salt       = "qweqeqsfsdfgderwae"
 	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
 	tokenTTL   = 4 * time.Hour
 )
@@ -29,23 +30,28 @@ type tokenClaims struct {
 
 // CreateUser method creates user.
 func (s *Service) CreateUser(ctx context.Context, user models.User) (id int, err error) {
-	user.Password = generatePasswordHash(user.Password)
+	user.Password, err = generatePasswordHash(user.Password)
+	if err != nil {
+		return id, errGenHashPassword
+	}
 	return s.repo.CreateUser(ctx, user)
 }
 
 // GenerateToken generates jwt token for user.
 func (s *Service) GenerateToken(email, password string) (string, error) {
-	users, err := s.repo.GetUser(context.Background(), email, generatePasswordHash(password))
+	user, err := s.repo.GetUser(context.Background(), email)
 	if err != nil {
 		return "", err
 	}
-
+	if !comparePasswordHash(password, user.Password) {
+		return "", errWrongPassword
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		users.ID,
+		user.ID,
 	})
 
 	return token.SignedString([]byte(signingKey))
@@ -72,8 +78,12 @@ func (s *Service) ParseToken(accessToken string) (int, error) {
 	return claims.ID, nil
 }
 
-func generatePasswordHash(password string) string {
-	hash := sha1.New()
-	hash.Write([]byte(password))
-	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
+func generatePasswordHash(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	return string(bytes), err
+}
+
+func comparePasswordHash(password string, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

@@ -19,11 +19,11 @@ func (r *Repository) CreateUser(ctx context.Context, user models.User) (int, err
 }
 
 // GetUser gets the user.
-func (r *Repository) GetUser(ctx context.Context, email, password string) (models.User, error) {
+func (r *Repository) GetUser(ctx context.Context, email string) (models.User, error) {
 	var user models.User
-	query := fmt.Sprintf("SELECT id FROM %s WHERE email=$1 AND password=$2", users)
-	row := r.db.QueryRowxContext(ctx, query, email, password)
-	if err := row.Scan(&user.ID); err != nil {
+	query := fmt.Sprintf("SELECT id, password FROM %s WHERE email=$1", users)
+	row := r.db.QueryRowxContext(ctx, query, email)
+	if err := row.Scan(&user.ID, &user.Password); err != nil {
 		return models.User{}, fmt.Errorf("cannot find the user in database:%w", err)
 	}
 	return user, nil

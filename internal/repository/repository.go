@@ -12,7 +12,7 @@ import (
 // AuthorizationRepository interface contains database methods of the user.
 type AuthorizationRepository interface {
 	CreateUser(ctx context.Context, user models.User) (int, error)
-	GetUser(ctx context.Context, email, password string) (models.User, error)
+	GetUser(ctx context.Context, email string) (models.User, error)
 }
 
 // ImagesRepository interface contains database methods of images.
