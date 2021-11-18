@@ -75,10 +75,9 @@ func TestRepository_GetUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-	query := "SELECT id FROM users"
+	query := "SELECT id, password FROM users"
 	type args struct {
-		email    string
-		password string
+		email string
 	}
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
 	repo := New(sqlxDB)
@@ -92,17 +91,17 @@ func TestRepository_GetUser(t *testing.T) {
 		{
 			name: "Ok",
 			mock: func() {
-				rows := sqlmock.NewRows([]string{"id"}).
-					AddRow(1)
+				rows := sqlmock.NewRows([]string{"id", "password"}).
+					AddRow(1, "12312312321")
 				mock.ExpectQuery(query).
-					WithArgs("petrov@gmail.com", "13125412312Vv").WillReturnRows(rows)
+					WithArgs("petrov@gmail.com").WillReturnRows(rows)
 			},
 			input: args{
-				email:    "petrov@gmail.com",
-				password: "13125412312Vv",
+				email: "petrov@gmail.com",
 			},
 			want: models.User{
-				ID: 1,
+				ID:       1,
+				Password: "12312312321",
 			},
 			wantErr: false,
 		},
@@ -110,12 +109,11 @@ func TestRepository_GetUser(t *testing.T) {
 			name: "Not found",
 			mock: func() {
 				rows := sqlmock.NewRows([]string{"id"})
-				mock.ExpectQuery("SELECT id FROM users").
-					WithArgs("petrov@gmail.com", "13125412312Vv").WillReturnRows(rows)
+				mock.ExpectQuery(query).
+					WithArgs("petrov@gmail.com").WillReturnRows(rows)
 			},
 			input: args{
-				email:    "petrov@gmail.com",
-				password: "13125412312Vv",
+				email: "petrov@gmail.com",
 			},
 			wantErr: true,
 		},
@@ -124,7 +122,7 @@ func TestRepository_GetUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
-			got, err := repo.GetUser(context.Background(), tt.input.email, tt.input.password)
+			got, err := repo.GetUser(context.Background(), tt.input.email)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

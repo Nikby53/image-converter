@@ -5,10 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -83,7 +82,7 @@ func generatePasswordHash(password string) (string, error) {
 	return string(bytes), err
 }
 
-func comparePasswordHash(password string, hash string) bool {
+func comparePasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
