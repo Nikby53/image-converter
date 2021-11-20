@@ -16,6 +16,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type jwtToken struct {
+	Token string
+}
+
 var (
 	Email        string
 	Password     string
@@ -32,17 +36,24 @@ with the compression ratio specified by the user. The user has the ability to vi
 their requests (for example, queued, processed, completed) and upload the original image and the processed one`,
 	}
 	signUp = &cobra.Command{
-		Use:   "signUp",
+		Use:   "signup",
 		Short: "Registration of the user",
 		Long:  `If you want to convert an image, first of all need to register`,
 		Run: func(cmd *cobra.Command, args []string) {
 			client := &http.Client{}
 			values := map[string]string{"email": Email, "password": Password}
 			jsonValue, _ := json.Marshal(values)
-			req, _ := http.NewRequest("POST", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/auth/signup", bytes.NewBufferString(string(jsonValue)))
-			resp, _ := client.Do(req)
-			body, _ := ioutil.ReadAll(resp.Body)
-			fmt.Println(string(body))
+			req, err := http.NewRequest("POST", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/auth/signup", bytes.NewBufferString(string(jsonValue)))
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			_, err = client.Do(req)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("You successfully register")
 		},
 	}
 	login = &cobra.Command{
@@ -52,21 +63,43 @@ their requests (for example, queued, processed, completed) and upload the origin
 		Run: func(cmd *cobra.Command, args []string) {
 			client := &http.Client{}
 			values := map[string]string{"email": Email, "password": Password}
-			jsonValue, _ := json.Marshal(values)
-			req, _ := http.NewRequest("POST", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/auth/login", bytes.NewBufferString(string(jsonValue)))
-			resp, _ := client.Do(req)
-			jwtToken, _ := ioutil.ReadAll(resp.Body)
-			f, err := os.Create("user.json")
+			jsonValue, err := json.Marshal(values)
 			if err != nil {
-				fmt.Errorf("can't open file: %w", err)
+				fmt.Println(err)
 				return
 			}
-			_, err = f.WriteAt(jwtToken, 0)
+			req, err := http.NewRequest("POST", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/auth/login", bytes.NewBufferString(string(jsonValue)))
 			if err != nil {
-				fmt.Errorf("can't write into file:%w", err)
+				fmt.Println(err)
 				return
 			}
-			fmt.Println(string(jwtToken))
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println(string(body))
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			f, err := os.Create(dir + "/user.json")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			_, err = f.WriteAt(body, 0)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("You successfully log in")
 		},
 	}
 	requests = &cobra.Command{
@@ -75,18 +108,40 @@ their requests (for example, queued, processed, completed) and upload the origin
 		Long:  `If you want to convert an image, first of all need to login`,
 		Run: func(cmd *cobra.Command, args []string) {
 			client := &http.Client{}
-			req, _ := http.NewRequest("GET", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/requests", nil)
-			token, err := os.ReadFile("user.json")
-
+			req, err := http.NewRequest("GET", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/requests", nil)
 			if err != nil {
 				fmt.Errorf("%w", err)
 				return
 			}
-			req.Header.Set("Authorization", "Bearer "+string(token))
-			resp, _ := client.Do(req)
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			data, err := os.ReadFile(dir + "/user.json")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			var token jwtToken
+			err = json.Unmarshal(data, &token)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			req.Header.Set("Authorization", "Bearer "+token.Token)
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			if resp.StatusCode != 200 {
+				fmt.Println(err)
+				return
+			}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
-				_ = fmt.Errorf("can't read body: %w", err)
+				fmt.Println(err)
 				return
 			}
 			fmt.Println(string(body))
@@ -100,42 +155,58 @@ with the compression ratio`,
 		Run: func(cmd *cobra.Command, args []string) {
 			file, err := os.Open(Path)
 			if err != nil {
-				fmt.Errorf("can't open file: %w", err)
+				fmt.Println(err)
 				return
 			}
-			client := &http.Client{}
 			body := &bytes.Buffer{}
 			writer := multipart.NewWriter(body)
 			part, err := writer.CreateFormFile("image", filepath.Base(file.Name()))
 			if err != nil {
-				fmt.Errorf("can't create form file: %w", err)
+				fmt.Println(err)
 				return
 			}
 			_, err = io.Copy(part, file)
 			if err != nil {
-				fmt.Errorf("can't copy file: %w", err)
+				fmt.Println(err)
 				return
 			}
-
 			params := map[string]string{
 				"sourceFormat": SourceFormat,
 				"targetFormat": TargetFormat,
 				"ratio":        Ratio,
 			}
 			for key, val := range params {
-				_ = writer.WriteField(key, val)
+				err = writer.WriteField(key, val)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
 			}
 			writer.Close()
-			req, _ := http.NewRequest("POST", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/image/convert", body)
-			req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzcyNzU3OTUsImlhdCI6MTYzNzI2MTM5NSwiaWQiOjF9.BAGmJApnOGDjiV3jOv7NuFCnYNakr-NZOAbDa9kjNJc")
-			req.Header.Set("Content-Type", writer.FormDataContentType())
-			resp, _ := client.Do(req)
-			respBody, err := ioutil.ReadAll(resp.Body)
+			req, err := http.NewRequest("POST", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/image/convert", body)
 			if err != nil {
-				_ = fmt.Errorf("can't read body: %w", err)
+				fmt.Println(err)
 				return
 			}
-			fmt.Println(string(respBody))
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			data, err := os.ReadFile(dir + "/user.json")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			var token jwtToken
+			err = json.Unmarshal(data, &token)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			req.Header.Set("Authorization", "Bearer "+token.Token)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			fmt.Println("You successfully converted the image")
 		},
 	}
 	download = &cobra.Command{
@@ -144,19 +215,44 @@ with the compression ratio`,
 		Long:  `Insert image id to download the image`,
 		Run: func(cmd *cobra.Command, args []string) {
 			client := &http.Client{}
-			req, _ := http.NewRequest("GET", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/image/download/"+ImageID, nil)
-			req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzcyNzU3OTUsImlhdCI6MTYzNzI2MTM5NSwiaWQiOjF9.BAGmJApnOGDjiV3jOv7NuFCnYNakr-NZOAbDa9kjNJc")
-			resp, _ := client.Do(req)
+			req, err := http.NewRequest("GET", "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000/image/download/"+ImageID, nil)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			data, err := os.ReadFile(dir + "/user.json")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			var token jwtToken
+			err = json.Unmarshal(data, &token)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			req.Header.Set("Authorization", "Bearer "+token.Token)
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 			image, err := os.Create(filepath.Join(Path, strings.TrimPrefix(resp.Header.Get("Content-Disposition"), "attachment; filename=")))
 			if err != nil {
-				fmt.Errorf("can't write file:%w", err)
+				fmt.Println(err)
 				return
 			}
 			_, err = io.Copy(image, resp.Body)
 			if err != nil {
-				fmt.Errorf("error in copy image: %w", err)
+				fmt.Println(err)
 				return
 			}
+			fmt.Println("You successfully download the image")
 		},
 	}
 )
