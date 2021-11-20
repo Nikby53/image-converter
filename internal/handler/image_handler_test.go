@@ -357,7 +357,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "rfr",
 			expectedStatusCode:   400,
 			targetFormat:         "jpg",
-			expectedResponseBody: "invalid header value ( http: no such file\n",
+			expectedResponseBody: "invalid header value http: no such file\n",
 		},
 		{
 			name: "Source format should be jpg",
