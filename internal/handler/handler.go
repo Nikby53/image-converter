@@ -64,7 +64,7 @@ func (s *Server) initRouters() {
 	api.HandleFunc("/image/convert", s.convert).Methods("POST")
 	api.HandleFunc("/requests", s.requests).Methods("GET")
 	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
-	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("api/openapi-spec/")))
 	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)
 	s.router.Handle("/docs", sh)
