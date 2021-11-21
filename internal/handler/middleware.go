@@ -72,7 +72,7 @@ func (s *Server) logging(handler http.Handler) http.Handler {
 func panicHandler(w http.ResponseWriter) {
 	if err := recover(); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Error(err.(error).Error(), debug.Stack())
+		log.Error(err.(error).Error(), string(debug.Stack()))
 	}
 }
 

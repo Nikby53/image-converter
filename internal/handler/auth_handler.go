@@ -94,8 +94,6 @@ type tokenJWT struct {
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	m := []string{"qwe", "qwe"}
-	fmt.Println(m[4])
 	var input loginInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {

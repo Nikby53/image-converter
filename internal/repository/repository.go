@@ -29,7 +29,7 @@ type ImagesRepository interface {
 type RepoInterface interface {
 	AuthorizationRepository
 	ImagesRepository
-	Transactional(f func(repo RepoInterface) (string, error)) (string, error)
+	Transactional(f func(repo RepoInterface) error) error
 }
 
 // Repository struct provides access to the database.
@@ -45,14 +45,14 @@ func New(db *sqlx.DB) *Repository {
 }
 
 // Transactional func begins transactions,rollback and commit them.
-func (r *Repository) Transactional(f func(repo RepoInterface) (string, error)) (string, error) {
+func (r *Repository) Transactional(f func(repo RepoInterface) error) error {
 	sqlDB, ok := r.db.(*sqlx.DB)
 	if !ok {
-		return "", errors.New("couldn't bring to DB")
+		return errors.New("couldn't bring to DB")
 	}
 	tx, err := sqlDB.Beginx()
 	if err != nil {
-		return "", fmt.Errorf("couldn't start transaction:%s", err)
+		return fmt.Errorf("couldn't start transaction:%w", err)
 	}
 	defer func() {
 		if err != nil {
@@ -69,9 +69,9 @@ func (r *Repository) Transactional(f func(repo RepoInterface) (string, error)) (
 			return
 		}
 	}()
-	str, err := f(&Repository{db: tx})
+	err = f(&Repository{db: tx})
 	if err != nil {
-		return "", err
+		return err
 	}
-	return str, nil
+	return nil
 }

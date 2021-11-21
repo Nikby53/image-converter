@@ -64,8 +64,7 @@ func (s *Service) ConvertToType(sourceImage io.ReadSeeker, targetFormat string, 
 }
 
 const (
-	processing = "processing"
-	done       = "done"
+	done = "done"
 )
 
 // ConversionPayLoad is payload for Conversion.
@@ -84,40 +83,37 @@ func (s *Service) Conversion(ctx context.Context, payload ConversionPayLoad) (st
 	if err != nil {
 		return "", fmt.Errorf("can't convert image: %w", err)
 	}
-	requestID, err := s.repo.Transactional(func(repo repository.RepoInterface) (string, error) {
+	var requestID string
+	err = s.repo.Transactional(func(repo repository.RepoInterface) error {
 		imageID, err := repo.InsertImage(ctx, payload.Filename, payload.SourceFormat)
 		if err != nil {
-			return "", fmt.Errorf("can't insert image into db: %w", err)
+			return fmt.Errorf("can't insert image into db: %w", err)
 		}
 		targetImageID, err := repo.InsertImage(ctx, payload.Filename, payload.TargetFormat)
 		if err != nil {
-			return "", fmt.Errorf("can't insert image into db: %w", err)
+			return fmt.Errorf("can't insert image into db: %w", err)
 		}
-		requestID, err := repo.RequestsHistory(ctx, payload.SourceFormat, payload.TargetFormat, imageID, payload.Filename, payload.UsersID, payload.Ratio)
+		requestID, err = repo.RequestsHistory(ctx, payload.SourceFormat, payload.TargetFormat, imageID, payload.Filename, payload.UsersID, payload.Ratio)
 		if err != nil {
-			return "", fmt.Errorf("can't make request: %w", err)
-		}
-		err = repo.UpdateRequest(ctx, processing, imageID, targetImageID)
-		if err != nil {
-			return "", fmt.Errorf("can't update status: %w", err)
+			return fmt.Errorf("can't make request: %w", err)
 		}
 		err = repo.UpdateRequest(ctx, done, imageID, targetImageID)
 		if err != nil {
-			return "", fmt.Errorf("can't update status: %w", err)
+			return fmt.Errorf("can't update status: %w", err)
 		}
 		_, err = payload.File.Seek(0, io.SeekStart)
 		if err != nil {
-			return "", fmt.Errorf("can't reset counter: %w", err)
+			return fmt.Errorf("can't reset counter: %w", err)
 		}
 		err = s.storage.UploadFile(payload.File, imageID)
 		if err != nil {
-			return "", fmt.Errorf("can't upload file: %w", err)
+			return fmt.Errorf("can't upload file: %w", err)
 		}
 		err = s.storage.UploadFile(convertedImage, targetImageID)
 		if err != nil {
-			return "", fmt.Errorf("can't upload image: %w", err)
+			return fmt.Errorf("can't upload image: %w", err)
 		}
-		return requestID, nil
+		return nil
 	})
 	if err != nil {
 		return "", err

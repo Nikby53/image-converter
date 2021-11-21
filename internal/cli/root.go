@@ -25,8 +25,8 @@ var (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "imageconverter",
-		Short: "An imageconverter service",
+		Use:   "cli",
+		Short: "cli client of image converter service",
 		Long: ` Service that expose a RESTful API to convert JPEG to PNG and vice versa and compress the image
 with the compression ratio specified by the user. The user has the ability to view the history and status of
 their requests (for example, queued, processed, completed) and upload the original image and the processed one`,
