@@ -31,7 +31,7 @@ type ServicesInterface interface {
 	Images
 }
 
-// Service contains repository interfaces.
+// Service contains repository and storages interfaces.
 type Service struct {
 	repo    repository.RepoInterface
 	storage storage.StoragesInterface

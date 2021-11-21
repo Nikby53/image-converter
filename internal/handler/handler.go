@@ -56,6 +56,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 func (s *Server) initRouters() {
+	s.router.Use(s.logging)
 	s.router.HandleFunc("/auth/signup", s.signUp).Methods("POST")
 	s.router.HandleFunc("/auth/login", s.login).Methods("POST")
 	api := s.router.NewRoute().Subrouter()
@@ -63,7 +64,7 @@ func (s *Server) initRouters() {
 	api.HandleFunc("/image/convert", s.convert).Methods("POST")
 	api.HandleFunc("/requests", s.requests).Methods("GET")
 	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
-	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("api/openapi-spec/")))
 	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)
 	s.router.Handle("/docs", sh)

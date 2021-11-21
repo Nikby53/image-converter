@@ -21,8 +21,11 @@ DB_SSL_MODE=
 
 AWS_BUCKET_NAME=
 AWS_ACC_ID=
-AWS_SECRET_
+AWS_SECRET=
 AWS_REGION=
+
+JWT_SIGNING_KEY=
+JWT_TOKEN_TTL=
 ```
 
 Use `make run` to build&run project, `make lint` to check code with linter.
@@ -40,6 +43,7 @@ Use `make run` to build&run project, `make lint` to check code with linter.
  * /image/download/{id} - downloads needed image [GET]
  * /requests - get the user's requests history [GET]
 
-
+## Run image converter from a binary command line interface
+Grab a binary from [releases page]()
 
 

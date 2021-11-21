@@ -54,6 +54,14 @@ func TestNewConfig(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
+	err = os.Setenv("JWT_SIGNING_KEY", "qwetdfrydfgyesrafxzf")
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	err = os.Setenv("JWT_TOKEN_TTL", "1h")
+	if err != nil {
+		assert.NoError(t, err)
+	}
 	actual := NewConfig()
 	expected := &Config{
 		APIPort: "8000",
@@ -70,6 +78,10 @@ func TestNewConfig(t *testing.T) {
 			AccID:      "REWPOUGHEROPFGFOVNSDFGUWREHSG",
 			SecretKey:  "ASDPOJHADPOKHJASPODJA{OSDJAPOIHDQWEIQWJEJ",
 			BucketName: "converter",
+		},
+		JWTConf: &JWTConfig{
+			TokenTTL:   "qwetdfrydfgyesrafxzf",
+			SigningKey: "1h",
 		},
 	}
 	assert.Equal(t, expected, actual)

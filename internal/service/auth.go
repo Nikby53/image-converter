@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Nikby53/image-converter/internal/configs"
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
@@ -15,11 +16,7 @@ var (
 	errTokenClaimsNotType   = errors.New("token claims are not of type *tokenClaims")
 	errWrongPassword        = errors.New("wrong password")
 	errGenHashPassword      = errors.New("can't generate hash password")
-)
-
-const (
-	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
-	tokenTTL   = 4 * time.Hour
+	errGettingJWT           = errors.New("error getting jwt ttl")
 )
 
 type tokenClaims struct {
@@ -45,25 +42,31 @@ func (s *Service) GenerateToken(email, password string) (string, error) {
 	if !comparePasswordHash(password, user.Password) {
 		return "", errWrongPassword
 	}
+	conf := configs.NewConfig()
+	jwtTTL, err := time.ParseDuration(conf.JWTConf.TokenTTL)
+	if err != nil {
+		return "", errGettingJWT
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			ExpiresAt: time.Now().Add(jwtTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		user.ID,
 	})
 
-	return token.SignedString([]byte(signingKey))
+	return token.SignedString([]byte(conf.JWTConf.SigningKey))
 }
 
 // ParseToken parses token.
 func (s *Service) ParseToken(accessToken string) (int, error) {
+	conf := configs.NewConfig()
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errInvalidSigningMethod
 		}
 
-		return []byte(signingKey), nil
+		return []byte(conf.JWTConf.SigningKey), nil
 	})
 	if err != nil {
 		return 0, err

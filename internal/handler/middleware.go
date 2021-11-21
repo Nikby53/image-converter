@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // UserIDCtx is custom type.
@@ -44,6 +47,23 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), UserIDCtx(UserCtxKey), userID)
 		r = r.Clone(ctx)
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (s *Server) logging(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		begin := time.Now()
+		log.WithFields(log.Fields{
+			"request path":    r.URL.Path,
+			"request method":  r.Method,
+			"time for answer": begin.Format(time.RFC822),
+		}).Infoln("get request")
+		handler.ServeHTTP(w, r)
+		log.WithFields(log.Fields{
+			"request path":    r.URL.Path,
+			"request method":  r.Method,
+			"time for answer": time.Since(begin),
+		}).Infoln("request handled")
 	})
 }
 

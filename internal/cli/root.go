@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"github.com/spf13/cobra"
@@ -35,4 +35,9 @@ their requests (for example, queued, processed, completed) and upload the origin
 
 func init() {
 	rootCmd.AddCommand(signUp, login, requests, convert, download, logout)
+}
+
+// New returns cobra.Command.
+func New() *cobra.Command {
+	return rootCmd
 }

@@ -140,6 +140,8 @@ paths:
                   $ref: '#/components/schemas/RequestsHistoryResponse'
         500:
           description: internal server error
+        401:
+          description: unauthorized user
 components:
   schemas:
     RequestsHistoryResponse:
@@ -203,8 +205,8 @@ components:
                 type: string
                 format: password
           example:
-            email: user@gmail.com
-            password: password123
+            email: qwerty@gmail.com
+            password: qwerty
     ConversionRequest:
       description: A JSON object consisting of image file, format to convert, and compression ratio
       required: true
@@ -218,10 +220,10 @@ components:
                 format: binary
               sourceFormat:
                 type: string
-                format: string
+                enum: [jpg, jpeg, png]
               targetFormat:
                 type: string
-                format: string
+                enum: [jpg, jpeg, png]
               ratio:
                 type: integer
                 minimum: 1
