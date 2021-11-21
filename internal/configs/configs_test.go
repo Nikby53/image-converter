@@ -80,8 +80,8 @@ func TestNewConfig(t *testing.T) {
 			BucketName: "converter",
 		},
 		JWTConf: &JWTConfig{
-			TokenTTL:   "qwetdfrydfgyesrafxzf",
-			SigningKey: "1h",
+			TokenTTL:   "1h",
+			SigningKey: "qwetdfrydfgyesrafxzf",
 		},
 	}
 	assert.Equal(t, expected, actual)
