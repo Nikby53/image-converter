@@ -9,6 +9,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api/main.go
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder ["/app/main", "/app"]
-COPY ["/api/openapi-spec/swagger.yaml", "/app"]
+COPY ["/api/openapi-spec/swagger.yaml", "/app/api/openapi-spec"]
 COPY ["./.env", "/app"]
 CMD ["sh", "-c", "/app/main"]

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -58,6 +59,7 @@ func (s *Server) logging(handler http.Handler) http.Handler {
 			"request method":  r.Method,
 			"time for answer": begin.Format(time.RFC822),
 		}).Infoln("get request")
+		defer panicHandler(w)
 		handler.ServeHTTP(w, r)
 		log.WithFields(log.Fields{
 			"request path":    r.URL.Path,
@@ -65,6 +67,13 @@ func (s *Server) logging(handler http.Handler) http.Handler {
 			"time for answer": time.Since(begin),
 		}).Infoln("request handled")
 	})
+}
+
+func panicHandler(w http.ResponseWriter) {
+	if err := recover(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Error(err.(error).Error(), debug.Stack())
+	}
 }
 
 // GetIDFromContext get user's id from context.
