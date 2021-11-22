@@ -13,7 +13,6 @@ import (
 
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/repository"
-	"github.com/nfnt/resize"
 )
 
 var (
@@ -47,8 +46,11 @@ func (s *Service) ConvertToType(sourceImage io.ReadSeeker, targetFormat string, 
 	switch targetFormat {
 	case PNG:
 		var enc png.Encoder
-		compressed := resize.Resize(uint(ratio), 0, img, resize.Lanczos3)
-		err := enc.Encode(buf, compressed)
+		err := jpeg.Encode(buf, img, &jpeg.Options{Quality: ratio})
+		if err != nil {
+			return nil, fmt.Errorf("%w", err)
+		}
+		err = enc.Encode(buf, img)
 		if err != nil {
 			return nil, errCantConvertInJPG
 		}
