@@ -44,6 +44,6 @@ Use `make run` to build&run project, `make lint` to check code with linter.
  * /requests - get the user's requests history [GET]
 
 ## Run image converter from a binary command line interface
-Grab a binary from [releases page](https://github.com/Nikby53/image-converter/releases/tag/v.0.1.0)
+Grab a binary from [releases page](https://github.com/Nikby53/image-converter/releases)
 
 
