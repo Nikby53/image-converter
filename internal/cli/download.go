@@ -12,6 +12,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	download.PersistentFlags().StringVarP(&path, "path", "p", "", "path to file [required]")
+	err := download.MarkPersistentFlagRequired("path")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	download.PersistentFlags().StringVarP(&imageID, "id", "i", "", "id of the image [required]")
+	err = download.MarkPersistentFlagRequired("id")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
 var (
 	download = &cobra.Command{
 		Use:   "download",
@@ -75,18 +90,3 @@ var (
 		},
 	}
 )
-
-func init() {
-	download.PersistentFlags().StringVarP(&path, "path", "p", "", "path to file [required]")
-	err := download.MarkPersistentFlagRequired("path")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	download.PersistentFlags().StringVarP(&imageID, "id", "i", "", "id of the image [required]")
-	err = download.MarkPersistentFlagRequired("id")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-}

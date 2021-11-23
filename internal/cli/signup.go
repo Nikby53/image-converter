@@ -10,6 +10,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	signUp.PersistentFlags().StringVarP(&email, "email", "e", "", "your email [required]")
+	err := signUp.MarkPersistentFlagRequired("email")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	signUp.PersistentFlags().StringVarP(&password, "password", "p", "", "your password [required] ")
+	err = signUp.MarkPersistentFlagRequired("password")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
 var (
 	signUp = &cobra.Command{
 		Use:   "signup",
@@ -46,18 +61,3 @@ var (
 		},
 	}
 )
-
-func init() {
-	signUp.PersistentFlags().StringVarP(&email, "email", "e", "", "your email [required]")
-	err := signUp.MarkPersistentFlagRequired("email")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	signUp.PersistentFlags().StringVarP(&password, "password", "p", "", "your password [required] ")
-	err = signUp.MarkPersistentFlagRequired("password")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-}

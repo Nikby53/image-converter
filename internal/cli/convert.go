@@ -13,6 +13,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	convert.PersistentFlags().StringVarP(&path, "path", "p", "", "path to image [required]")
+	err := convert.MarkPersistentFlagRequired("path")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	convert.PersistentFlags().StringVarP(&sourceFormat, "sourceformat", "s", "", "source format of the image [required]")
+	err = convert.MarkPersistentFlagRequired("sourceformat")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	convert.PersistentFlags().StringVarP(&targetFormat, "targetformat", "t", "", "target format of the image [required]")
+	err = convert.MarkPersistentFlagRequired("targetformat")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	convert.PersistentFlags().StringVarP(&ratio, "ratio", "r", "", "ratio of the image")
+}
+
 var (
 	convert = &cobra.Command{
 		Use:   "convert",
@@ -102,25 +124,3 @@ with the compression ratio`,
 		},
 	}
 )
-
-func init() {
-	convert.PersistentFlags().StringVarP(&path, "path", "p", "", "path to image [required]")
-	err := convert.MarkPersistentFlagRequired("path")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	convert.PersistentFlags().StringVarP(&sourceFormat, "sourceformat", "s", "", "source format of the image [required]")
-	err = convert.MarkPersistentFlagRequired("sourceformat")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	convert.PersistentFlags().StringVarP(&targetFormat, "targetformat", "t", "", "target format of the image [required]")
-	err = convert.MarkPersistentFlagRequired("targetformat")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	convert.PersistentFlags().StringVarP(&ratio, "ratio", "r", "", "ratio of the image")
-}

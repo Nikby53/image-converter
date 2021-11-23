@@ -9,6 +9,10 @@ const (
 	tokenFile = `\user.json`
 )
 
+func init() {
+	rootCmd.AddCommand(signUp, login, requests, convert, download, logout)
+}
+
 type jwtToken struct {
 	Token string
 }
@@ -32,10 +36,6 @@ with the compression ratio specified by the user. The user has the ability to vi
 their requests (for example, queued, processed, completed) and upload the original image and the processed one`,
 	}
 )
-
-func init() {
-	rootCmd.AddCommand(signUp, login, requests, convert, download, logout)
-}
 
 // New returns cobra.Command.
 func New() *cobra.Command {
