@@ -19,12 +19,12 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			client := &http.Client{}
 			values := map[string]string{"email": email, "password": password}
-			jsonValue, err := json.Marshal(values)
+			jsonValues, err := json.Marshal(values)
 			if err != nil {
 				fmt.Printf("error in marshal:%v", err)
 				return
 			}
-			req, err := http.NewRequest("POST", url+"/auth/login", bytes.NewBufferString(string(jsonValue)))
+			req, err := http.NewRequest("POST", url+"/auth/login", bytes.NewBufferString(string(jsonValues)))
 			if err != nil {
 				fmt.Printf("error in new request:%v", err)
 				return

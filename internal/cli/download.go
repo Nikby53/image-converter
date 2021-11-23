@@ -71,7 +71,7 @@ var (
 				fmt.Println(string(body))
 				return
 			}
-			fmt.Println("You successfully downloaded the image")
+			fmt.Println("you successfully downloaded the image")
 		},
 	}
 )

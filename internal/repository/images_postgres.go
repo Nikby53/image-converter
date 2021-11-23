@@ -12,7 +12,6 @@ import (
 func (r *Repository) InsertImage(ctx context.Context, filename, format string) (string, error) {
 	var imageID string
 	query := fmt.Sprintf("INSERT INTO %s (name, format) VALUES ($1, $2) RETURNING id", images)
-
 	err := r.db.QueryRowxContext(ctx, query, filename, format).Scan(&imageID)
 	if err != nil {
 		return "", fmt.Errorf("can't insert image: %w", err)
@@ -47,7 +46,10 @@ func (r *Repository) UpdateRequest(ctx context.Context, status, imageID, targetI
 func (r *Repository) GetRequestFromID(ctx context.Context, userID int) ([]models.Request, error) {
 	var requestModel []models.Request
 	query := fmt.Sprintf("SELECT created, updated, sourceformat, targetformat,status, ratio, filename, image_id, target_id FROM %s WHERE user_id=$1;", request)
-	rows, _ := r.db.QueryContext(ctx, query, userID)
+	rows, err := r.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return []models.Request{}, fmt.Errorf("can't get insert request: %w", err)
+	}
 	requests := models.Request{}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
