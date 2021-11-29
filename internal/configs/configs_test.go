@@ -54,6 +54,26 @@ func TestNewConfig(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
+	err = os.Setenv("MINIO_REGION", "eu-central-1")
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	err = os.Setenv("MINIO_ACC_ID", "REWPOUGHEROPFGFOVNSDFGUWREHSG")
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	err = os.Setenv("MINIO_SECRET_KEY", "ASDPOJHADPOKHJASPODJA{OSDJAPOIHDQWEIQWJEJ")
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	err = os.Setenv("MINIO_BUCKET_NAME", "converter")
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	err = os.Setenv("MINIO_ENDPOINT", "localhost")
+	if err != nil {
+		assert.NoError(t, err)
+	}
 	err = os.Setenv("JWT_SIGNING_KEY", "qwetdfrydfgyesrafxzf")
 	if err != nil {
 		assert.NoError(t, err)
@@ -62,6 +82,7 @@ func TestNewConfig(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
+
 	actual := NewConfig()
 	expected := &Config{
 		APIPort: "8000",
@@ -78,6 +99,13 @@ func TestNewConfig(t *testing.T) {
 			AccID:      "REWPOUGHEROPFGFOVNSDFGUWREHSG",
 			SecretKey:  "ASDPOJHADPOKHJASPODJA{OSDJAPOIHDQWEIQWJEJ",
 			BucketName: "converter",
+		},
+		MinioConf: &storage.MinioConfig{
+			BucketName: "converter",
+			AccID:      "REWPOUGHEROPFGFOVNSDFGUWREHSG",
+			SecretKey:  "ASDPOJHADPOKHJASPODJA{OSDJAPOIHDQWEIQWJEJ",
+			Region:     "eu-central-1",
+			Endpoint:   "localhost",
 		},
 		JWTConf: &JWTConfig{
 			TokenTTL:   "1h",

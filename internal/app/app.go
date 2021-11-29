@@ -29,7 +29,7 @@ func Start(logger *logs.Logger) error {
 	}
 	logger.Infoln("connected to db")
 	repo := repository.New(db)
-	st, err := storage.New(conf.AWSConf)
+	st, err := storage.NewS3(conf.AWSConf)
 	if err != nil {
 		logger.Fatalf("failed to initialize awsS3 storage: %s", err.Error())
 	}

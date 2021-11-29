@@ -8,10 +8,11 @@ import (
 
 // Config struct contains all configs.
 type Config struct {
-	DBConf  *DBConfig
-	APIPort string
-	AWSConf *storage.AWSConfig
-	JWTConf *JWTConfig
+	DBConf    *DBConfig
+	APIPort   string
+	AWSConf   *storage.AWSConfig
+	JWTConf   *JWTConfig
+	MinioConf *storage.MinioConfig
 }
 
 // DBConfig is config of the database.
@@ -50,6 +51,13 @@ func NewConfig() *Config {
 		JWTConf: &JWTConfig{
 			TokenTTL:   os.Getenv("JWT_TOKEN_TTL"),
 			SigningKey: os.Getenv("JWT_SIGNING_KEY"),
+		},
+		MinioConf: &storage.MinioConfig{
+			BucketName: os.Getenv("MINIO_BUCKET_NAME"),
+			AccID:      os.Getenv("MINIO_ACC_ID"),
+			SecretKey:  os.Getenv("MINIO_SECRET_KEY"),
+			Region:     os.Getenv("MINIO_REGION"),
+			Endpoint:   os.Getenv("MINIO_ENDPOINT"),
 		},
 		APIPort: os.Getenv("API_PORT"),
 	}

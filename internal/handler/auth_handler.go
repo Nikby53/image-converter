@@ -46,9 +46,7 @@ type userID struct {
 }
 
 func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var input Registration
-
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("signUp: can't decode request body: %v", err), http.StatusBadRequest)
@@ -93,7 +91,6 @@ type tokenJWT struct {
 }
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var input loginInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
@@ -105,6 +102,8 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	s.logger.Infoln(r.RemoteAddr)
+
 	token, err := s.services.GenerateToken(input.Email, input.Password)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("error login: %v", err), http.StatusInternalServerError)

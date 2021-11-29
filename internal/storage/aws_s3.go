@@ -45,8 +45,8 @@ func initS3ServiceClient(conf *AWSConfig) (*s3.S3, error) {
 	return s3.New(s3session), nil
 }
 
-// New is constructor for Storage.
-func New(conf *AWSConfig) (*Storage, error) {
+// NewS3 is constructor for Storage.
+func NewS3(conf *AWSConfig) (*Storage, error) {
 	svc, err := initS3ServiceClient(conf)
 	if err != nil {
 		return nil, err
