@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-// AWSConfig is config for aws.
+// AWSConfig is config for aws s3 storage.
 type AWSConfig struct {
 	BucketName string
 	AccID      string
