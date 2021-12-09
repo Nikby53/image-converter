@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	url       = "http://ec2-18-193-110-163.eu-central-1.compute.amazonaws.com:8000"
+	url       = "http://ec2-3-70-245-199.eu-central-1.compute.amazonaws.com:8000"
 	tokenFile = `\user.json`
 )
 
