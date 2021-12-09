@@ -6,11 +6,11 @@ import (
 	"io"
 	"time"
 
-	"github.com/minio/minio-go/v7/pkg/credentials"
-
 	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+// MinioConfig is config for minio storage.
 type MinioConfig struct {
 	BucketName string
 	AccID      string
@@ -19,11 +19,13 @@ type MinioConfig struct {
 	Endpoint   string
 }
 
+// MinioStorage holds config and minio client.
 type MinioStorage struct {
 	conf        *MinioConfig
 	minioClient *minio.Client
 }
 
+// NewMinio is constructor for MinioStorage.
 func NewMinio(conf *MinioConfig) (*MinioStorage, error) {
 	minioClient, err := minio.New(conf.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(conf.AccID, conf.SecretKey, ""),
@@ -39,6 +41,7 @@ func NewMinio(conf *MinioConfig) (*MinioStorage, error) {
 	}, nil
 }
 
+// UploadFile uploads file to minio bucket.
 func (m *MinioStorage) UploadFile(image io.ReadSeeker, fileID string) error {
 	_, err := m.minioClient.PutObject(context.Background(), m.conf.BucketName, fileID, image, -1,
 		minio.PutObjectOptions{})
@@ -48,6 +51,7 @@ func (m *MinioStorage) UploadFile(image io.ReadSeeker, fileID string) error {
 	return nil
 }
 
+// DownloadImageFromID downloads image from image id.
 func (m *MinioStorage) DownloadImageFromID(fileID string) (string, error) {
 	url, err := m.minioClient.PresignedGetObject(context.Background(), m.conf.BucketName, fileID, time.Hour*3, nil)
 	if err != nil {

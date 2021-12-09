@@ -103,7 +103,6 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.logger.Infoln(r.RemoteAddr)
-
 	token, err := s.services.GenerateToken(input.Email, input.Password)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("error login: %v", err), http.StatusInternalServerError)

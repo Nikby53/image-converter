@@ -5,18 +5,26 @@ select 'create database imageconverter'
 
 \c imageconverter
 
+do $$
+    begin
+        if not exists(select 1 from pg_type where typname = 'format') then
+create type format as enum ('jpg', 'jpeg', 'png');
+    end if;
+ end
+$$;
+
 CREATE TABLE if not exists users
 (
     id serial primary key,
     email varchar(255) unique not null,
     password varchar(255) not null
-);
+    );
 
 CREATE TABLE if not exists images
 (
     id serial primary key,
     name varchar(255) not null,
-    format varchar(255) not null
+    format format not null
 );
 
 CREATE TABLE if not exists request

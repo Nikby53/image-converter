@@ -45,7 +45,7 @@ func TestHandler_signUp(t *testing.T) {
 			},
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: "{\"error\":\"password should be not empty\"}\n",
+			expectedResponseBody: "password should be not empty\n",
 		},
 		{
 			name:      "Empty email",
@@ -56,18 +56,7 @@ func TestHandler_signUp(t *testing.T) {
 			},
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: "{\"error\":\"email should be not empty\"}\n",
-		},
-		{
-			name:      "Invalid email",
-			inputBody: `{"email": "retwerwe", "password": "12312312441"}`,
-			inputUser: models.User{
-				Email:    "retwerwe",
-				Password: "12312312441",
-			},
-			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
-			expectedStatusCode:   400,
-			expectedResponseBody: "invalid email\n",
+			expectedResponseBody: "email should be not empty\n",
 		},
 		{
 			name:      "Invalid email",
