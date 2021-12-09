@@ -3,7 +3,7 @@ name: CD
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   Test:
@@ -28,6 +28,7 @@ jobs:
         with:
           version: v1.41
   Deploy:
+    needs: [Test, Linter]
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials

@@ -19,9 +19,6 @@ jobs:
 
       - name: Test
         run: go test -short ./...
-
-      - name: Integration Test
-        run: make integration
   Linter:
     runs-on: ubuntu-latest
     steps:
