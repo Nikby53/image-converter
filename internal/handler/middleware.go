@@ -25,24 +25,24 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get(authorizationHeader)
 		if authHeader == "" {
-			http.Error(w, "empty authorization handler", http.StatusUnauthorized)
+			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("empty authorization handler"))
 			return
 		}
 
 		HeaderParts := strings.Split(authHeader, " ")
 		if len(HeaderParts) != 2 || HeaderParts[0] != "Bearer" {
-			http.Error(w, "invalid auth header", http.StatusUnauthorized)
+			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("invalid auth header"))
 			return
 		}
 
 		if HeaderParts[1] == "" {
-			http.Error(w, "token is empty", http.StatusUnauthorized)
+			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("token is empty"))
 			return
 		}
 		token := HeaderParts[1]
 		userID, err := s.services.ParseToken(token)
 		if err != nil {
-			http.Error(w, "can't parse jwt token", http.StatusUnauthorized)
+			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("can't parse jwt token: %w", err))
 			return
 		}
 		ctx := context.WithValue(r.Context(), UserIDCtx(UserCtxKey), userID)

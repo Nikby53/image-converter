@@ -59,7 +59,7 @@ type RequestID struct {
 func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("image")
 	if err != nil {
-		http.Error(w, fmt.Sprintf("invalid header value %v", err), http.StatusBadRequest)
+		s.errorJSON(w, http.StatusBadRequest, err)
 		s.logger.Errorf("error retrieving the file %v", err)
 		return
 	}
@@ -76,20 +76,20 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("ratio") != "" {
 		ratio, err = strconv.Atoi(r.FormValue("ratio"))
 		if err != nil {
-			http.Error(w, "invalid ratio", http.StatusBadRequest)
+			s.errorJSON(w, http.StatusBadRequest, err)
 			s.logger.Errorf("invalid ratio %v", err)
 			return
 		}
 	}
 	err = validateConvert(sourceFormat, header.Filename, targetFormat, ratio)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		s.errorJSON(w, http.StatusBadRequest, err)
 		s.logger.Errorf("error in validation %v", err.Error())
 		return
 	}
 	userID, err := s.GetIDFromContext(r.Context())
 	if err != nil {
-		http.Error(w, "can't get id from jwt token", http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("can't get id from jwt token %v", err)
 		return
 	}
@@ -103,14 +103,14 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 	}
 	requestID, err := s.services.Conversion(r.Context(), payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("conversion error %v", err.Error())
 		return
 	}
 	s.logger.Infof("user successfully convert image with request id %v", requestID)
 	err = json.NewEncoder(w).Encode(RequestID{ID: requestID})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Printf("error encoding json: %v", err)
 		return
 	}
@@ -119,19 +119,19 @@ func (s *Server) convert(w http.ResponseWriter, r *http.Request) {
 func (s *Server) requests(w http.ResponseWriter, r *http.Request) {
 	usersID, err := s.GetIDFromContext(r.Context())
 	if err != nil {
-		http.Error(w, "can't get id from context", http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("can't get id from jwt token %v", err)
 		return
 	}
 	history, err := s.services.GetRequestFromID(r.Context(), usersID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("repository error %v", err.Error()), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("request repository error %v", err.Error())
 		return
 	}
 	historyJSON, err := json.MarshalIndent(&history, "\t", "")
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error in output in JSON %v", err), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("error in marshal %v", err)
 		return
 	}
@@ -143,20 +143,20 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	image, err := s.services.GetImageByID(r.Context(), id)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("repository error, %v", err.Error()), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("download repository error %v", err.Error())
 		return
 	}
 	url, err := s.storage.DownloadImageFromID(image.ID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("download image error %v", err)
 		return
 	}
 	client := &http.Client{}
 	resp, err := client.Get(url)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("client error %v", err)
 		return
 	}
@@ -171,7 +171,7 @@ func (s *Server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Length", r.Header.Get("Content-Length"))
 	_, err = io.Copy(w, resp.Body)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error in copy %v", err), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Errorf("download copy error %v", err)
 		return
 	}

@@ -45,7 +45,7 @@ func TestHandler_signUp(t *testing.T) {
 			},
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: "password should be not empty\n",
+			expectedResponseBody: "{\"error\":\"password should be not empty\"}\n",
 		},
 		{
 			name:      "Empty email",
@@ -56,7 +56,7 @@ func TestHandler_signUp(t *testing.T) {
 			},
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: "email should be not empty\n",
+			expectedResponseBody: "{\"error\":\"email should be not empty\"}\n",
 		},
 		{
 			name:      "Invalid email",
@@ -67,7 +67,7 @@ func TestHandler_signUp(t *testing.T) {
 			},
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: "invalid email\n",
+			expectedResponseBody: "{\"error\":\"invalid email\"}\n",
 		},
 		{
 			name:      "Similar user",
@@ -80,7 +80,7 @@ func TestHandler_signUp(t *testing.T) {
 				r.EXPECT().CreateUser(gomock.Any(), user).Return(0, fmt.Errorf("A similar user is already registered in the system"))
 			},
 			expectedStatusCode:   409,
-			expectedResponseBody: "A similar user is already registered in the system\n",
+			expectedResponseBody: "{\"error\":\"A similar user is already registered in the system\"}\n",
 		},
 		{
 			name:      "Cannot unmarshal",
@@ -92,7 +92,7 @@ func TestHandler_signUp(t *testing.T) {
 			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
 			},
 			expectedStatusCode:   400,
-			expectedResponseBody: "signUp: can't decode request body: json: cannot unmarshal array into Go value of type handler.Registration\n",
+			expectedResponseBody: "{\"error\":\"json: cannot unmarshal array into Go value of type handler.Registration\"}\n",
 		},
 	}
 
@@ -146,7 +146,7 @@ func TestHandler_login(t *testing.T) {
 			},
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: "password should be not empty\n",
+			expectedResponseBody: "{\"error\":\"password should be not empty\"}\n",
 		},
 		{
 			name:      "Empty email",
@@ -157,7 +157,7 @@ func TestHandler_login(t *testing.T) {
 			},
 			mockBehavior:         func(r *mocks.MockServicesInterface, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: "email should be not empty\n",
+			expectedResponseBody: "{\"error\":\"email should be not empty\"}\n",
 		},
 		{
 			name:      "Cannot unmarshal",
@@ -169,7 +169,7 @@ func TestHandler_login(t *testing.T) {
 			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
 			},
 			expectedStatusCode:   400,
-			expectedResponseBody: "login: can't decode request body: json: cannot unmarshal array into Go value of type handler.loginInput\n",
+			expectedResponseBody: "{\"error\":\"json: cannot unmarshal array into Go value of type handler.loginInput\"}\n",
 		},
 	}
 

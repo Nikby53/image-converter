@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -11,6 +12,11 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
+
+// ErrorResponse struct is for json error response.
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
 
 // Server are complex of routers and services.
 type Server struct {
@@ -68,4 +74,13 @@ func (s *Server) initRouters() {
 	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)
 	s.router.Handle("/docs", sh)
+}
+
+func (s *Server) errorJSON(w http.ResponseWriter, statusCode int, errMsg error) {
+	w.WriteHeader(statusCode)
+	errRes := ErrorResponse{Error: errMsg.Error()}
+	err := json.NewEncoder(w).Encode(&errRes)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }

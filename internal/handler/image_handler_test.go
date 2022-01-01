@@ -81,13 +81,13 @@ func TestHandler_requests(t *testing.T) {
 			name: "Repo error",
 			mockBehavior: func(r *mocks.MockServicesInterface, token string, ctx context.Context) {
 				r.EXPECT().ParseToken(token).Return(1, nil)
-				r.EXPECT().GetRequestFromID(gomock.Any(), 1).Return(nil, fmt.Errorf(""))
+				r.EXPECT().GetRequestFromID(gomock.Any(), 1).Return(nil, fmt.Errorf("mock error"))
 			},
 			headerName:           "Authorization",
 			headerValue:          "Bearer token",
 			token:                "token",
 			expectedStatusCode:   500,
-			expectedResponseBody: "repository error \n",
+			expectedResponseBody: "{\"error\":\"mock error\"}\n",
 		},
 		{
 			name:                 "Invalid token",
@@ -96,7 +96,7 @@ func TestHandler_requests(t *testing.T) {
 			headerValue:          "Bearer ",
 			token:                "token",
 			expectedStatusCode:   401,
-			expectedResponseBody: "token is empty\n",
+			expectedResponseBody: "{\"error\":\"token is empty\"}\n",
 		},
 	}
 	for _, tt := range tests {
@@ -155,13 +155,13 @@ func TestHandler_downloadImage(t *testing.T) {
 			name: "Repository error",
 			mockBehavior: func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
-				w.EXPECT().GetImageByID(gomock.Any(), gomock.Any()).Return(imageModel, fmt.Errorf(""))
+				w.EXPECT().GetImageByID(gomock.Any(), gomock.Any()).Return(imageModel, fmt.Errorf("repo mock error"))
 			},
 			headerName:           "Authorization",
 			headerValue:          "Bearer token",
 			token:                "token",
 			expectedStatusCode:   500,
-			expectedResponseBody: "repository error, \n",
+			expectedResponseBody: "{\"error\":\"repo mock error\"}\n",
 			checkHeaders:         false,
 		},
 		{
@@ -175,7 +175,7 @@ func TestHandler_downloadImage(t *testing.T) {
 			headerValue:          "Bearer token",
 			token:                "token",
 			expectedStatusCode:   500,
-			expectedResponseBody: "can't download image from id\n",
+			expectedResponseBody: "{\"error\":\"can't download image from id\"}\n",
 			checkHeaders:         false,
 		},
 		{
@@ -189,7 +189,7 @@ func TestHandler_downloadImage(t *testing.T) {
 			headerValue:          "Bearer token",
 			token:                "token",
 			expectedStatusCode:   500,
-			expectedResponseBody: "Get \"mock\": unsupported protocol scheme \"\"\n",
+			expectedResponseBody: "{\"error\":\"Get \\\"mock\\\": unsupported protocol scheme \\\"\\\"\"}\n",
 			checkHeaders:         false,
 		},
 		{
@@ -199,7 +199,7 @@ func TestHandler_downloadImage(t *testing.T) {
 			headerValue:          "Bearer ",
 			token:                "token",
 			expectedStatusCode:   401,
-			expectedResponseBody: "token is empty\n",
+			expectedResponseBody: "{\"error\":\"token is empty\"}\n",
 			checkHeaders:         false,
 		},
 	}
@@ -321,7 +321,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "image",
 			expectedStatusCode:   400,
 			targetFormat:         "jpg",
-			expectedResponseBody: "invalid ratio\n",
+			expectedResponseBody: "{\"error\":\"strconv.Atoi: parsing \\\"qweqwe\\\": invalid syntax\"}\n",
 		},
 		{
 			name: "name of the format should not be empty",
@@ -339,7 +339,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "image",
 			expectedStatusCode:   400,
 			targetFormat:         "jpg",
-			expectedResponseBody: "name of the format should not be empty\n",
+			expectedResponseBody: "{\"error\":\"name of the format should not be empty\"}\n",
 		},
 		{
 			name: "invalid header value",
@@ -357,7 +357,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "rfr",
 			expectedStatusCode:   400,
 			targetFormat:         "jpg",
-			expectedResponseBody: "invalid header value http: no such file\n",
+			expectedResponseBody: "{\"error\":\"http: no such file\"}\n",
 		},
 		{
 			name: "Source format should be jpg",
@@ -375,7 +375,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "image",
 			expectedStatusCode:   400,
 			targetFormat:         "jpg",
-			expectedResponseBody: "name of source format should be png\n",
+			expectedResponseBody: "{\"error\":\"name of source format should be png\"}\n",
 		},
 		{
 			name: "Source format should be png",
@@ -393,7 +393,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "image",
 			expectedStatusCode:   400,
 			targetFormat:         "jpg",
-			expectedResponseBody: "name of source format should be png\n",
+			expectedResponseBody: "{\"error\":\"name of source format should be png\"}\n",
 		},
 		{
 			name: "can't parse jwt token",
@@ -411,7 +411,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "image",
 			targetFormat:         "jpg",
 			expectedStatusCode:   401,
-			expectedResponseBody: "can't parse jwt token\n",
+			expectedResponseBody: "{\"error\":\"can't parse jwt token: \"}\n",
 		},
 		{
 			name: "Can't convert",
@@ -430,7 +430,7 @@ func TestHandler_convert(t *testing.T) {
 			formValue:            "image",
 			targetFormat:         "jpg",
 			expectedStatusCode:   500,
-			expectedResponseBody: "can't convert image\n",
+			expectedResponseBody: "{\"error\":\"can't convert image\"}\n",
 		},
 	}
 	for _, tt := range tests {

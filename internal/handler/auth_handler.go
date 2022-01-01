@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
 
@@ -49,22 +48,22 @@ func (s *Server) signUp(w http.ResponseWriter, r *http.Request) {
 	var input Registration
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("signUp: can't decode request body: %v", err), http.StatusBadRequest)
+		s.errorJSON(w, http.StatusBadRequest, err)
 		return
 	}
 	err = input.ValidateSignUp(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		s.errorJSON(w, http.StatusBadRequest, err)
 		return
 	}
 	id, err := s.services.CreateUser(r.Context(), input.User)
 	if err != nil {
-		http.Error(w, "A similar user is already registered in the system", http.StatusConflict)
+		s.errorJSON(w, http.StatusConflict, err)
 		return
 	}
 	err = json.NewEncoder(w).Encode(userID{ID: id})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		logrus.Printf("signUp: error encoding json: %v", err)
 		return
 	}
@@ -94,24 +93,24 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	var input loginInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("login: can't decode request body: %v", err), http.StatusBadRequest)
+		s.errorJSON(w, http.StatusBadRequest, err)
 		return
 	}
 	err = input.ValidateSignIn(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		s.errorJSON(w, http.StatusBadRequest, err)
 		return
 	}
 	s.logger.Infoln(r.RemoteAddr)
 	token, err := s.services.GenerateToken(input.Email, input.Password)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error login: %v", err), http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		return
 	}
 	err = json.NewEncoder(w).Encode(tokenJWT{
 		Token: token})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		s.errorJSON(w, http.StatusInternalServerError, err)
 		s.logger.Printf("login: error encoding json: %v", err)
 		return
 	}

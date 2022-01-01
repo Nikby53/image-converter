@@ -49,7 +49,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			token:                "token",
 			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: "empty authorization handler\n",
+			expectedResponseBody: "{\"error\":\"empty authorization handler\"}\n",
 		},
 		{
 			name:                 "Invalid Header Value",
@@ -58,7 +58,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			token:                "token",
 			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: "invalid auth header\n",
+			expectedResponseBody: "{\"error\":\"invalid auth header\"}\n",
 		},
 		{
 			name:                 "Empty Token",
@@ -67,7 +67,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			token:                "token",
 			mockBehavior:         func(r *mocks.MockServicesInterface, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: "token is empty\n",
+			expectedResponseBody: "{\"error\":\"token is empty\"}\n",
 		},
 		{
 			name:        "Parse Error",
@@ -75,10 +75,10 @@ func TestHandler_userIdentity(t *testing.T) {
 			headerValue: "Bearer token",
 			token:       "token",
 			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
-				r.EXPECT().ParseToken(token).Return(0, fmt.Errorf("can't parse jwt token"))
+				r.EXPECT().ParseToken(token).Return(0, fmt.Errorf(""))
 			},
 			expectedStatusCode:   401,
-			expectedResponseBody: "can't parse jwt token\n",
+			expectedResponseBody: "{\"error\":\"can't parse jwt token: \"}\n",
 		},
 	}
 
