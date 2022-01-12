@@ -42,14 +42,15 @@ linters:
     - prealloc
     - gosimple
     - bodyclose
-    - whitespace # Supports --fix on golangci-tool, that will automatically fix all of the issues reported by this linter
+    - whitespace
     - gocognit
+
 
 issues:
   exclude-use-default: false
   max-same-issues: 10
   exclude-rules:
-    - path: _test\.go # Unused linter does not work correctly with tests in 'check-exported' mode, so they have to be manually excluded
+    - path: _test\.go
       linters:
         - unused
         - goconst
@@ -66,3 +67,29 @@ issues:
         - unused
         - goconst
         - bodyclose
+    - path: mocks.go
+      linters:
+        - nilerr
+        - importas
+        - revive
+        - godot
+        - gci
+        - exhaustive
+        - megacheck
+        - unconvert
+        - goconst
+        - misspell
+        - unparam
+        - gofmt
+        - goimports
+        - gocyclo
+        - gocritic
+        - govet
+        - unused
+        - prealloc
+        - gosimple
+        - bodyclose
+        - whitespace
+        - gocognit
+        - whitespace
+        - wsl

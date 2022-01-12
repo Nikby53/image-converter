@@ -54,7 +54,7 @@ var (
 				fmt.Printf("error in read body:%v", err)
 				return
 			}
-			if resp.StatusCode != 200 {
+			if resp.StatusCode != http.StatusOK {
 				fmt.Println(string(body))
 				return
 			}

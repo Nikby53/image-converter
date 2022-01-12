@@ -13,11 +13,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ErrorResponse struct is for json error response.
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 // Server are complex of routers and services.
 type Server struct {
 	router     *mux.Router
@@ -76,9 +71,13 @@ func (s *Server) initRouters() {
 	s.router.Handle("/docs", sh)
 }
 
+type errorResponse struct {
+	Error string `json:"error"`
+}
+
 func (s *Server) errorJSON(w http.ResponseWriter, statusCode int, errMsg error) {
 	w.WriteHeader(statusCode)
-	errRes := ErrorResponse{Error: errMsg.Error()}
+	errRes := errorResponse{Error: errMsg.Error()}
 	err := json.NewEncoder(w).Encode(&errRes)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

@@ -222,7 +222,8 @@ func TestHandler_downloadImage(t *testing.T) {
 				assert.Equal(t, tt.expectedDispositionHeader, actualDisposition)
 				assert.Equal(t, tt.expectedConTypeHeader, actualContentType)
 			} else {
-				resultBody, _ := ioutil.ReadAll(w.Result().Body)
+				resultBody, err := ioutil.ReadAll(w.Result().Body)
+				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, string(resultBody))
 			}
 		})
