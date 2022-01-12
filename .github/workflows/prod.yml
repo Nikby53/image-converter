@@ -3,7 +3,10 @@ name: CD
 on:
   push:
     branches:
-      - develop
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   Test:
