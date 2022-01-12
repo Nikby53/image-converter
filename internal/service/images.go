@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -15,12 +14,6 @@ import (
 	"github.com/Nikby53/image-converter/internal/repository"
 )
 
-var (
-	errUnableToDecode   = errors.New("unable to decode image")
-	errCantConvertInJPG = errors.New("can't convert in jpg")
-	errCantConvertInPNG = errors.New("can't convert in png")
-)
-
 const (
 	// JPG is for validation jpg image.
 	JPG = "jpg"
@@ -28,6 +21,7 @@ const (
 	PNG = "png"
 	// JPEG is for validation jpeg image.
 	JPEG = "jpeg"
+	done = "done"
 )
 
 // InsertImage inserts image information to database.
@@ -40,7 +34,7 @@ func (s *Service) InsertImage(ctx context.Context, filename, format string) (str
 func (s *Service) ConvertToType(sourceImage io.ReadSeeker, targetFormat string, ratio int) (io.ReadSeeker, error) {
 	img, _, err := image.Decode(sourceImage)
 	if err != nil {
-		return nil, errUnableToDecode
+		return nil, fmt.Errorf("error in decoding image, %w", err)
 	}
 	buf := new(bytes.Buffer)
 	switch targetFormat {
@@ -48,15 +42,15 @@ func (s *Service) ConvertToType(sourceImage io.ReadSeeker, targetFormat string, 
 		var enc png.Encoder
 		err := jpeg.Encode(buf, img, &jpeg.Options{Quality: ratio})
 		if err != nil {
-			return nil, fmt.Errorf("%w", err)
+			return nil, fmt.Errorf("error in encoding image %w", err)
 		}
 		err = enc.Encode(buf, img)
 		if err != nil {
-			return nil, errCantConvertInJPG
+			return nil, fmt.Errorf("error in encoding image %w", err)
 		}
 	case JPG, JPEG:
 		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: ratio}); err != nil {
-			return nil, errCantConvertInPNG
+			return nil, fmt.Errorf("error in encoding %w", err)
 		}
 	default:
 		return nil, fmt.Errorf("unsupported format: %s", targetFormat)
@@ -64,10 +58,6 @@ func (s *Service) ConvertToType(sourceImage io.ReadSeeker, targetFormat string, 
 
 	return bytes.NewReader(buf.Bytes()), nil
 }
-
-const (
-	done = "done"
-)
 
 // ConversionPayLoad is payload for Conversion.
 type ConversionPayLoad struct {

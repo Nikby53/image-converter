@@ -11,7 +11,7 @@ import (
 // Authorization contains methods for authorization of a user.
 type Authorization interface {
 	CreateUser(ctx context.Context, user models.User) (int, error)
-	GenerateToken(email, password string) (string, error)
+	GenerateToken(ctx context.Context, email, password string) (string, error)
 	ParseToken(accessToken string) (int, error)
 }
 

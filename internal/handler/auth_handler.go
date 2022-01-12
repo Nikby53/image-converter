@@ -101,8 +101,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		s.errorJSON(w, http.StatusBadRequest, err)
 		return
 	}
-	s.logger.Infoln(r.RemoteAddr)
-	token, err := s.services.GenerateToken(input.Email, input.Password)
+	token, err := s.services.GenerateToken(r.Context(), input.Email, input.Password)
 	if err != nil {
 		s.errorJSON(w, http.StatusInternalServerError, err)
 		return

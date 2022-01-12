@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -20,23 +21,29 @@ const (
 	UserCtxKey = "userID"
 )
 
+var (
+	errEmptyAuth         = errors.New("empty authorization handler")
+	errInvalidAuthHeader = errors.New("invalid auth header")
+	errTokenEmpty        = errors.New("token is empty")
+)
+
 // UserIdentity checks if the user is authorized or not.
 func (s *Server) userIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get(authorizationHeader)
 		if authHeader == "" {
-			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("empty authorization handler"))
+			s.errorJSON(w, http.StatusUnauthorized, errEmptyAuth)
 			return
 		}
 
 		HeaderParts := strings.Split(authHeader, " ")
 		if len(HeaderParts) != 2 || HeaderParts[0] != "Bearer" {
-			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("invalid auth header"))
+			s.errorJSON(w, http.StatusUnauthorized, errInvalidAuthHeader)
 			return
 		}
 
 		if HeaderParts[1] == "" {
-			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("token is empty"))
+			s.errorJSON(w, http.StatusUnauthorized, errTokenEmpty)
 			return
 		}
 		token := HeaderParts[1]

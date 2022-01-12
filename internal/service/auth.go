@@ -34,8 +34,8 @@ func (s *Service) CreateUser(ctx context.Context, user models.User) (id int, err
 }
 
 // GenerateToken generates jwt token for user.
-func (s *Service) GenerateToken(email, password string) (string, error) {
-	user, err := s.repo.GetUser(context.Background(), email)
+func (s *Service) GenerateToken(ctx context.Context, email, password string) (string, error) {
+	user, err := s.repo.GetUser(ctx, email)
 	if err != nil {
 		return "", err
 	}
@@ -58,7 +58,7 @@ func (s *Service) GenerateToken(email, password string) (string, error) {
 	return token.SignedString([]byte(conf.JWTConf.SigningKey))
 }
 
-// ParseToken parses token.
+// ParseToken parses  token.
 func (s *Service) ParseToken(accessToken string) (int, error) {
 	conf := configs.NewConfig()
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {

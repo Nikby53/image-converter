@@ -48,18 +48,18 @@ func (mr *MockAuthorizationMockRecorder) CreateUser(ctx, user interface{}) *gomo
 }
 
 // GenerateToken mocks base method.
-func (m *MockAuthorization) GenerateToken(email, password string) (string, error) {
+func (m *MockAuthorization) GenerateToken(ctx context.Context, email, password string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateToken", email, password)
+	ret := m.ctrl.Call(m, "GenerateToken", ctx, email, password)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GenerateToken indicates an expected call of GenerateToken.
-func (mr *MockAuthorizationMockRecorder) GenerateToken(email, password interface{}) *gomock.Call {
+func (mr *MockAuthorizationMockRecorder) GenerateToken(ctx, email, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthorization)(nil).GenerateToken), email, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthorization)(nil).GenerateToken), ctx, email, password)
 }
 
 // ParseToken mocks base method.
@@ -243,18 +243,18 @@ func (mr *MockServicesInterfaceMockRecorder) CreateUser(ctx, user interface{}) *
 }
 
 // GenerateToken mocks base method.
-func (m *MockServicesInterface) GenerateToken(email, password string) (string, error) {
+func (m *MockServicesInterface) GenerateToken(ctx context.Context, email, password string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateToken", email, password)
+	ret := m.ctrl.Call(m, "GenerateToken", ctx, email, password)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GenerateToken indicates an expected call of GenerateToken.
-func (mr *MockServicesInterfaceMockRecorder) GenerateToken(email, password interface{}) *gomock.Call {
+func (mr *MockServicesInterfaceMockRecorder) GenerateToken(ctx, email, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockServicesInterface)(nil).GenerateToken), email, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockServicesInterface)(nil).GenerateToken), ctx, email, password)
 }
 
 // GetImageByID mocks base method.

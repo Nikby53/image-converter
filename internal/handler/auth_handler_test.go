@@ -132,7 +132,7 @@ func TestHandler_login(t *testing.T) {
 				Password: "12332ferfwf1",
 			},
 			mockBehavior: func(r *mocks.MockServicesInterface, user models.User) {
-				r.EXPECT().GenerateToken(user.Email, user.Password)
+				r.EXPECT().GenerateToken(gomock.Any(), user.Email, user.Password)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: "{\"token\":\"\"}\n",
