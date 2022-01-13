@@ -14,7 +14,9 @@ type Logger struct {
 // NewLogger is constructor for Logger.
 func NewLogger() *Logger {
 	var baseLogger = log.New()
+
 	var standardLogger = &Logger{baseLogger}
+
 	standardLogger.logger.SetReportCaller(true)
 	standardLogger.logger.Formatter = &log.TextFormatter{
 		TimestampFormat:        "2006-01-02 15:04:05",
@@ -24,6 +26,7 @@ func NewLogger() *Logger {
 			return "", ""
 		},
 	}
+
 	return standardLogger
 }
 

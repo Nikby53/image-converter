@@ -6,27 +6,6 @@ on:
       - main
 
 jobs:
-  Test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout develop
-        uses: actions/checkout@v2
-
-      - name: Set Up Go 1.16
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.16
-
-      - name: Test
-        run: go test -short ./...
-  Linter:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.41
   Deploy:
     needs: [Test, Linter]
     runs-on: ubuntu-latest

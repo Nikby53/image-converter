@@ -8,7 +8,6 @@ import (
 
 	"github.com/Nikby53/image-converter/internal/logs"
 	"github.com/Nikby53/image-converter/internal/service"
-	"github.com/Nikby53/image-converter/internal/storage"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
@@ -16,21 +15,20 @@ import (
 // Server are complex of routers and services.
 type Server struct {
 	router     *mux.Router
-	services   service.ServicesInterface
-	storage    storage.StoragesInterface
+	service    service.Interface
 	httpServer *http.Server
 	logger     *logs.Logger
 }
 
 // NewServer configures server.
-func NewServer(src service.ServicesInterface, st storage.StoragesInterface) *Server {
+func NewServer(src service.Interface) *Server {
 	s := Server{
-		router:   mux.NewRouter(),
-		services: src,
-		storage:  st,
-		logger:   logs.NewLogger(),
+		router:  mux.NewRouter(),
+		service: src,
+		logger:  logs.NewLogger(),
 	}
 	s.initRouters()
+
 	return &s
 }
 
@@ -66,8 +64,10 @@ func (s *Server) initRouters() {
 	api.HandleFunc("/requests", s.requests).Methods("GET")
 	api.HandleFunc("/image/download/{id}", s.downloadImage).Methods("GET")
 	s.router.Handle("/swagger.yaml", http.FileServer(http.Dir("api/openapi-spec/")))
+
 	opts := middleware.SwaggerUIOpts{SpecURL: "swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)
+
 	s.router.Handle("/docs", sh)
 }
 
@@ -77,7 +77,9 @@ type errorResponse struct {
 
 func (s *Server) errorJSON(w http.ResponseWriter, statusCode int, errMsg error) {
 	w.WriteHeader(statusCode)
+
 	errRes := errorResponse{Error: errMsg.Error()}
+
 	err := json.NewEncoder(w).Encode(&errRes)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

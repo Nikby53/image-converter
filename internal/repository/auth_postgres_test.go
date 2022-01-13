@@ -15,8 +15,11 @@ func TestRepository_CreateUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+
 	query := "INSERT INTO users"
+
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
+
 	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
@@ -75,10 +78,13 @@ func TestRepository_GetUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+
 	query := "SELECT id, password FROM users"
+
 	type args struct {
 		email string
 	}
+
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
 	repo := New(sqlxDB)
 	tests := []struct {

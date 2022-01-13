@@ -33,6 +33,7 @@ func connectToAws(conf *AWSConfig) (*session.Session, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't create session, %w", err)
 	}
+
 	return s3session, nil
 }
 
@@ -51,6 +52,7 @@ func NewS3(conf *AWSConfig) (*Storage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &Storage{svc: svc, conf: conf}, nil
 }
 
@@ -75,6 +77,7 @@ func (s *Storage) DownloadImageFromID(fileID string) (string, error) {
 		Bucket: aws.String(s.conf.BucketName),
 		Key:    aws.String(fileID),
 	})
+
 	url, err := req.Presign(10 * time.Minute)
 	if err != nil {
 		return "", fmt.Errorf("can't create requets's presigned URL, %w", err)

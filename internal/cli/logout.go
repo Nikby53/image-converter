@@ -18,12 +18,15 @@ var (
 				fmt.Printf("error in executable:%v", err)
 				return
 			}
+
 			exDir := filepath.Dir(dir)
+
 			err = os.Remove(exDir + tokenFile)
 			if err != nil {
 				fmt.Printf("error in remove file:%v", err)
 				return
 			}
+
 			fmt.Println("You have successfully logged out")
 		},
 	}

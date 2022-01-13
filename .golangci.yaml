@@ -44,7 +44,7 @@ linters:
     - bodyclose
     - whitespace
     - gocognit
-
+    - wsl
 
 issues:
   exclude-use-default: false

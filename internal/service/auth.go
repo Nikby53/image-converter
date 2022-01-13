@@ -30,6 +30,7 @@ func (s *Service) CreateUser(ctx context.Context, user models.User) (id int, err
 	if err != nil {
 		return id, errGenHashPassword
 	}
+
 	return s.repo.CreateUser(ctx, user)
 }
 
@@ -39,14 +40,19 @@ func (s *Service) GenerateToken(ctx context.Context, email, password string) (st
 	if err != nil {
 		return "", err
 	}
+
 	if !comparePasswordHash(password, user.Password) {
 		return "", errWrongPassword
 	}
+
 	conf := configs.NewConfig()
+
 	jwtTTL, err := time.ParseDuration(conf.JWTConf.TokenTTL)
+
 	if err != nil {
 		return "", errGettingJWT
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(jwtTTL).Unix(),
@@ -58,7 +64,7 @@ func (s *Service) GenerateToken(ctx context.Context, email, password string) (st
 	return token.SignedString([]byte(conf.JWTConf.SigningKey))
 }
 
-// ParseToken parses  token.
+// ParseToken parses token.
 func (s *Service) ParseToken(accessToken string) (int, error) {
 	conf := configs.NewConfig()
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -68,6 +74,7 @@ func (s *Service) ParseToken(accessToken string) (int, error) {
 
 		return []byte(conf.JWTConf.SigningKey), nil
 	})
+
 	if err != nil {
 		return 0, err
 	}
@@ -82,10 +89,12 @@ func (s *Service) ParseToken(accessToken string) (int, error) {
 
 func generatePasswordHash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+
 	return string(bytes), err
 }
 
 func comparePasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+
 	return err == nil
 }

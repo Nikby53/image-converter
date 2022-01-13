@@ -17,11 +17,14 @@ func TestRepository_InsertImage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+
 	type args struct {
 		filename string
 		format   string
 	}
+
 	query := "INSERT INTO images"
+
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
 	repo := New(sqlxDB)
 	tests := []struct {
@@ -80,6 +83,7 @@ func TestRepository_RequestsHistory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+
 	type args struct {
 		sourceFormat string
 		targetFormat string
@@ -88,8 +92,11 @@ func TestRepository_RequestsHistory(t *testing.T) {
 		userID       int
 		ratio        int
 	}
+
 	query := "INSERT INTO request"
+
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
+
 	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
@@ -155,13 +162,17 @@ func TestRepository_UpdateRequest(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+
 	type args struct {
 		status   string
 		imageID  string
 		targetID string
 	}
+
 	query := "UPDATE request SET status"
+
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
+
 	repo := New(sqlxDB)
 	tests := []struct {
 		name    string
@@ -195,6 +206,7 @@ func TestRepository_UpdateRequest(t *testing.T) {
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
@@ -211,7 +223,9 @@ func TestRepository_GetRequestFromID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+
 	query := "SELECT created, updated, sourceformat, targetformat,status, ratio, filename, image_id, target_id FROM request"
+
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
 	repo := New(sqlxDB)
 
@@ -281,7 +295,9 @@ func TestRepository_GetImageByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
+
 	repo := New(sqlxDB)
 	query := "SELECT id, name, format FROM images"
 	tests := []struct {

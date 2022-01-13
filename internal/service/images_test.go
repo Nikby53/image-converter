@@ -17,17 +17,23 @@ import (
 func TestService_Conversion(t *testing.T) {
 	file, err := os.Create("image.jpg")
 	assert.NoError(t, err)
+
 	img := image.NewRGBA(image.Rect(0, 0, 20, 20))
+
 	for x := 0; x < 20; x++ {
 		for y := 0; y < 20; y++ {
 			img.Set(x, y, color.White)
 		}
 	}
+
 	picture, err := os.Open("image.jpg")
 	assert.NoError(t, err)
+
 	err = jpeg.Encode(file, img, nil)
 	assert.NoError(t, err)
+
 	type mockBehavior func(s *mocksstorage.MockStorageInterface, r *mockrepo.MockRepoInterface)
+
 	tests := []struct {
 		name          string
 		mockBehavior  mockBehavior
@@ -52,6 +58,7 @@ func TestService_Conversion(t *testing.T) {
 			expectedError: nil,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)

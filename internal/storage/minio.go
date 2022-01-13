@@ -35,6 +35,7 @@ func NewMinio(conf *MinioConfig) (*MinioStorage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create minio client. err: %w", err)
 	}
+
 	return &MinioStorage{
 		conf:        conf,
 		minioClient: minioClient,
@@ -48,6 +49,7 @@ func (m *MinioStorage) UploadFile(image io.ReadSeeker, fileID string) error {
 	if err != nil {
 		return fmt.Errorf("failed to upload file. err: %w", err)
 	}
+
 	return nil
 }
 
@@ -57,5 +59,6 @@ func (m *MinioStorage) DownloadImageFromID(fileID string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get file with id: %s, err: %w", fileID, err)
 	}
+
 	return url.String(), nil
 }

@@ -50,10 +50,12 @@ func (r *Repository) Transactional(f func(repo RepoInterface) error) error {
 	if !ok {
 		return errors.New("couldn't bring to DB")
 	}
+
 	tx, err := sqlDB.Beginx()
 	if err != nil {
 		return fmt.Errorf("couldn't start transaction:%w", err)
 	}
+
 	defer func() {
 		if err != nil {
 			err := tx.Rollback()
@@ -61,17 +63,21 @@ func (r *Repository) Transactional(f func(repo RepoInterface) error) error {
 				_ = fmt.Errorf("cannot rollback transaction:%w", err)
 				return
 			}
+
 			return
 		}
+
 		err = tx.Commit()
 		if err != nil {
 			_ = fmt.Errorf("cannot commit transaction: %w", err)
 			return
 		}
 	}()
+
 	err = f(&Repository{db: tx})
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

@@ -21,7 +21,6 @@ import (
 
 	"github.com/Nikby53/image-converter/internal/models"
 	"github.com/Nikby53/image-converter/internal/service/mocks"
-	"github.com/Nikby53/image-converter/internal/storage/mocksstorage"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -50,11 +49,14 @@ func TestHandler_requests(t *testing.T) {
 			TargetImgID:   "8",
 		},
 	}
+
 	requestJSON, err := json.MarshalIndent(request, "\t", "")
 	if err != nil {
 		t.Fatalf("can't marshal: %v", err)
 	}
-	type mockBehavior func(r *mocks.MockServicesInterface, token string, ctx context.Context)
+
+	type mockBehavior func(r *mocks.MockInterface, token string, ctx context.Context)
+
 	tests := []struct {
 		name                 string
 		mockBehavior         mockBehavior
@@ -67,7 +69,7 @@ func TestHandler_requests(t *testing.T) {
 	}{
 		{
 			name: "Ok",
-			mockBehavior: func(r *mocks.MockServicesInterface, token string, ctx context.Context) {
+			mockBehavior: func(r *mocks.MockInterface, token string, ctx context.Context) {
 				r.EXPECT().ParseToken(token).Return(1, nil)
 				r.EXPECT().GetRequestFromID(gomock.Any(), 1).Return(request, nil)
 			},
@@ -79,7 +81,7 @@ func TestHandler_requests(t *testing.T) {
 		},
 		{
 			name: "Repo error",
-			mockBehavior: func(r *mocks.MockServicesInterface, token string, ctx context.Context) {
+			mockBehavior: func(r *mocks.MockInterface, token string, ctx context.Context) {
 				r.EXPECT().ParseToken(token).Return(1, nil)
 				r.EXPECT().GetRequestFromID(gomock.Any(), 1).Return(nil, fmt.Errorf("mock error"))
 			},
@@ -91,7 +93,7 @@ func TestHandler_requests(t *testing.T) {
 		},
 		{
 			name:                 "Invalid token",
-			mockBehavior:         func(r *mocks.MockServicesInterface, token string, ctx context.Context) {},
+			mockBehavior:         func(r *mocks.MockInterface, token string, ctx context.Context) {},
 			headerName:           "Authorization",
 			headerValue:          "Bearer ",
 			token:                "token",
@@ -99,14 +101,14 @@ func TestHandler_requests(t *testing.T) {
 			expectedResponseBody: "{\"error\":\"token is empty\"}\n",
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			services := mocks.NewMockServicesInterface(c)
+			services := mocks.NewMockInterface(c)
 			tt.mockBehavior(services, tt.token, context.Background())
-			storage := Server{storage: nil}
-			server := NewServer(services, storage.storage)
+			server := NewServer(services)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/requests", nil)
 			req.Header.Set(tt.headerName, tt.headerValue)
@@ -123,7 +125,9 @@ func TestHandler_downloadImage(t *testing.T) {
 		Format: "png",
 		Name:   "image",
 	}
-	type mockBehavior func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, token string)
+
+	type mockBehavior func(w *mocks.MockInterface, token string)
+
 	tests := []struct {
 		name                      string
 		mockBehavior              mockBehavior
@@ -138,10 +142,10 @@ func TestHandler_downloadImage(t *testing.T) {
 	}{
 		{
 			name: "Ok",
-			mockBehavior: func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 				w.EXPECT().GetImageByID(gomock.Any(), gomock.Any()).Return(imageModel, nil)
-				r.EXPECT().DownloadImageFromID(imageModel.ID).Return("https://images-convert.s3.eu-central-1.amazonaws.com/image.png", nil)
+				w.EXPECT().DownloadImageFromID(imageModel.ID).Return("https://images-convert.s3.eu-central-1.amazonaws.com/image.png", nil)
 			},
 			headerName:                "Authorization",
 			headerValue:               "Bearer token",
@@ -153,7 +157,7 @@ func TestHandler_downloadImage(t *testing.T) {
 		},
 		{
 			name: "Repository error",
-			mockBehavior: func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 				w.EXPECT().GetImageByID(gomock.Any(), gomock.Any()).Return(imageModel, fmt.Errorf("repo mock error"))
 			},
@@ -166,10 +170,10 @@ func TestHandler_downloadImage(t *testing.T) {
 		},
 		{
 			name: "Can't download image",
-			mockBehavior: func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 				w.EXPECT().GetImageByID(gomock.Any(), gomock.Any()).Return(imageModel, nil)
-				r.EXPECT().DownloadImageFromID(imageModel.ID).Return("", fmt.Errorf("can't download image from id"))
+				w.EXPECT().DownloadImageFromID(imageModel.ID).Return("", fmt.Errorf("can't download image from id"))
 			},
 			headerName:           "Authorization",
 			headerValue:          "Bearer token",
@@ -180,10 +184,10 @@ func TestHandler_downloadImage(t *testing.T) {
 		},
 		{
 			name: "Client get error",
-			mockBehavior: func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 				w.EXPECT().GetImageByID(gomock.Any(), gomock.Any()).Return(imageModel, nil)
-				r.EXPECT().DownloadImageFromID(imageModel.ID).Return("mock", nil)
+				w.EXPECT().DownloadImageFromID(imageModel.ID).Return("mock", nil)
 			},
 			headerName:           "Authorization",
 			headerValue:          "Bearer token",
@@ -194,7 +198,7 @@ func TestHandler_downloadImage(t *testing.T) {
 		},
 		{
 			name:                 "Invalid token",
-			mockBehavior:         func(r *mocksstorage.MockStorageInterface, w *mocks.MockServicesInterface, token string) {},
+			mockBehavior:         func(w *mocks.MockInterface, token string) {},
 			headerName:           "Authorization",
 			headerValue:          "Bearer ",
 			token:                "token",
@@ -203,14 +207,14 @@ func TestHandler_downloadImage(t *testing.T) {
 			checkHeaders:         false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			services := mocks.NewMockServicesInterface(c)
-			st := mocksstorage.NewMockStorageInterface(c)
-			tt.mockBehavior(st, services, tt.token)
-			server := NewServer(services, st)
+			services := mocks.NewMockInterface(c)
+			tt.mockBehavior(services, tt.token)
+			server := NewServer(services)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/image/download/1", nil)
 			req.Header.Set(tt.headerName, tt.headerValue)
@@ -232,35 +236,42 @@ func TestHandler_downloadImage(t *testing.T) {
 
 func requestTest(t *testing.T, filename, paramName, url, targetFormat string, params map[string]string) *http.Request {
 	newFileName := strings.TrimSuffix(filename, "."+"png")
+
 	file, err := os.Create(newFileName + "." + targetFormat)
-	if err != nil {
-		assert.NoError(t, err)
-	}
+	assert.NoError(t, err)
+
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
 			assert.NoError(t, err)
 		}
 	}(file)
+
 	img := image.NewRGBA(image.Rect(0, 0, 20, 20))
+
 	for x := 0; x < 20; x++ {
 		for y := 0; y < 20; y++ {
 			img.Set(x, y, color.White)
 		}
 	}
+
 	err = jpeg.Encode(file, img, nil)
 	assert.NoError(t, err)
+
 	body := &bytes.Buffer{}
+
 	writer := multipart.NewWriter(body)
+
 	part, err := writer.CreateFormFile(paramName, filepath.Base(filename))
-	if err != nil {
-		assert.NoError(t, err)
-	}
+	assert.NoError(t, err)
+
 	_, err = io.Copy(part, file)
 	assert.NoError(t, err)
+
 	for key, val := range params {
 		_ = writer.WriteField(key, val)
 	}
+
 	err = writer.Close()
 	if err != nil {
 		assert.NoError(t, err)
@@ -268,12 +279,15 @@ func requestTest(t *testing.T, filename, paramName, url, targetFormat string, pa
 
 	req, err := http.NewRequest("POST", url, body)
 	assert.NoError(t, err)
+
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+
 	return req
 }
 
 func TestHandler_convert(t *testing.T) {
-	type mockBehavior func(w *mocks.MockServicesInterface, token string)
+	type mockBehavior func(w *mocks.MockInterface, token string)
+
 	tests := []struct {
 		name                 string
 		mockBehavior         mockBehavior
@@ -288,7 +302,7 @@ func TestHandler_convert(t *testing.T) {
 	}{
 		{
 			name: "Ok",
-			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 				w.EXPECT().Conversion(gomock.Any(), gomock.Any()).
 					Return("1", nil)
@@ -308,7 +322,7 @@ func TestHandler_convert(t *testing.T) {
 		},
 		{
 			name: "invalid ratio",
-			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil).Times(1)
 			},
 			headerName:  "Authorization",
@@ -326,7 +340,7 @@ func TestHandler_convert(t *testing.T) {
 		},
 		{
 			name: "name of the format should not be empty",
-			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 			},
 			headerName:  "Authorization",
@@ -344,7 +358,7 @@ func TestHandler_convert(t *testing.T) {
 		},
 		{
 			name: "invalid header value",
-			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 			},
 			headerName:  "Authorization",
@@ -362,7 +376,7 @@ func TestHandler_convert(t *testing.T) {
 		},
 		{
 			name: "Source format should be jpg",
-			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 			},
 			headerName:  "Authorization",
@@ -380,7 +394,7 @@ func TestHandler_convert(t *testing.T) {
 		},
 		{
 			name: "Source format should be png",
-			mockBehavior: func(w *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(w *mocks.MockInterface, token string) {
 				w.EXPECT().ParseToken(token).Return(1, nil)
 			},
 			headerName:  "Authorization",
@@ -398,7 +412,7 @@ func TestHandler_convert(t *testing.T) {
 		},
 		{
 			name: "can't parse jwt token",
-			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(r *mocks.MockInterface, token string) {
 				r.EXPECT().ParseToken(token).Return(1, fmt.Errorf("")).Times(1)
 			},
 			headerName:  "Authorization",
@@ -416,7 +430,7 @@ func TestHandler_convert(t *testing.T) {
 		},
 		{
 			name: "Can't convert",
-			mockBehavior: func(r *mocks.MockServicesInterface, token string) {
+			mockBehavior: func(r *mocks.MockInterface, token string) {
 				r.EXPECT().ParseToken(token).Return(1, nil)
 				r.EXPECT().Conversion(gomock.Any(), gomock.Any()).Return("0", fmt.Errorf("can't convert image"))
 			},
@@ -434,14 +448,14 @@ func TestHandler_convert(t *testing.T) {
 			expectedResponseBody: "{\"error\":\"can't convert image\"}\n",
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			services := mocks.NewMockServicesInterface(c)
+			services := mocks.NewMockInterface(c)
 			tt.mockBehavior(services, tt.token)
-			storage := Server{storage: nil}
-			server := NewServer(services, storage.storage)
+			server := NewServer(services)
 			w := httptest.NewRecorder()
 			req := requestTest(t, "image.png", tt.formValue, "/image/convert", tt.targetFormat, tt.params)
 			req.Header.Set(tt.headerName, tt.headerValue)

@@ -23,10 +23,11 @@ type Images interface {
 	UpdateRequest(ctx context.Context, status, imageID, targetID string) error
 	GetImageByID(ctx context.Context, id string) (models.Images, error)
 	Conversion(ctx context.Context, payload ConversionPayLoad) (string, error)
+	DownloadImageFromID(fileID string) (string, error)
 }
 
-// ServicesInterface holds Authorization and Images interfaces.
-type ServicesInterface interface {
+// Interface holds Authorization and Images interfaces.
+type Interface interface {
 	Authorization
 	Images
 }

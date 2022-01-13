@@ -46,12 +46,15 @@ func (s *Server) userIdentity(next http.Handler) http.Handler {
 			s.errorJSON(w, http.StatusUnauthorized, errTokenEmpty)
 			return
 		}
+
 		token := HeaderParts[1]
-		userID, err := s.services.ParseToken(token)
+
+		userID, err := s.service.ParseToken(token)
 		if err != nil {
 			s.errorJSON(w, http.StatusUnauthorized, fmt.Errorf("can't parse jwt token: %w", err))
 			return
 		}
+
 		ctx := context.WithValue(r.Context(), UserIDCtx(UserCtxKey), userID)
 		r = r.Clone(ctx)
 		next.ServeHTTP(w, r)
@@ -86,12 +89,15 @@ func panicHandler(w http.ResponseWriter) {
 // GetIDFromContext get user's id from context.
 func (s *Server) GetIDFromContext(ctx context.Context) (int, error) {
 	userIDCtx := ctx.Value(UserIDCtx(UserCtxKey))
+
 	if userIDCtx == nil {
 		return 0, fmt.Errorf("can't get id from context")
 	}
+
 	userID, ok := userIDCtx.(int)
 	if !ok {
 		return 0, fmt.Errorf("can't convert to int")
 	}
+
 	return userID, nil
 }
