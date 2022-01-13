@@ -1,0 +1,236 @@
+openapi: 3.0.0
+info:
+  title: Image Converter API
+  description: Service that expose a RESTful API to convert JPEG to PNG and vice versa and compress the image
+    with the compression ratio specified by the user. The user has the ability to view the history and status of
+    their requests (for example, queued, processed, completed) and upload the original image and the processed one.
+  version: 1.1.0
+servers:
+  - url: http://localhost:8000/
+  - url: http://ec2-54-93-239-106.eu-central-1.compute.amazonaws.com:8000/
+paths:
+  /auth/login:
+    post:
+      summary: User authorization
+      tags:
+        - auth
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequest'
+      responses:
+        200:
+          description: The user has successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  JWT-token:
+                    type: string
+                    format: JWT
+              example:
+                JWT-token: |
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzM5Njk5MjMsImlhdCI6MTYzMzk1NTUyMywiaWQiOjV9.qoWhUboKD9OjgUUL6BkInQKZrZklWUIlAhbCWW9nl7A
+        500:
+          description: internal server error
+  /auth/signup:
+    post:
+      summary: User registration
+      tags:
+        - auth
+      requestBody:
+        $ref: '#/components/requestBodies/UserRequest'
+      responses:
+        201:
+          description: The user has successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: string
+              example:
+                id: 1
+        401:
+          description: unauthorized user
+        500:
+          description: internal server error
+  /image/convert:
+    post:
+      summary: Create a request to convert an image
+      tags:
+        - image
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConversionRequest'
+      responses:
+        201:
+          description: The request successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: string
+              example:
+                id: '18'
+        400:
+          description: Bad request
+        401:
+          description: unauthorized user
+        500:
+          description: internal server error
+  /image/download/{id}:
+    get:
+      summary: Download needed image by id
+      tags:
+        - image
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Needed image id
+          required: true
+          schema:
+            type: string
+            format: string
+          example:
+            2
+      responses:
+        200:
+          description: The image is ready to download
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+                    description: link for download each available file in AWS S3 bucket
+              example:
+                link: Download
+        400:
+          description: Bad request
+        401:
+          description: unauthorized user
+        404:
+          description: Not found
+        500:
+          description: internal server error
+  /requests:
+    get:
+      summary: Get user request history
+      tags:
+        - requests
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: The user gets the request history of the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RequestsHistoryResponse'
+        500:
+          description: internal server error
+        401:
+          description: unauthorized user
+components:
+  schemas:
+    RequestsHistoryResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+          format: string
+        status:
+          type: string
+          description: sting
+        source_format:
+          type: string
+          format: string
+        target_format:
+          type: string
+          format: string
+        ratio:
+          type: integer
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: timestamp
+        original_img_id:
+          type: string
+          format:  timestamp
+        target_img_id:
+          type: string
+          format: string
+      example:
+        filename: websitepng
+        status: done
+        source_format: png
+        target_format: jpg
+        ratio: 65
+        created: 2020-10-11 T 20:17:03 Z
+        updated: 2020-10-11 T 20:17:14 Z
+        original_img_id: 31
+        target_img_id: 32
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Enter JWT Bearer token only
+      bearerFormat: JWT
+  requestBodies:
+    UserRequest:
+      description: A JSON object represened as user to add to the system
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+          example:
+            email: qwerty@gmail.com
+            password: qwerty
+    ConversionRequest:
+      description: A JSON object consisting of image file, format to convert, and compression ratio
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              image:
+                type: string
+                format: binary
+              sourceFormat:
+                type: string
+                enum: [jpg, jpeg, png]
+              targetFormat:
+                type: string
+                enum: [jpg, jpeg, png]
+              ratio:
+                type: integer
+                minimum: 1
+                maximum: 99
+                description: Image compression ratio
+          example:
+            file: sequence of bytes
+            source_format: png
+            target_format: jpeg
+            ratio: 77
