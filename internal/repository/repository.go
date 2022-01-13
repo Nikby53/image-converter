@@ -44,7 +44,7 @@ func New(db *sqlx.DB) *Repository {
 	}
 }
 
-// Transactional func begins transactions,rollback and commit them.
+// Transactional func implement atomicity,it begins transactions,rollback and commit them.
 func (r *Repository) Transactional(f func(repo RepoInterface) error) error {
 	sqlDB, ok := r.db.(*sqlx.DB)
 	if !ok {
