@@ -7,7 +7,6 @@ on:
 
 jobs:
   Deploy:
-    needs: [Test, Linter]
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
