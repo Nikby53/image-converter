@@ -73,7 +73,7 @@ func (r *Repository) GetRequestFromID(ctx context.Context, userID int) ([]models
 
 		err := rows.Scan(&r.Created, &r.Updated, &r.SourceFormat, &r.TargetFormat, &r.Status, &r.Ratio, &r.Filename, &r.OriginalImgID, &r.TargetImgID)
 		if err != nil {
-			return []models.Request{}, fmt.Errorf("%w", err)
+			return []models.Request{}, fmt.Errorf("can't get request, %w", err)
 		}
 
 		requestModel = append(requestModel, r)
