@@ -2,5 +2,5 @@
 cd /home/ec2-user/app
 sudo yum update -y
 sudo systemctl start docker
-docker system prune
+docker system prune -f
 docker-compose up -d --build
