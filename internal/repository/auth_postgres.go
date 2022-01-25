@@ -21,7 +21,7 @@ func (r *Repository) CreateUser(ctx context.Context, user models.User) (int, err
 	return id, nil
 }
 
-// GetUser gets the user.
+// GetUser gets the user id and password.
 func (r *Repository) GetUser(ctx context.Context, email string) (models.User, error) {
 	var user models.User
 
