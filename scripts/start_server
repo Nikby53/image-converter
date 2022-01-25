@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2164
 cd /home/ec2-user/app
 sudo yum update -y
 sudo systemctl start docker
