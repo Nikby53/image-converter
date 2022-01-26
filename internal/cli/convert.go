@@ -66,7 +66,7 @@ with the compression ratio`,
 
 			_, err = io.Copy(part, file)
 			if err != nil {
-				fmt.Printf("error in copy image: %v", err)
+				fmt.Printf("error in copy the image: %v", err)
 				return
 			}
 
