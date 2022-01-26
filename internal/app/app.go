@@ -20,7 +20,7 @@ import (
 // Start starts the server.
 func Start(logger *logs.Logger) error {
 	if err := godotenv.Load(); err != nil {
-		logger.Fatalf("error loading env variables: %s", err.Error())
+		logger.Fatalf("error in loading env variables: %s", err.Error())
 	}
 
 	conf := configs.NewConfig()
