@@ -87,7 +87,7 @@ type loginInput struct {
 	Password string `json:"password"`
 }
 
-// ValidateSignIn validates signIp handler.
+// ValidateSignIn validates login handler.
 func (r *loginInput) ValidateSignIn(req *http.Request) error {
 	if r.Email == "" {
 		return errEmailEmpty
