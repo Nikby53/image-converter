@@ -1,12 +1,11 @@
 package configs
 
 import (
-	"github.com/aws/aws-sdk-go/service/ssm"
-
+	"github.com/Nikby53/image-converter/internal/storage"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-
-	"github.com/Nikby53/image-converter/internal/storage"
+	"github.com/aws/aws-sdk-go/service/ssm"
+	log "github.com/sirupsen/logrus"
 )
 
 // Config struct contains all configs.
@@ -40,147 +39,81 @@ func NewConfig() *Config {
 		Config:            aws.Config{Region: aws.String("us-east-1")},
 		SharedConfigState: session.SharedConfigEnable,
 	})
+
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to create new session %v", err)
 	}
 
 	ssmsvc := ssm.New(sess, aws.NewConfig().WithRegion("us-east-1"))
-	paramDBHost, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("DB_HOST"),
+	paramsDB, err := ssmsvc.GetParameters(&ssm.GetParametersInput{
+		Names:          aws.StringSlice([]string{"DB_HOST", "DB_PORT", "DB_USERNAME", "DB_PASSWORD", "DB_NAME", "DB_SSL_MODE"}),
 		WithDecryption: aws.Bool(false),
 	})
+
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to get db parameters %v", err)
 	}
 
-	paramDBPort, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("DB_PORT"),
+	paramsStorage, err := ssmsvc.GetParameters(&ssm.GetParametersInput{
+		Names:          aws.StringSlice([]string{"BUCKET_NAME", "ACC_ID", "SECRET_KEY", "REGION"}),
 		WithDecryption: aws.Bool(false),
 	})
+
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to get storage parameters %v", err)
 	}
 
-	paramDBUser, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("DB_USERNAME"),
+	paramsJWT, err := ssmsvc.GetParameters(&ssm.GetParametersInput{
+		Names:          aws.StringSlice([]string{"JWT_TOKEN_TTL", "JWT_SIGNING_KEY"}),
 		WithDecryption: aws.Bool(false),
 	})
-	if err != nil {
-		panic(err)
-	}
 
-	paramDBPass, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("DB_PASSWORD"),
-		WithDecryption: aws.Bool(false),
-	})
 	if err != nil {
-		panic(err)
-	}
-
-	paramDBName, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("DB_NAME"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	paramDBSSL, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("DB_SSL_MODE"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	paramBucket, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("BUCKET_NAME"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	paramAccID, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("ACC_ID"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	paramSecKey, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("SECRET_KEY"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	paramRegion, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("REGION"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	paramJWTTtl, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("JWT_TOKEN_TTL"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	paramJWTSign, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String("JWT_SIGNING_KEY"),
-		WithDecryption: aws.Bool(false),
-	})
-	if err != nil {
-		panic(err)
+		log.Fatalf("failed to get jwt parameters %v", err)
 	}
 
 	paramMinio, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
 		Name:           aws.String("MINIO_ENDPOINT"),
 		WithDecryption: aws.Bool(false),
 	})
+
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to get minio parameters %v", err)
 	}
 
 	paramPort, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
 		Name:           aws.String("API_PORT"),
 		WithDecryption: aws.Bool(false),
 	})
+
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to get api parameters %v", err)
 	}
 
 	return &Config{
 		DBConf: &DBConfig{
-			Host:     *paramDBHost.Parameter.Value,
-			Port:     *paramDBPort.Parameter.Value,
-			Username: *paramDBUser.Parameter.Value,
-			Password: *paramDBPass.Parameter.Value,
-			DBName:   *paramDBName.Parameter.Value,
-			SSLMode:  *paramDBSSL.Parameter.Value,
+			Host:     *paramsDB.Parameters[0].Value,
+			Port:     *paramsDB.Parameters[3].Value,
+			Username: *paramsDB.Parameters[5].Value,
+			Password: *paramsDB.Parameters[2].Value,
+			DBName:   *paramsDB.Parameters[1].Value,
+			SSLMode:  *paramsDB.Parameters[4].Value,
 		},
 		AWSConf: &storage.AWSConfig{
-			BucketName: *paramBucket.Parameter.Value,
-			AccID:      *paramAccID.Parameter.Value,
-			SecretKey:  *paramSecKey.Parameter.Value,
-			Region:     *paramRegion.Parameter.Value,
+			BucketName: *paramsStorage.Parameters[1].Value,
+			AccID:      *paramsStorage.Parameters[0].Value,
+			SecretKey:  *paramsStorage.Parameters[3].Value,
+			Region:     *paramsStorage.Parameters[2].Value,
 		},
 		JWTConf: &JWTConfig{
-			TokenTTL:   *paramJWTTtl.Parameter.Value,
-			SigningKey: *paramJWTSign.Parameter.Value,
+			TokenTTL:   *paramsJWT.Parameters[1].Value,
+			SigningKey: *paramsJWT.Parameters[0].Value,
 		},
 		MinioConf: &storage.MinioConfig{
-			BucketName: *paramBucket.Parameter.Value,
-			AccID:      *paramAccID.Parameter.Value,
-			SecretKey:  *paramSecKey.Parameter.Value,
-			Region:     *paramRegion.Parameter.Value,
+			BucketName: *paramsStorage.Parameters[1].Value,
+			AccID:      *paramsStorage.Parameters[0].Value,
+			SecretKey:  *paramsStorage.Parameters[3].Value,
+			Region:     *paramsStorage.Parameters[2].Value,
 			Endpoint:   *paramMinio.Parameter.Value,
 		},
 		APIPort: *paramPort.Parameter.Value,

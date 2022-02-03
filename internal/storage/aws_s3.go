@@ -50,7 +50,7 @@ func initS3ServiceClient(conf *AWSConfig) (*s3.S3, error) {
 func NewS3(conf *AWSConfig) (*Storage, error) {
 	svc, err := initS3ServiceClient(conf)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error in")
 	}
 
 	return &Storage{svc: svc, conf: conf}, nil
