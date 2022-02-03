@@ -14,15 +14,10 @@ import (
 	"github.com/Nikby53/image-converter/internal/repository"
 	"github.com/Nikby53/image-converter/internal/service"
 	"github.com/Nikby53/image-converter/internal/storage"
-	"github.com/joho/godotenv"
 )
 
 // Start starts the server.
 func Start(logger *logs.Logger) error {
-	if err := godotenv.Load(); err != nil {
-		logger.Fatalf("error in loading env variables: %s", err.Error())
-	}
-
 	conf := configs.NewConfig()
 
 	db, err := repository.NewPostgresDB(conf.DBConf)

@@ -10,5 +10,4 @@ FROM public.ecr.aws/docker/library/alpine:latest
 WORKDIR /app
 COPY --from=builder ["/app/main", "/app"]
 COPY ["/api/openapi-spec/swagger.yaml", "/app/api/openapi-spec/"]
-COPY ["./.env", "/app"]
 CMD ["sh", "-c", "/app/main"]
